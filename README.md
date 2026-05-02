@@ -1,117 +1,88 @@
 # Retail Web Application
 
-A modern e-commerce web application with React frontend and Node.js backend.
+Ứng dụng thương mại điện tử với frontend React và backend Node.js/Express, tích hợp phân tích hành vi mua sắm bằng luật kết hợp (Apriori, FP-Growth).
 
-## Features
+## Tính năng chính
 
-- User authentication and authorization with JWT
-- Product browsing, filtering, and search
-- Shopping cart and wishlist functionality
-- Order processing and tracking
-- Admin dashboard for product, order, and user management
-- Real-time API status monitoring
-- Responsive design for all devices
+- Đăng ký, đăng nhập, xác thực người dùng bằng JWT
+- Quản lý sản phẩm, danh mục, thuộc tính, đơn hàng
+- Giỏ hàng và wishlist (hỗ trợ cả người dùng khách)
+- Trang quản trị với thống kê và báo cáo
+- Gợi ý sản phẩm và phân tích sản phẩm thường mua cùng nhau
+- Giao diện responsive cho desktop và mobile
 
-## Tech Stack
+## Công nghệ sử dụng
 
 ### Frontend
-- React 19
-- Redux Toolkit and RTK Query
+- React
+- Redux Toolkit + RTK Query
 - React Router
-- Bootstrap 5
-- Recharts for analytics visualization
+- Bootstrap
+- Recharts
 
 ### Backend
-- Node.js with Express
-- MongoDB with Mongoose
-- JWT authentication
-- Swagger for API documentation
+- Node.js + Express
+- MongoDB + Mongoose
+- JWT
+- Swagger
 
-## Getting Started
+## Hướng dẫn chạy dự án
 
-### Prerequisites
-- Node.js (v16 or later)
-- MongoDB (local or cloud instance)
+### Yêu cầu
+- Node.js (khuyến nghị >= 16)
+- MongoDB (local hoặc cloud)
 
-### Installation
-
-1. Clone the repository:
-```
+### Cài đặt
+1. Clone mã nguồn:
+```bash
 git clone <repository-url>
 cd DMProject
 ```
 
-2. Install all dependencies:
-```
+2. Cài toàn bộ dependencies:
+```bash
 npm run install:all
 ```
 
-3. Set up environment variables:
-   - Create a `.env` file in the `backend/node` directory with the following:
-   ```
-   PORT=5000
-   MONGO_URI=your_mongodb_connection_string
-   JWT_SECRET=your_jwt_secret
-   ```
-
-4. Start the development servers:
+3. Tạo file `backend/node/.env`:
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
 ```
+
+4. Chạy cả frontend + backend:
+```bash
 npm start
 ```
 
-This will start both frontend and backend servers concurrently:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000/api
-- Swagger documentation: http://localhost:5000/api-docs
+### Địa chỉ chạy mặc định
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:5000/api`
+- Swagger: `http://localhost:5000/api-docs`
 
-## API Integration
+## API recommendation đang dùng
 
-The frontend communicates with the backend through RESTful API endpoints. Key integrations include:
+- `GET /api/recommend/user`: gợi ý cho luồng người dùng
+- `GET /api/recommend/admin`: gợi ý cho luồng admin
+- `GET /api/products/deal-hot`: danh sách sản phẩm Deal Hot
+- `GET /api/admin/reports/frequently-bought-together`: báo cáo frequent itemsets cho admin
 
-- Authentication (login, register, profile management)
-- Products (listing, details, search, filtering)
-- Cart operations (add, update, remove items)
-- Order processing (checkout, history, status)
-- Admin operations (product/user management, analytics)
+## Cấu trúc thư mục
 
-## Optimizations
-
-This project implements several optimizations:
-
-- RTK Query for efficient API data fetching and caching
-- Lazy loading for components and routes
-- Responsive image optimization
-- API status monitoring
-- Error boundaries for fault tolerance
-
-## Project Structure
-
-```
-retail-web-app/
-├── backend/
-│   └── node/
-│       ├── config/
-│       ├── controllers/
-│       ├── middlewares/
-│       ├── models/
-│       ├── routes/
-│       ├── services/
-│       ├── utils/
-│       ├── server.js
-│       └── ...
+```text
+DMProject/
+├── backend/node/
+│   ├── config/
+│   ├── controllers/
+│   ├── middlewares/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   └── server.js
 ├── frontend/
 │   ├── public/
-│   ├── src/
-│   │   ├── assets/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── pages/
-│   │   ├── redux/
-│   │   ├── services/
-│   │   ├── styles/
-│   │   ├── utils/
-│   │   ├── App.js
-│   │   └── ...
-│   └── ...
+│   └── src/
 └── package.json
-``` 
+```
