@@ -5,6 +5,7 @@ import AdminLayout from './AdminLayout';
 import './AdminStats.css';
 import { 
   useGetDashboardStatsQuery,
+  useGetTopProductsQuery,
   useGetProductAnalyticsQuery,
   useGetUserAnalyticsQuery,
   useGetOrderAnalyticsQuery
@@ -12,6 +13,10 @@ import {
 
 const AdminStats = () => {
   const { data: dashboardStats, isLoading: statsLoading, error: statsError } = useGetDashboardStatsQuery();
+  const { data: topProducts = [], isLoading: topProductsLoading } = useGetTopProductsQuery({
+    limit: 10,
+    timeRange: 'month'
+  });
   const { data: productAnalytics, isLoading: productLoading } = useGetProductAnalyticsQuery();
   const { data: userAnalytics, isLoading: userLoading } = useGetUserAnalyticsQuery();
   const { data: orderAnalytics, isLoading: orderLoading } = useGetOrderAnalyticsQuery();
@@ -31,7 +36,7 @@ const AdminStats = () => {
 
   // Get top products data
   const getTopProducts = () => {
-    return productAnalytics?.topProducts || [];
+    return topProducts || [];
   };
 
   // Get sales by category data
@@ -165,7 +170,13 @@ const AdminStats = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {getTopProducts().map((product, index) => (
+                          {topProductsLoading ? (
+                            <tr>
+                              <td colSpan="3" className="text-center py-3">
+                                <Spinner animation="border" size="sm" />
+                              </td>
+                            </tr>
+                          ) : getTopProducts().map((product, index) => (
                             <tr key={index}>
                               <td>{product.name}</td>
                               <td>{product.totalSales || 0}</td>

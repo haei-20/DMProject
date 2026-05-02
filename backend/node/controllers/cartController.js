@@ -79,7 +79,6 @@ exports.getCart = async (req, res) => {
 
       if (!cart) return res.status(200).json({ message: "Giỏ hàng trống", items: [], recommendations: [] });
 
-      // Lấy đề xuất sản phẩm dựa trên giỏ hàng hiện tại
       const recommendations = await getCartRecommendations(cart.items);
 
       return res.status(200).json({
@@ -99,7 +98,6 @@ exports.getCart = async (req, res) => {
 
       if (!guestCart) return res.status(200).json({ message: "Giỏ hàng trống", items: [], recommendations: [] });
 
-      // Lấy đề xuất sản phẩm dựa trên giỏ hàng hiện tại
       const recommendations = await getCartRecommendations(guestCart.items);
 
       return res.status(200).json({

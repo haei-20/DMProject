@@ -10,12 +10,12 @@ import {
 } from 'react-icons/fa';
 import { 
   useGetDashboardStatsQuery,
-  useGetProductAnalyticsQuery,
   useGetUserAnalyticsQuery,
   useGetOrderAnalyticsQuery,
   useGetFrequentlyBoughtTogetherQuery,
   useGetSalesReportQuery,
-  useGetTopProductsQuery
+  useGetTopProductsQuery,
+  useGetDealHotQuery
 } from '../../services/api';
 import AdminLayout from './AdminLayout';
 import RecentOrdersTable from '../../components/admin/RecentOrdersTable';
@@ -29,13 +29,18 @@ import { Link } from 'react-router-dom';
 const AdminDashboard = () => {
   const [period, setPeriod] = useState('monthly');
   const { data: dashboardStats, isLoading: statsLoading, error: statsError } = useGetDashboardStatsQuery();
-  const { data: productAnalytics, isLoading: productLoading } = useGetProductAnalyticsQuery();
+  const { data: topProducts = [], isLoading: topProductsLoading, error: topProductsError } = useGetTopProductsQuery({
+    limit: 5,
+    timeRange: 'month'
+  });
   const { data: userAnalytics, isLoading: userLoading } = useGetUserAnalyticsQuery();
   const { data: orderAnalytics, isLoading: orderLoading } = useGetOrderAnalyticsQuery();
+  const { data: dealHotData, isLoading: dealHotLoading } = useGetDealHotQuery({ limit: 3 });
   const { data: frequentlyBoughtTogetherData, isLoading: frequentlyBoughtTogetherLoading } = useGetFrequentlyBoughtTogetherQuery({
-    minSupport: 0.00001,
+    // Dùng ngưỡng an toàn để tránh query quá nặng khiến API trả rỗng/timeout
+    minSupport: 0.01,
     limit: 20,
-    orderLimit: 1000000
+    orderLimit: 500
   });
   
   // Debug user authentication
@@ -150,7 +155,7 @@ const AdminDashboard = () => {
   
   // Get top products data
   const getTopProducts = () => {
-    return productAnalytics?.topProducts || [];
+    return topProducts || [];
   };
   
   // Get recent orders
@@ -308,7 +313,7 @@ const AdminDashboard = () => {
                 <h5 className="mb-0">Deal Hot</h5>
               </Card.Header>
               <Card.Body>
-                {productLoading ? (
+                {dealHotLoading ? (
                   <div className="chart-loader">
                     <Spinner animation="border" variant="primary" />
                   </div>
@@ -320,13 +325,12 @@ const AdminDashboard = () => {
                       </Badge>
                     </div>
                     <div className="deal-products">
-                      {(productAnalytics?.topProducts || [])
-                        .filter(product => product.category?.name === "Deal hot" || product.category === "Deal hot")
+                      {(dealHotData?.products || [])
                         .slice(0, 3)
                         .map((product, index) => (
                           <div key={index} className="deal-product-item">
                             <div className="deal-product-image">
-                              {product.image ? (
+                              {product.image?.trim() ? (
                                 <img src={product.image} alt={product.name} />
                               ) : (
                                 <div className="placeholder-image">
@@ -354,12 +358,10 @@ const AdminDashboard = () => {
                             </div>
                           </div>
                         ))}
-                      {(productAnalytics?.topProducts || []).filter(product => 
-                        product.category?.name === "Deal hot" || product.category === "Deal hot"
-                      ).length === 0 && (
+                      {(dealHotData?.products || []).length === 0 && (
                         <div className="no-deals-message">
                           <Alert variant="info">
-                            Không có sản phẩm Deal Hot. Vui lòng thêm sản phẩm vào danh mục "Deal hot".
+                            Không có sản phẩm Deal Hot hợp lệ. Hãy kiểm tra giá sale và thời gian hiệu lực.
                           </Alert>
                         </div>
                       )}
@@ -466,8 +468,8 @@ const AdminDashboard = () => {
               <Card.Body className="p-0 dashboard-table-body">
                 <TopProductsTable 
                   products={getTopProducts()} 
-                  loading={productLoading} 
-                  error={productAnalytics === undefined && !productLoading ? { message: 'Could not load product analytics' } : null} 
+                  loading={topProductsLoading} 
+                  error={topProductsError ? { message: topProductsError?.data?.message || 'Could not load top products' } : null} 
                 />
               </Card.Body>
             </Card>

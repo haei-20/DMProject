@@ -995,6 +995,13 @@ export const api = createApi({
     getDashboardStats: builder.query({
       query: () => '/dashboard/stats',
     }),
+    getTopProducts: builder.query({
+      query: (params = {}) => ({
+        url: '/dashboard/top-products',
+        params,
+      }),
+      transformResponse: (response) => response?.products || [],
+    }),
     
     // Analytics endpoints
     getProductAnalytics: builder.query({
@@ -1048,10 +1055,18 @@ export const api = createApi({
     
     // Recommendation engine
     getRecommendedProducts: builder.query({
-      query: () => '/recommend/products',
+      // Backend hiện expose endpoint recommendation ở /recommend/user
+      query: () => '/recommend/user',
       providesTags: ['Product'],
       transformResponse: (response) => {
-        return response || { products: [] };
+        // Chuẩn hóa response về cùng shape { products: [...] } cho UI
+        if (response?.products && Array.isArray(response.products)) {
+          return response;
+        }
+        if (response?.recommendations && Array.isArray(response.recommendations)) {
+          return { products: response.recommendations };
+        }
+        return { products: [] };
       },
       // Add robust error handling
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
@@ -1341,6 +1356,7 @@ export const {
   useDeleteProductMutation,
   useGetAdminOrdersQuery,
   useGetDashboardStatsQuery,
+  useGetTopProductsQuery,
   useGetProductAnalyticsQuery,
   useGetUserAnalyticsQuery,
   useGetOrderAnalyticsQuery,

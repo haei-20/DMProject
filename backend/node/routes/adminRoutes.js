@@ -248,7 +248,7 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
     // Lấy tham số từ query string và kiểm tra hợp lệ
     let minSupport = parseFloat(req.query.minSupport) || 0.01;
     const limit = parseInt(req.query.limit) || 50;
-    const orderLimit = parseInt(req.query.orderLimit) || 1000;
+    let orderLimit = parseInt(req.query.orderLimit) || 1000;
     
     // Đảm bảo minSupport là số hợp lệ và không quá nhỏ để tránh quá tải
     if (isNaN(minSupport) || minSupport <= 0) {
@@ -259,6 +259,14 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
       console.log("minSupport đã được điều chỉnh lên 0.01 để đảm bảo hiệu năng");
     } else if (minSupport > 1) {
       minSupport = 1; // Support không thể lớn hơn 1 (100%)
+    }
+
+    // Giới hạn orderLimit để tránh query quá nặng gây timeout/empty result
+    if (isNaN(orderLimit) || orderLimit <= 0) {
+      orderLimit = 1000;
+    } else if (orderLimit > 5000) {
+      orderLimit = 5000;
+      console.log("orderLimit đã được giới hạn về 5000 để đảm bảo hiệu năng");
     }
     
     console.log(`Processing frequently-bought-together request with: minSupport=${minSupport}, limit=${limit}, orderLimit=${orderLimit}`);

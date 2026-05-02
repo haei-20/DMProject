@@ -553,14 +553,12 @@ exports.getFrequentlyBoughtTogether = async (req, res) => {
   try {
     const minSupport = parseFloat(req.query.minSupport) || 0.05;
     const limit = parseInt(req.query.limit) || 20;
-    
-    const frequentItemsets = await getFrequentlyBoughtTogether(minSupport, limit);
-    
-    res.status(200).json({
-      frequentItemsets,
-      message: "Danh sách sản phẩm thường được mua cùng nhau",
-      success: true
-    });
+    const orderLimit = parseInt(req.query.orderLimit) || 1000;
+
+    const result = await getFrequentlyBoughtTogether(minSupport, limit, orderLimit);
+
+    // Forward the service result directly to the client (includes frequentItemsets, message, success, info)
+    res.status(200).json(result);
   } catch (error) {
     console.error("Error getting frequently bought together products:", error);
     res.status(500).json({ 

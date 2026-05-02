@@ -23,6 +23,7 @@ const ProductCard = ({ product, inWishlist = false }) => {
   const [removeFromWishlist, { isLoading: isRemovingFromWishlist }] = useRemoveFromWishlistMutation();
   
   const isWishlistLoading = isAddingToWishlist || isRemovingFromWishlist;
+  const productImage = product?.image?.trim() ? product.image : '/images/placeholder.png';
   
   // Add state for showing success toast
   const [showToast, setShowToast] = useState(false);
@@ -153,7 +154,7 @@ const ProductCard = ({ product, inWishlist = false }) => {
         <div className="product-image-container">
           <Card.Img 
             variant="top" 
-            src={product.image} 
+            src={productImage} 
             alt={product.name} 
             className="product-image"
             onError={(e) => {

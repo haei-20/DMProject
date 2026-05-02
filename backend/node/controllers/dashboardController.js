@@ -293,16 +293,34 @@ exports.getTopSellingProducts = async (req, res) => {
           image: { $first: "$orderItems.image" }
         }
       },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productDetails"
+        }
+      },
+      {
+        $unwind: {
+          path: "$productDetails",
+          preserveNullAndEmptyArrays: true
+        }
+      },
       { $sort: { totalSold: -1 } },
       { $limit: Number(limit) },
       {
         $project: {
-          _id: 0,
-          productId: "$_id",
-          productName: 1,
-          totalSold: 1,
+          _id: { $ifNull: ["$productDetails._id", "$_id"] },
+          name: { $ifNull: ["$productDetails.name", "$productName"] },
+          category: { $ifNull: ["$productDetails.category", null] },
+          price: { $ifNull: ["$productDetails.price", 0] },
+          stock: { $ifNull: ["$productDetails.stock", 0] },
+          salePrice: { $ifNull: ["$productDetails.salePrice", 0] },
+          countInStock: { $ifNull: ["$productDetails.countInStock", "$productDetails.stock"] },
+          totalSales: "$totalSold",
           totalRevenue: 1,
-          image: 1
+          image: { $ifNull: ["$productDetails.image", "$image"] }
         }
       }
     ]);
