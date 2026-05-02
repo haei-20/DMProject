@@ -1,0 +1,25 @@
+{
+  "name": "retail-web-app",
+  "version": "1.0.0",
+  "description": "Retail web application with React frontend and Node.js backend",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd backend/node && npm run dev",
+    "start:frontend": "cd frontend && npm start",
+    "install:all": "npm i && cd backend/node && npm i && cd ../../frontend && npm i",
+    "build": "cd frontend && npm run build"
+  },
+  "keywords": [
+    "retail",
+    "ecommerce",
+    "react",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.0",
+    "express-async-handler": "^1.2.0"
+  }
+}
