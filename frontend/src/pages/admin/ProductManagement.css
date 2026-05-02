@@ -1,0 +1,263 @@
+/* ProductManagement.css - Styles for the admin product management page */
+
+.admin-page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--admin-text-primary);
+}
+
+.admin-text-muted {
+  color: var(--admin-text-secondary);
+}
+
+/* Tabs styling */
+.admin-tabs {
+  border-bottom: 0;
+  padding: 0 1.5rem;
+}
+
+.admin-tabs .nav-link {
+  position: relative;
+  padding: 1rem 1.5rem;
+  color: var(--admin-text-secondary);
+  font-weight: 500;
+  border: none;
+  margin-right: 1rem;
+  transition: all 0.2s ease;
+}
+
+.admin-tabs .nav-link:hover {
+  color: var(--admin-text-primary);
+  background: transparent;
+}
+
+.admin-tabs .nav-link.active {
+  color: var(--admin-primary);
+  background: transparent;
+}
+
+.admin-tabs .nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--admin-primary);
+  border-radius: 2px 2px 0 0;
+}
+
+/* Product item styling */
+.admin-product-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-product-image {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--admin-border-radius);
+  border: 1px solid var(--admin-border-color);
+  background-color: #f8f8f8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.admin-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-product-image svg {
+  color: var(--admin-gray-400);
+  font-size: 1.2rem;
+}
+
+.admin-product-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-product-name {
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+}
+
+.admin-product-sku {
+  font-size: 0.85rem;
+}
+
+.admin-badge-sm {
+  font-size: 0.7rem;
+  padding: 0.2em 0.4em;
+}
+
+/* Product actions */
+.admin-product-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.admin-btn-icon {
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.admin-me-1 {
+  margin-right: 0.25rem;
+}
+
+.admin-me-2 {
+  margin-right: 0.5rem;
+}
+
+.admin-fw-medium {
+  font-weight: 500;
+}
+
+.admin-pw-1 {
+  padding: 0.25rem;
+}
+
+/* Empty state */
+.admin-empty-icon {
+  font-size: 3rem;
+  color: var(--admin-gray-300);
+  margin-bottom: 1rem;
+}
+
+/* Badge styles */
+.admin-badge-rounded {
+  border-radius: 20px;
+  padding: 0.35em 0.8em;
+}
+
+/* Table styles */
+.admin-table-hover tbody tr:hover {
+  background-color: var(--admin-gray-50);
+}
+
+.admin-table-responsive {
+  overflow-x: auto;
+}
+
+/* Modal styles */
+.admin-text-center {
+  text-align: center;
+}
+
+.admin-modal-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.admin-modal-icon-danger {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--admin-danger);
+}
+
+.admin-modal .modal-header {
+  border-bottom: 1px solid var(--admin-border-color);
+}
+
+.admin-modal .modal-footer {
+  border-top: 1px solid var(--admin-border-color);
+}
+
+/* Product detail modal styles */
+.admin-product-detail-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--admin-border-radius);
+  overflow: hidden;
+  background-color: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  border: 1px solid var(--admin-border-color);
+}
+
+.admin-product-detail-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-product-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--admin-gray-400);
+}
+
+.admin-product-placeholder svg {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.admin-product-detail-row {
+  display: flex;
+  margin-bottom: 0.75rem;
+}
+
+.admin-product-detail-label {
+  width: 120px;
+  color: var(--admin-text-secondary);
+}
+
+.admin-product-detail-value {
+  flex: 1;
+}
+
+.admin-product-description {
+  background-color: var(--admin-gray-50);
+  border-radius: var(--admin-border-radius);
+  padding: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--admin-text-primary);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .admin-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding: 0;
+  }
+  
+  .admin-tabs .nav-link {
+    padding: 1rem 0.75rem;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+  }
+  
+  .admin-product-detail-label {
+    width: 100px;
+  }
+} 

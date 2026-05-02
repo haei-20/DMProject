@@ -1,0 +1,92 @@
+.general-settings-page h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.settings-nav {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.settings-nav .nav-link {
+  padding: 15px;
+  border-radius: 0;
+  border-left: 4px solid transparent;
+  color: #495057;
+}
+
+.settings-nav .nav-link.active {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+  border-left: 4px solid #0d6efd;
+}
+
+.settings-nav .nav-link:hover:not(.active) {
+  background-color: #f8f9fa;
+  border-left: 4px solid #dee2e6;
+}
+
+/* Form styling */
+.card {
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: none;
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-text {
+  font-size: 0.78rem;
+}
+
+.tab-content h4 {
+  color: #2c3e50;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.image-preview {
+  border: 1px solid #dee2e6;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: white;
+  display: inline-block;
+}
+
+.save-button {
+  min-width: 140px;
+}
+
+/* Tab animation */
+.tab-content .tab-pane {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .settings-nav {
+    margin-bottom: 20px;
+  }
+  
+  .settings-nav .nav-link {
+    padding: 10px 15px;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+  }
+  
+  .settings-nav .nav-link.active {
+    border-left: none;
+    border-bottom: 2px solid #0d6efd;
+  }
+} 

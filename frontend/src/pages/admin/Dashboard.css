@@ -1,0 +1,484 @@
+/* Dashboard.css - Styles for the admin dashboard page */
+
+/* Text colors */
+.admin-text-success {
+  color: var(--admin-success) !important;
+}
+
+.admin-text-danger {
+  color: var(--admin-danger) !important;
+}
+
+.admin-text-muted {
+  color: var(--admin-text-secondary) !important;
+}
+
+/* Stat cards */
+.admin-stat-card {
+  border: none;
+  border-radius: var(--admin-border-radius);
+  box-shadow: var(--admin-shadow-sm);
+  transition: all 0.3s ease;
+  height: 100%;
+  overflow: hidden;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-stat-card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-stat-card-info {
+  flex: 1;
+}
+
+.admin-stat-card-title {
+  font-size: 0.85rem;
+  color: var(--admin-text-secondary);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.admin-stat-card-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--admin-text-primary);
+}
+
+.admin-stat-card-change {
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0;
+}
+
+.admin-stat-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+/* Stat card colors */
+.admin-stat-card-primary .admin-stat-card-icon {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: var(--admin-primary);
+}
+
+.admin-stat-card-info .admin-stat-card-icon {
+  background-color: rgba(59, 201, 219, 0.1);
+  color: #3bc9db;
+}
+
+.admin-stat-card-success .admin-stat-card-icon {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--admin-success);
+}
+
+.admin-stat-card-warning .admin-stat-card-icon {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: var(--admin-warning);
+}
+
+.admin-stat-card-danger .admin-stat-card-icon {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--admin-danger);
+}
+
+/* Chart card */
+.admin-card-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-chart-tabs {
+  border: none;
+}
+
+.admin-chart-tabs .nav-link {
+  border: none;
+  padding: 0.5rem 1rem;
+  color: var(--admin-text-secondary);
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+
+.admin-chart-tabs .nav-link.active {
+  color: var(--admin-primary);
+  background-color: transparent;
+  font-weight: 500;
+}
+
+.admin-chart-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-chart-legend {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.admin-chart-legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.admin-chart-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 8px;
+}
+
+.admin-chart-legend-label {
+  flex: 1;
+}
+
+.admin-chart-legend-value {
+  font-weight: 600;
+}
+
+/* Links */
+.admin-link {
+  color: var(--admin-primary);
+  font-size: 0.9rem;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.admin-link:hover {
+  text-decoration: underline;
+}
+
+/* Loader */
+.admin-loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 320px;
+}
+
+/* Inventory summary */
+.admin-inventory-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-inventory-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.admin-inventory-stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.admin-inventory-total {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: var(--admin-primary);
+}
+
+.admin-inventory-low {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: var(--admin-warning);
+}
+
+.admin-inventory-out {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--admin-danger);
+}
+
+.admin-inventory-stat-info h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.admin-inventory-stat-info p {
+  color: var(--admin-text-secondary);
+  margin-bottom: 0;
+  font-size: 0.9rem;
+}
+
+.admin-inventory-category {
+  margin-bottom: 1rem;
+}
+
+/* Reviews */
+.admin-reviews-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-review-item {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--admin-border-color);
+}
+
+.admin-review-item:last-child {
+  border-bottom: none;
+}
+
+.admin-review-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.admin-review-user {
+  display: flex;
+  align-items: center;
+}
+
+.admin-review-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--admin-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-right: 0.75rem;
+}
+
+.admin-review-rating {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+}
+
+.admin-star-filled {
+  color: #ffb400;
+}
+
+.admin-star-empty {
+  color: #e0e0e0;
+}
+
+.admin-review-date {
+  font-size: 0.8rem;
+  color: var(--admin-text-secondary);
+}
+
+.admin-review-product {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.admin-review-content {
+  font-size: 0.9rem;
+  color: var(--admin-text-secondary);
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
+/* Notifications */
+.admin-notifications-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-notification-item {
+  display: flex;
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--admin-border-color);
+}
+
+.admin-notification-item:last-child {
+  border-bottom: none;
+}
+
+.admin-notification-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.admin-notification-warning .admin-notification-icon {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: var(--admin-warning);
+}
+
+.admin-notification-success .admin-notification-icon {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--admin-success);
+}
+
+.admin-notification-primary .admin-notification-icon {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: var(--admin-primary);
+}
+
+.admin-notification-info .admin-notification-icon {
+  background-color: rgba(33, 150, 243, 0.1);
+  color: var(--admin-info);
+}
+
+.admin-notification-content {
+  flex: 1;
+}
+
+.admin-notification-content h6 {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.admin-notification-content p {
+  font-size: 0.9rem;
+  color: var(--admin-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.admin-notification-time {
+  font-size: 0.8rem;
+  color: var(--admin-text-secondary);
+}
+
+/* Badges */
+.admin-badge {
+  padding: 0.35em 0.65em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.admin-badge-success {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--admin-success);
+}
+
+.admin-badge-info {
+  background-color: rgba(33, 150, 243, 0.1);
+  color: var(--admin-info);
+}
+
+.admin-badge-warning {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: var(--admin-warning);
+}
+
+.admin-badge-danger {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--admin-danger);
+}
+
+.admin-badge-primary {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: var(--admin-primary);
+}
+
+/* Spacing */
+.admin-mt-3 {
+  margin-top: 1rem;
+}
+
+.admin-mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+.admin-mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.admin-mb-3 {
+  margin-bottom: 1rem;
+}
+
+.admin-mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.admin-me-1 {
+  margin-right: 0.25rem;
+}
+
+.admin-me-2 {
+  margin-right: 0.5rem;
+}
+
+.admin-p-0 {
+  padding: 0 !important;
+}
+
+/* Order ID styling */
+.admin-order-id {
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .admin-inventory-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .admin-chart-legend {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-stat-card-value {
+    font-size: 1.5rem;
+  }
+  
+  .admin-stat-card-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+  }
+  
+  .admin-inventory-stat-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+  
+  .admin-card-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .admin-chart-tabs {
+    margin-top: 0.75rem;
+  }
+} 

@@ -1,0 +1,126 @@
+/* OrderManagement.css - Styles for the admin order management page */
+
+/* Customer info */
+.admin-customer-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-customer-name {
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.admin-customer-email {
+  font-size: 0.85rem;
+}
+
+/* Order ID styling */
+.admin-order-id {
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* Order actions */
+.admin-order-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Order detail modal */
+.admin-order-detail-section {
+  margin-bottom: 1.5rem;
+}
+
+.admin-order-detail-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--admin-text-primary);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--admin-border-color);
+}
+
+.admin-order-detail-row {
+  display: flex;
+  margin-bottom: 0.75rem;
+}
+
+.admin-order-detail-label {
+  width: 120px;
+  font-weight: 500;
+  color: var(--admin-text-secondary);
+}
+
+.admin-order-detail-value {
+  flex: 1;
+}
+
+/* Product image in order details */
+.admin-product-image-sm {
+  width: 40px;
+  height: 40px;
+  margin-right: 0.75rem;
+}
+
+/* Badge styles */
+.admin-badge-rounded {
+  border-radius: 20px;
+  padding: 0.35em 0.8em;
+}
+
+/* Typography utilities */
+.admin-text-muted {
+  color: var(--admin-text-secondary);
+}
+
+.admin-fw-bold {
+  font-weight: 600;
+}
+
+.admin-fw-medium {
+  font-weight: 500;
+}
+
+/* Spacing utilities */
+.admin-my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-me-1 {
+  margin-right: 0.25rem;
+}
+
+.admin-mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.admin-py-5 {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+/* Empty state */
+.admin-empty-icon {
+  font-size: 3rem;
+  color: var(--admin-gray-300);
+  margin-bottom: 1rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .admin-order-detail-row {
+    flex-direction: column;
+  }
+  
+  .admin-order-detail-label {
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+  
+  .admin-order-actions {
+    flex-wrap: wrap;
+  }
+} 

@@ -1,0 +1,109 @@
+.coupon-list h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.coupon-table {
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.coupon-table thead th {
+  background-color: #f8f9fa;
+  color: #2c3e50;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.coupon-table td, .coupon-table th {
+  vertical-align: middle;
+}
+
+/* Coupon code styling */
+.coupon-code {
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 2px 5px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Copy button styling */
+.copy-button {
+  color: #6c757d;
+  transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+  color: #0d6efd;
+  transform: scale(1.1);
+}
+
+/* Copied badge animation */
+.copied-badge {
+  font-size: 0.75rem;
+  color: #28a745;
+  margin-left: 5px;
+  animation: fadeInOut 2s ease;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Usage count styling */
+.usage-count {
+  font-weight: 500;
+}
+
+/* Date range display */
+.date-range {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.date-range svg {
+  color: #666;
+}
+
+/* Status toggle button */
+.status-toggle svg {
+  font-size: 1.4rem;
+}
+
+/* Inactive row styling */
+.inactive-row {
+  background-color: #f9f9f9;
+  opacity: 0.75;
+}
+
+/* Animation for refresh button */
+.spin-animation {
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Form styling */
+.modal-body .form-text {
+  font-size: 0.78rem;
+}
+
+.modal-body .form-label {
+  font-weight: 500;
+}
+
+.modal-body .text-danger {
+  font-weight: bold;
+} 

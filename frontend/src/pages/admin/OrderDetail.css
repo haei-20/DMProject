@@ -1,0 +1,72 @@
+.order-detail-container {
+  padding: 20px;
+}
+
+.order-detail-container h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.order-detail-container h5 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.order-detail-container .card {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.order-detail-container .card-header {
+  background-color: #f8f9fa;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.order-detail-container .card-body {
+  padding: 20px;
+}
+
+.order-detail-container .table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.order-detail-container p {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.order-detail-container .badge {
+  font-size: 14px;
+  padding: 6px 10px;
+}
+
+.order-detail-container .btn-refresh {
+  border-radius: 4px;
+  padding: 8px 15px;
+}
+
+/* Định dạng cho chi tiết sản phẩm */
+.order-detail-container .table img {
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .order-detail-container {
+    padding: 15px;
+  }
+  
+  .order-detail-container h1 {
+    font-size: 20px;
+  }
+  
+  .order-detail-container .card-body {
+    padding: 15px;
+  }
+} 

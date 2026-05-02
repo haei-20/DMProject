@@ -1,0 +1,132 @@
+/* NotificationsPage.css */
+
+.page-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-item {
+  display: flex;
+  padding: 1.25rem;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background-color: #f9f9f9;
+}
+
+.notification-item.unread {
+  background-color: rgba(67, 97, 238, 0.05);
+}
+
+.notification-item.unread:hover {
+  background-color: rgba(67, 97, 238, 0.08);
+}
+
+.notification-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  flex-shrink: 0;
+  background-color: #f5f5f5;
+}
+
+.notification-icon {
+  font-size: 1.25rem;
+}
+
+.notification-icon.order-placed {
+  color: #4361ee;
+}
+
+.notification-icon.order-confirmed {
+  color: #2a9d8f;
+}
+
+.notification-icon.order-shipped {
+  color: #e76f51;
+}
+
+.notification-icon.order-delivered {
+  color: #38b000;
+}
+
+.notification-icon.order-cancelled {
+  color: #d62828;
+}
+
+.notification-icon.payment-failed {
+  color: #f72585;
+}
+
+.notification-icon.default {
+  color: #4361ee;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.notification-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0;
+  color: #333;
+}
+
+.notification-text {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.notification-order-link {
+  margin-bottom: 0.5rem;
+}
+
+.notification-order-link a {
+  font-size: 0.85rem;
+  color: #4361ee;
+  text-decoration: none;
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: rgba(67, 97, 238, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.notification-order-link a:hover {
+  background-color: rgba(67, 97, 238, 0.15);
+  text-decoration: none;
+}
+
+.notification-time {
+  font-size: 0.8rem;
+  color: #777;
+} 

@@ -1,0 +1,279 @@
+.modern-admin-dashboard {
+  padding: 1.5rem;
+  background-color: #f9fafc;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #1a1a1a;
+  font-size: 1.75rem;
+}
+
+.dashboard-subtitle {
+  color: #6c757d;
+  margin-bottom: 0;
+  font-size: 0.95rem;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Stats cards styling */
+.stats-row {
+  margin-bottom: 1rem;
+}
+
+.modern-stat-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+  height: 100%;
+  background-color: white;
+}
+
+.modern-stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.stat-card-content {
+  padding: 0.5rem 0;
+}
+
+.stat-card-title {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.stat-card-value {
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+  color: #212529;
+}
+
+.stat-card-description {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 0;
+}
+
+.stat-card-icon {
+  width: 55px;
+  height: 55px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.stat-trend {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.trend-up {
+  background-color: rgba(76, 201, 240, 0.1);
+  color: #4cc9f0;
+}
+
+.trend-down {
+  background-color: rgba(247, 37, 133, 0.1);
+  color: #f72585;
+}
+
+/* Chart card styling */
+.modern-chart-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  overflow: hidden;
+  height: 100%;
+  background-color: white;
+}
+
+.chart-card-header {
+  background-color: white;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 1.25rem 1.5rem;
+}
+
+.chart-card-header h5 {
+  margin-bottom: 0;
+  font-weight: 600;
+  color: #212529;
+}
+
+.modern-chart-tabs {
+  border: none;
+}
+
+.modern-chart-tabs .nav-link {
+  border: none;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+  border-radius: 6px;
+  margin-left: 0.25rem;
+}
+
+.modern-chart-tabs .nav-link.active {
+  background-color: rgba(67, 97, 238, 0.1);
+  border: none;
+  color: #4361ee;
+  font-weight: 500;
+}
+
+.chart-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+}
+
+/* Table card styling */
+.modern-table-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  overflow: hidden;
+  height: 100%;
+  background-color: white;
+}
+
+.modern-table-card .card-header {
+  background-color: white;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 1.25rem 1.5rem;
+  position: relative;
+  z-index: 5;
+  overflow: hidden;
+  min-height: 64px;
+}
+
+.modern-table-card .card-header h5 {
+  position: relative;
+  z-index: 6;
+  margin-left: 0.5rem;
+}
+
+.modern-table-card .card-body {
+  position: relative;
+  z-index: 1;
+}
+
+.dashboard-table-body {
+  max-height: 430px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dashboard-table-body thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.btn-view-all {
+  background: none;
+  border: none;
+  color: #4361ee;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0;
+  cursor: pointer;
+}
+
+.btn-view-all:hover {
+  text-decoration: underline;
+}
+
+/* Alert styling */
+.modern-alert {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  padding: 1rem 1.5rem;
+}
+
+/* Chart legend */
+.chart-legend {
+  display: flex;
+  gap: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* Responsive styling */
+@media (max-width: 992px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .dashboard-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 767px) {
+  .modern-admin-dashboard {
+    padding: 1rem;
+  }
+  
+  .stat-card-value {
+    font-size: 1.5rem;
+  }
+  
+  .stat-card-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 1.2rem;
+  }
+} 

@@ -1,0 +1,151 @@
+.frequently-bought-together-card {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+}
+
+.filter-controls {
+  max-width: 240px;
+}
+
+.product-combination {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-item-combo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 8px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  position: relative;
+}
+
+.product-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: white;
+  border: 1px solid #eee;
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  background-color: #4a6cf7;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.no-image {
+  width: 100%;
+  height: 100%;
+  background-color: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+}
+
+.product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-name {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-meta {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #6c757d;
+  gap: 8px;
+}
+
+.product-category {
+  color: #4a6cf7;
+  background: rgba(74, 108, 247, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.link-icon {
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 50%;
+  color: #6c757d;
+  z-index: 1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.support-column {
+  width: 180px;
+}
+
+.support-value {
+  font-weight: 500;
+  margin-bottom: 5px;
+  white-space: nowrap;
+}
+
+.support-bar {
+  height: 6px;
+  background-color: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.support-fill {
+  height: 100%;
+  background-color: #4a6cf7;
+  border-radius: 3px;
+}
+
+/* Fix badge display to prevent unwanted spaces */
+.badge {
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.frequency-badge {
+  letter-spacing: -0.02em;
+  font-size: 0.85em;
+} 

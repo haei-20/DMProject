@@ -1,0 +1,174 @@
+.payment-settings-page h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.settings-nav {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.settings-nav .nav-link {
+  padding: 15px;
+  border-radius: 0;
+  border-left: 4px solid transparent;
+  color: #495057;
+}
+
+.settings-nav .nav-link.active {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+  border-left: 4px solid #0d6efd;
+}
+
+.settings-nav .nav-link:hover:not(.active) {
+  background-color: #f8f9fa;
+  border-left: 4px solid #dee2e6;
+}
+
+/* Form styling */
+.card {
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: none;
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-text {
+  font-size: 0.78rem;
+}
+
+.tab-content h4 {
+  color: #2c3e50;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.save-button {
+  min-width: 140px;
+}
+
+/* Payment methods table */
+.payment-methods-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.payment-methods-table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  color: #495057;
+  font-weight: 600;
+  padding: 12px 15px;
+}
+
+.payment-methods-table td {
+  padding: 15px;
+  vertical-align: middle;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Payment icons */
+.payment-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.cod-icon {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.bank-icon {
+  background-color: #e3f2fd;
+  color: #0d6efd;
+}
+
+.credit-card-icon {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+.ewallet-icon {
+  background-color: #fff3cd;
+  color: #ffc107;
+}
+
+/* Gateway cards */
+.gateway-card {
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+.gateway-card .card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 15px;
+}
+
+.gateway-logo {
+  font-size: 24px;
+}
+
+.momo-icon {
+  width: 24px;
+  height: 24px;
+  background-color: #ae2070;
+  color: white;
+  font-weight: bold;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Disabled gateway styling */
+.disabled-gateway {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Tab animation */
+.tab-content .tab-pane {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .settings-nav {
+    margin-bottom: 20px;
+  }
+  
+  .settings-nav .nav-link {
+    padding: 10px 15px;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+  }
+  
+  .settings-nav .nav-link.active {
+    border-left: none;
+    border-bottom: 2px solid #0d6efd;
+  }
+} 

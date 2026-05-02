@@ -1,0 +1,192 @@
+.shipping-settings-page h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+/* Navigation styling */
+.settings-nav {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.settings-nav .nav-link {
+  padding: 15px;
+  border-radius: 0;
+  border-left: 4px solid transparent;
+  color: #495057;
+}
+
+.settings-nav .nav-link.active {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+  border-left: 4px solid #0d6efd;
+}
+
+.settings-nav .nav-link:hover:not(.active) {
+  background-color: #f8f9fa;
+  border-left: 4px solid #dee2e6;
+}
+
+/* Card styling */
+.card {
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: none;
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-text {
+  font-size: 0.78rem;
+}
+
+.tab-content h4 {
+  color: #2c3e50;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.save-button {
+  min-width: 140px;
+}
+
+/* Shipping methods table */
+.shipping-methods-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.shipping-methods-table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  color: #495057;
+  font-weight: 600;
+  padding: 12px 15px;
+}
+
+.shipping-methods-table td {
+  padding: 15px;
+  vertical-align: middle;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Packaging table */
+.packaging-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.packaging-table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  color: #495057;
+  font-weight: 600;
+  padding: 12px 15px;
+}
+
+.packaging-table td {
+  padding: 15px;
+  vertical-align: middle;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Zone rates table */
+.zone-rates-table {
+  margin-top: 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.zone-rates-table thead th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  padding: 8px 15px;
+}
+
+.zone-rates-table td {
+  padding: 8px 15px;
+  vertical-align: middle;
+}
+
+/* Zone card styling */
+.zone-card {
+  margin-bottom: 1.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.zone-card .card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 12px 15px;
+}
+
+/* Editing card styling */
+.editing-card {
+  border: 1px solid rgba(13, 110, 253, 0.2);
+  margin-bottom: 1.5rem;
+  background-color: rgba(13, 110, 253, 0.02);
+}
+
+.editing-card .card-header {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+  font-weight: 500;
+}
+
+/* Action buttons */
+.action-btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Status badge styling */
+.status-badge {
+  cursor: pointer;
+  padding: 6px 10px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.status-badge:hover {
+  opacity: 0.8;
+}
+
+/* Tab animation */
+.tab-content .tab-pane {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .settings-nav {
+    margin-bottom: 20px;
+  }
+  
+  .settings-nav .nav-link {
+    padding: 10px 15px;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+  }
+  
+  .settings-nav .nav-link.active {
+    border-left: none;
+    border-bottom: 2px solid #0d6efd;
+  }
+} 

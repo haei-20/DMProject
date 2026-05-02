@@ -1,0 +1,151 @@
+/* AccountDrawer.css */
+
+.account-drawer-header {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  overflow: hidden;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #D25B70;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.user-name {
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+  color: #333;
+}
+
+.user-email {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0;
+}
+
+.account-drawer-options {
+  padding: 1rem 0;
+}
+
+.account-option-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.account-option-item:hover {
+  background-color: #f8f9fa;
+}
+
+.option-left {
+  display: flex;
+  align-items: center;
+}
+
+.option-icon {
+  margin-right: 1rem;
+}
+
+.option-name {
+  font-size: 1rem;
+  color: #333;
+}
+
+.option-right {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.account-drawer-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #f0f0f0;
+  text-align: center;
+}
+
+.logout-btn {
+  color: #D25B70;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-btn:hover {
+  color: #b23f56;
+}
+
+.logout-icon {
+  margin-right: 0.5rem;
+}
+
+.account-drawer-login {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.account-drawer-login-message h3 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.account-drawer-login-message p {
+  margin-bottom: 1.5rem;
+  color: #666;
+}
+
+.account-drawer-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.signin-btn, .register-btn {
+  padding: 0.75rem 1rem;
+}
+
+.signin-btn {
+  background-color: #D25B70;
+  border-color: #D25B70;
+}
+
+.signin-btn:hover {
+  background-color: #b23f56;
+  border-color: #b23f56;
+} 

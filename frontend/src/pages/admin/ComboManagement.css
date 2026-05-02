@@ -1,0 +1,233 @@
+/* ComboManagement.css */
+
+.combo-list-card {
+  margin-bottom: 2rem;
+}
+
+.combo-name-cell {
+  max-width: 300px;
+}
+
+.combo-builder-card {
+  margin-bottom: 2rem;
+}
+
+.combo-products-table .product-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f8f9fa;
+}
+
+.combo-products-table .product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.combo-summary-card {
+  position: sticky;
+  top: 20px;
+}
+
+.combo-summary {
+  margin-bottom: 1.5rem;
+}
+
+.combo-summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.combo-summary-item.highlight {
+  background-color: #f8f9fc;
+  padding: 0.75rem 0.5rem;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+  border: 1px solid #e9ecef;
+}
+
+.combo-summary-item .price {
+  font-weight: 600;
+}
+
+.combo-summary-item .original-price {
+  color: #6c757d;
+  text-decoration: line-through;
+}
+
+.combo-summary-item .discounted-price {
+  color: #dc3545;
+  font-size: 1.2rem;
+}
+
+.combo-summary-item .saved-amount {
+  color: #28a745;
+}
+
+.combo-preview {
+  margin-top: 2rem;
+}
+
+.combo-preview h6 {
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.combo-preview-card {
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.combo-preview-header {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.combo-preview-header h5 {
+  margin-bottom: 0;
+  font-weight: 600;
+}
+
+.combo-preview-description {
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.combo-preview-products {
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.combo-preview-product {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.combo-preview-product img {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  object-fit: contain;
+  margin-right: 0.5rem;
+  background-color: #fff;
+}
+
+.combo-preview-footer {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.combo-preview-prices {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.combo-preview-prices .original-price {
+  color: #6c757d;
+  text-decoration: line-through;
+  font-size: 0.85rem;
+}
+
+.combo-preview-prices .discounted-price {
+  color: #dc3545;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.product-selection-grid {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.product-select-card {
+  cursor: pointer;
+  transition: all 0.2s;
+  height: 100%;
+  border-color: #e9ecef;
+  margin-bottom: 0;
+  position: relative;
+}
+
+.product-select-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-select-card.selected {
+  border-color: #28a745;
+  box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+}
+
+.product-select-card .product-image {
+  height: 100px;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  overflow: hidden;
+}
+
+.product-select-card .placeholder-image {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e9ecef;
+  color: #6c757d;
+  font-weight: bold;
+  border-radius: 4px;
+}
+
+.product-select-card .product-image img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.product-select-card .card-body {
+  padding: 0.5rem;
+}
+
+.product-select-card .product-title {
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  height: 38px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-weight: 500;
+}
+
+.product-select-card .product-price {
+  font-weight: 600;
+  color: #d9534f;
+  font-size: 0.9rem;
+} 
