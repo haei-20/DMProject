@@ -1484,9 +1484,8 @@
   display: none !important;
 }
 
-/* Ẩn tiêu đề sản phẩm ở phần product-info khi hiển thị bên cạnh khối số lượng */
-.product-detail-page h1.product-title,
-.product-detail-page .product-title {
+/* Chỉ ẩn tiêu đề trong layout cũ .product-info, không ẩn tiêu đề chính của layout mới */
+.product-info .product-title {
   display: none !important;
 }
 

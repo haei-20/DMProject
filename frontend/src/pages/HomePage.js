@@ -351,23 +351,20 @@ const HomePage = () => {
               <h2 className="section-title">Gợi ý cho bạn</h2>
               <Button variant="outline-primary" href="/recommendations" className="view-all-btn">Xem tất cả</Button>
             </div>
-            {/* <Row className="product-grid g-3">
-              {recommendedProducts.slice(0, 5).map((product) => (
-                <div key={product._id} className="col-5-products">
+            <Row className="g-3">
+              {recommendedProducts.map((product) => (
+                <Col
+                  key={product._id}
+                  xs={6}
+                  sm={6}
+                  md={4}
+                  lg={3}
+                  className="mb-4"
+                >
                   <ProductCard product={product} />
-                </div>
+                </Col>
               ))}
-            </Row> */}
-             <Row className={`g-3 ${displayProducts.length === 1 ? 'justify-content-center' : ''}`}>
-  {displayProducts.map((product) => (
-    <Col key={product._id} xs={12} sm={6} md={4} lg={3}>
-      <div className="col-12 col-sm-6 col-md-4 col-lg-3">
-  <ProductCard product={product} />
-</div>
-
-    </Col>
-  ))}
-</Row>
+            </Row>
           </div>
         )}
         

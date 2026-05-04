@@ -24,6 +24,13 @@ const ProductCard = ({ product, inWishlist = false }) => {
   
   const isWishlistLoading = isAddingToWishlist || isRemovingFromWishlist;
   const productImage = product?.image?.trim() ? product.image : '/images/placeholder.png';
+  const priceValue = Number(product?.price ?? 0);
+  const discountValue = Number(product?.discount ?? 0);
+  const ratingValue = Number(product?.rating ?? 0);
+  const reviewsCount = Number(product?.numReviews ?? 0);
+  const safeCurrentPrice = Number.isFinite(priceValue)
+    ? priceValue * (1 - (Number.isFinite(discountValue) ? discountValue : 0) / 100)
+    : 0;
   
   // Add state for showing success toast
   const [showToast, setShowToast] = useState(false);
@@ -182,19 +189,19 @@ const ProductCard = ({ product, inWishlist = false }) => {
         </Link>
         
         <div className="my-2 product-rating">
-          {renderStars(product.rating)}
-          <span className="rating-count">({product.numReviews})</span>
+          {renderStars(ratingValue)}
+          <span className="rating-count">({Number.isFinite(reviewsCount) ? reviewsCount : 0})</span>
         </div>
         
         <div className="product-price-row mt-auto">
           <div className="product-price">
-            {product.discount > 0 && (
+            {discountValue > 0 && (
               <span className="original-price">
-                {formatPrice(product.price)}
+                {formatPrice(Number.isFinite(priceValue) ? priceValue : 0)}
               </span>
             )}
             <span className="current-price">
-              {formatPrice(product.price * (1 - product.discount / 100))}
+              {formatPrice(safeCurrentPrice)}
             </span>
           </div>
           <Button 

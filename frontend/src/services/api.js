@@ -1059,13 +1059,16 @@ export const api = createApi({
       }
     }),
     
-    // Recommendation engine
+    // Recommendation engine (homepage popular products)
     getRecommendedProducts: builder.query({
-      // Backend hiện expose endpoint recommendation ở /recommend/user
-      query: () => '/recommend/user',
+      // Dùng endpoint public trả về danh sách Product đầy đủ field cho ProductCard
+      query: () => '/analytics/popular',
       providesTags: ['Product'],
       transformResponse: (response) => {
         // Chuẩn hóa response về cùng shape { products: [...] } cho UI
+        if (Array.isArray(response)) {
+          return { products: response };
+        }
         if (response?.products && Array.isArray(response.products)) {
           return response;
         }
