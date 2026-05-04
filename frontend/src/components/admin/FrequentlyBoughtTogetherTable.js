@@ -16,31 +16,46 @@ const FrequentlyBoughtTogetherTable = ({
   onMinItemsChange,
   onOrderLimitChange
 }) => {
+  const isControlledSupport = typeof onMinSupportChange === 'function';
+  const isControlledOrder = typeof onOrderLimitChange === 'function';
+  const isControlledMinItems = typeof onMinItemsChange === 'function';
+
   const [internalMinSupport, setInternalMinSupport] = useState(minSupport);
   const [internalMinItems, setInternalMinItems] = useState(minItems);
   const [internalOrderLimit, setInternalOrderLimit] = useState(orderLimit);
 
-  const selectedMinSupport = typeof onMinSupportChange === 'function' ? minSupport : internalMinSupport;
-  const selectedMinItems = typeof onMinItemsChange === 'function' ? minItems : internalMinItems;
-  const selectedOrderLimit = typeof onOrderLimitChange === 'function' ? orderLimit : internalOrderLimit;
+  const committedMinSupport = isControlledSupport ? minSupport : internalMinSupport;
+  const committedOrderLimit = isControlledOrder ? orderLimit : internalOrderLimit;
+  const committedMinItems = isControlledMinItems ? minItems : internalMinItems;
+
+  /** Chuỗi đang gõ — tránh parse số mỗi lần onChange (gây nhảy ô với 0., xóa, v.v.) */
+  const [draftMinSupport, setDraftMinSupport] = useState(() => String(committedMinSupport));
+  const [draftOrderLimit, setDraftOrderLimit] = useState(() => String(committedOrderLimit));
+  const [draftMinItems, setDraftMinItems] = useState(() => String(committedMinItems));
 
   useEffect(() => {
-    if (typeof onMinSupportChange === 'function') {
-      setInternalMinSupport(minSupport);
-    }
-  }, [minSupport, onMinSupportChange]);
+    setDraftMinSupport(String(committedMinSupport));
+  }, [committedMinSupport]);
 
   useEffect(() => {
-    if (typeof onMinItemsChange === 'function') {
-      setInternalMinItems(minItems);
-    }
-  }, [minItems, onMinItemsChange]);
+    setDraftOrderLimit(String(committedOrderLimit));
+  }, [committedOrderLimit]);
 
   useEffect(() => {
-    if (typeof onOrderLimitChange === 'function') {
-      setInternalOrderLimit(orderLimit);
-    }
-  }, [orderLimit, onOrderLimitChange]);
+    setDraftMinItems(String(committedMinItems));
+  }, [committedMinItems]);
+
+  const parsedDraftSupport = parseFloat(draftMinSupport);
+  const effectiveMinSupport =
+    draftMinSupport.trim() === '' || Number.isNaN(parsedDraftSupport)
+      ? committedMinSupport
+      : parsedDraftSupport;
+
+  const parsedDraftItems = parseInt(draftMinItems, 10);
+  const effectiveMinItems =
+    draftMinItems.trim() === '' || Number.isNaN(parsedDraftItems)
+      ? committedMinItems
+      : parsedDraftItems;
 
   
   // Debug the data coming in from the API
@@ -95,7 +110,7 @@ const FrequentlyBoughtTogetherTable = ({
     }
 
     return data.frequentItemsets
-      .filter(pattern => pattern.products.length >= selectedMinItems)
+      .filter(pattern => pattern.products.length >= effectiveMinItems)
       .map(pattern => {
         // Kiểm tra giá trị support
         const support = typeof pattern.support === 'number' ? pattern.support : 0;
@@ -117,7 +132,7 @@ const FrequentlyBoughtTogetherTable = ({
           totalTransactions: totalTransactions
         };
       })
-      .filter(pattern => pattern.support >= selectedMinSupport)
+      .filter(pattern => pattern.support >= effectiveMinSupport)
       .sort((a, b) => b.support - a.support);
   };
 
@@ -218,39 +233,26 @@ const FrequentlyBoughtTogetherTable = ({
     );
   }
 
-  if (!data || !data.frequentItemsets || data.frequentItemsets.length === 0) {
-    return (
-      <div>
-        <Alert variant="info">
-          <div className="d-flex align-items-center">
-            <FaInfoCircle className="me-2" />
-            <strong>Không có dữ liệu</strong>
-          </div>
-          <p className="mt-2">
-            Chưa đủ dữ liệu để phân tích hành vi mua kèm. Cần ít nhất 2 đơn hàng có sản phẩm chung.
-          </p>
-          
-          <div className="mt-3">
-            <p className="mb-2">Nguyên nhân có thể:</p>
-            <ul>
-              <li>Hệ thống chưa có đủ đơn hàng</li>
-              <li>Các đơn hàng chưa có sản phẩm trùng nhau</li>
-              <li>Giá trị Min Support đang quá cao (hãy giảm xuống 0.0001 hoặc thấp hơn)</li>
-            </ul>
-          </div>
-        </Alert>
-      </div>
-    );
-  }
-
   // Extract the renderDataTable function to avoid code duplication
   function renderDataTable(patterns) {
+    const hasRows = Array.isArray(patterns) && patterns.length > 0;
     return (
       <Card className="frequently-bought-together-card">
         <Card.Header className="fbt-header">
           <div className="fbt-header-info">
             <small className="text-muted">
-              Dựa trên phân tích {data.info ? `${data.info.totalTransactions} đơn hàng` : 'dữ liệu đơn hàng'}
+              {data?.info ? (
+                <>
+                  Dựa trên phân tích{' '}
+                  <strong>{data.info.totalTransactions}</strong> giao dịch hợp lệ (≥2 SP, tối đa 20 SP/đơn)
+                  {typeof data.info.ordersScanned === 'number' &&
+                  data.info.ordersScanned > data.info.totalTransactions ? (
+                    <> — đã quét <strong>{data.info.ordersScanned}</strong> đơn trong DB</>
+                  ) : null}
+                </>
+              ) : (
+                'Dựa trên dữ liệu đơn hàng'
+              )}
             </small>
           </div>
           <Row className="g-2 align-items-end filter-controls">
@@ -259,23 +261,17 @@ const FrequentlyBoughtTogetherTable = ({
                 <Form.Label className="small mb-1">Ngưỡng hỗ trợ</Form.Label>
                 <Form.Control
                   size="sm"
-                  type="number"
-                  min="0.00001"
-                  max="1"
-                  step="0.00001"
-                  value={selectedMinSupport}
-                  onChange={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (Number.isNaN(value)) return;
-                    if (typeof onMinSupportChange === 'function') {
-                      onMinSupportChange(value);
-                    } else {
-                      setInternalMinSupport(value);
-                    }
-                  }}
+                  type="text"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  value={draftMinSupport}
+                  onChange={(e) => setDraftMinSupport(e.target.value)}
                   onBlur={() => {
-                    const clampedValue = Math.min(Math.max(Number(selectedMinSupport), 0.00001), 1);
-                    if (typeof onMinSupportChange === 'function') {
+                    const raw = parseFloat(draftMinSupport);
+                    const base = Number.isNaN(raw) ? committedMinSupport : raw;
+                    const clampedValue = Math.min(Math.max(base, 0.00001), 1);
+                    setDraftMinSupport(String(clampedValue));
+                    if (isControlledSupport) {
                       onMinSupportChange(clampedValue);
                     } else {
                       setInternalMinSupport(clampedValue);
@@ -287,53 +283,55 @@ const FrequentlyBoughtTogetherTable = ({
             <Col xs={6} md="auto">
               <Form.Group controlId="minItems" className="mb-0">
                 <Form.Label className="small mb-1">Số SP tối thiểu</Form.Label>
-                <Form.Select
-                  size="sm" 
-                  value={selectedMinItems}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value, 10);
-                    if (typeof onMinItemsChange === 'function') {
-                      onMinItemsChange(value);
+                <Form.Control
+                  size="sm"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={draftMinItems}
+                  onChange={(e) => setDraftMinItems(e.target.value.replace(/[^\d]/g, ''))}
+                  onBlur={() => {
+                    const raw = parseInt(draftMinItems, 10);
+                    const base = Number.isNaN(raw) ? committedMinItems : raw;
+                    const clampedValue = Math.max(2, base);
+                    setDraftMinItems(String(clampedValue));
+                    if (isControlledMinItems) {
+                      onMinItemsChange(clampedValue);
                     } else {
-                      setInternalMinItems(value);
+                      setInternalMinItems(clampedValue);
                     }
                   }}
-                >
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                </Form.Select>
+                />
+                <Form.Text className="text-muted" style={{ fontSize: '0.7rem' }}>
+                  Tối thiểu 2.
+                </Form.Text>
               </Form.Group>
             </Col>
             <Col xs={12} md="auto">
               <Form.Group controlId="orderLimit" className="mb-0">
-                <Form.Label className="small mb-1">Số đơn lấy phân tích</Form.Label>
+                <Form.Label className="small mb-1">Số giao dịch hợp lệ (mẫu)</Form.Label>
                 <Form.Control
                   size="sm"
-                  type="number"
-                  min="50"
-                  max="5000"
-                  step="50"
-                  value={selectedOrderLimit}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value, 10);
-                    if (Number.isNaN(value)) return;
-                    if (typeof onOrderLimitChange === 'function') {
-                      onOrderLimitChange(value);
-                    } else {
-                      setInternalOrderLimit(value);
-                    }
-                  }}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={draftOrderLimit}
+                  onChange={(e) => setDraftOrderLimit(e.target.value.replace(/[^\d]/g, ''))}
                   onBlur={() => {
-                    const clampedValue = Math.min(Math.max(Number(selectedOrderLimit), 50), 5000);
-                    if (typeof onOrderLimitChange === 'function') {
+                    const raw = parseInt(draftOrderLimit, 10);
+                    const base = Number.isNaN(raw) ? committedOrderLimit : raw;
+                    const clampedValue = Math.max(1, base);
+                    setDraftOrderLimit(String(clampedValue));
+                    if (isControlledOrder) {
                       onOrderLimitChange(clampedValue);
                     } else {
                       setInternalOrderLimit(clampedValue);
                     }
                   }}
                 />
+                <Form.Text className="text-muted" style={{ fontSize: '0.7rem' }}>
+                  (đơn có ≥2 SP khác nhau, ≤20 SP)
+                </Form.Text>
               </Form.Group>
             </Col>
             <Col xs={12}>
@@ -349,86 +347,106 @@ const FrequentlyBoughtTogetherTable = ({
           </Row>
         </Card.Header>
         <Card.Body className="p-0">
-          <div className="table-responsive">
-            <Table className="align-middle mb-0">
-              <thead>
-                <tr>
-                  <th>Sản phẩm</th>
-                  <th>Tần suất mua kèm</th>
-                  <th>Tỉ lệ xuất hiện</th>
-                  <th>Tổng giá trị</th>
-                </tr>
-              </thead>
-              <tbody>
-                {patterns.map((pattern, idx) => (
-                  <tr key={idx}>
-                    <td>
-                      <div className="product-combination">
-                        {pattern.products.map((product, productIdx) => (
-                          <div key={product._id} className="product-item-combo">
-                            <div className="product-image">
-                              {product.image ? (
-                                <img 
-                                  src={resolveImageSrc(product.image)}
-                                  alt={product.name} 
-                                  onError={(e) => {
-                                    if (e.target.src.endsWith('/images/placeholder.png')) return;
-                                    console.log("Debug - Image failed to load:", product.image);
-                                    e.target.onerror = null;
-                                    e.target.src = '/images/placeholder.png';
-                                  }}
-                                />
-                              ) : (
-                                <div className="placeholder-image">
-                                  {product.name.substring(0, 2).toUpperCase()}
+          {!hasRows ? (
+            <Alert variant="info" className="m-3 mb-3 fbt-empty-alert">
+              <div className="d-flex align-items-center">
+                <FaInfoCircle className="me-2" />
+                <strong>Không có dữ liệu hiển thị</strong>
+              </div>
+              <p className="mb-2 mt-2 small">
+                Chưa đủ dữ liệu để phân tích hành vi mua kèm, hoặc bộ lọc hiện tại không khớp mẫu nào. Cần ít nhất 2 đơn hàng có sản phẩm chung.
+              </p>
+              <p className="mb-1 small fw-semibold">Nguyên nhân có thể:</p>
+              <ul className="small mb-0 ps-3">
+                <li>Hệ thống chưa có đủ đơn hàng</li>
+                <li>Các đơn hàng chưa có sản phẩm trùng nhau</li>
+                <li>Ngưỡng hỗ trợ đang quá cao (thử giảm xuống 0.0001 hoặc thấp hơn)</li>
+              </ul>
+            </Alert>
+          ) : (
+            <div className="table-responsive">
+              <Table className="align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Sản phẩm</th>
+                    <th>Tần suất mua kèm</th>
+                    <th>Tỉ lệ xuất hiện</th>
+                    <th>Tổng giá trị</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {patterns.map((pattern, idx) => (
+                    <tr key={idx}>
+                      <td>
+                        <div className="product-combination">
+                          {pattern.products.map((product, productIdx) => (
+                            <div key={product._id} className="product-item-combo">
+                              <div className="product-image">
+                                {product.image ? (
+                                  <img 
+                                    src={resolveImageSrc(product.image)}
+                                    alt={product.name} 
+                                    onError={(e) => {
+                                      if (e.target.src.endsWith('/images/placeholder.png')) return;
+                                      console.log("Debug - Image failed to load:", product.image);
+                                      e.target.onerror = null;
+                                      e.target.src = '/images/placeholder.png';
+                                    }}
+                                  />
+                                ) : (
+                                  <div className="placeholder-image">
+                                    {product.name.substring(0, 2).toUpperCase()}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="product-info">
+                                <div className="product-name">{product.name}</div>
+                                <div className="product-meta">
+                                  <span className="product-price">{formatPrice(product.price)}</span>
+                                  <span className="product-category">{product.category}</span>
+                                </div>
+                              </div>
+                              {productIdx < pattern.products.length - 1 && (
+                                <div className="link-icon">
+                                  <FaLink />
                                 </div>
                               )}
                             </div>
-                            <div className="product-info">
-                              <div className="product-name">{product.name}</div>
-                              <div className="product-meta">
-                                <span className="product-price">{formatPrice(product.price)}</span>
-                                <span className="product-category">{product.category}</span>
-                              </div>
-                            </div>
-                            {productIdx < pattern.products.length - 1 && (
-                              <div className="link-icon">
-                                <FaLink />
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                    <td>
-                      <Badge bg={getSupportBadgeVariant(pattern.support)} className="frequency-badge">
-                        {pattern.frequencyDisplay || formatFrequency(pattern.frequency, pattern.totalTransactions)}
-                      </Badge>
-                    </td>
-                    <td className="support-column">
-                      <div className="support-value">{pattern.supportPercent || formatSupport(pattern.support)}</div>
-                      <div className="support-bar">
-                        <div 
-                          className="support-fill" 
-                          style={{ width: calculateSupportWidth(pattern.support) }} 
-                        />
-                      </div>
-                    </td>
-                    <td>
-                      {formatPrice(pattern.products.reduce((total, product) => total + product.price, 0))}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
+                          ))}
+                        </div>
+                      </td>
+                      <td>
+                        <Badge bg={getSupportBadgeVariant(pattern.support)} className="frequency-badge">
+                          {pattern.frequencyDisplay || formatFrequency(pattern.frequency, pattern.totalTransactions)}
+                        </Badge>
+                      </td>
+                      <td className="support-column">
+                        <div className="support-value">{pattern.supportPercent || formatSupport(pattern.support)}</div>
+                        <div className="support-bar">
+                          <div 
+                            className="support-fill" 
+                            style={{ width: calculateSupportWidth(pattern.support) }} 
+                          />
+                        </div>
+                      </td>
+                      <td>
+                        {formatPrice(pattern.products.reduce((total, product) => total + product.price, 0))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
         </Card.Body>
-        <Card.Footer className="text-muted">
-          <small>
-            <FaShoppingCart className="me-1" />
-            Dữ liệu thực từ cơ sở dữ liệu. Các sản phẩm này thường được khách hàng mua cùng nhau. 
-          </small>
-        </Card.Footer>
+        {hasRows && (
+          <Card.Footer className="text-muted">
+            <small>
+              <FaShoppingCart className="me-1" />
+              Dữ liệu thực từ cơ sở dữ liệu. Các sản phẩm này thường được khách hàng mua cùng nhau. 
+            </small>
+          </Card.Footer>
+        )}
       </Card>
     );
   }

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Spinner, Alert, Tabs, Tab, Badge, Form } from 'react-bootstrap';
 import {
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell, AreaChart, Area
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  AreaChart, Area
 } from 'recharts';
 import { 
   FaUsers, FaShoppingBag, FaMoneyBillWave, FaShoppingCart, 
@@ -10,7 +10,6 @@ import {
 } from 'react-icons/fa';
 import { 
   useGetDashboardStatsQuery,
-  useGetUserAnalyticsQuery,
   useGetOrderAnalyticsQuery,
   useGetFrequentlyBoughtTogetherQuery,
   useGetSalesReportQuery,
@@ -48,7 +47,6 @@ const AdminDashboard = () => {
     limit: 5,
     timeRange: 'month'
   });
-  const { data: userAnalytics, isLoading: userLoading } = useGetUserAnalyticsQuery();
   const normalizedFromYear = Math.min(fromYear, toYear);
   const normalizedToYear = Math.max(fromYear, toYear);
   const { data: orderAnalytics, isLoading: orderLoading } = useGetOrderAnalyticsQuery({
@@ -205,26 +203,6 @@ const AdminDashboard = () => {
   // Get recent orders
   const getRecentOrders = () => {
     return orderAnalytics?.recentOrders || [];
-  };
-  
-  // Get customer stats
-  const getCustomerStats = () => {
-    const raw = userAnalytics?.customersByPeriod;
-    if (!Array.isArray(raw)) return [];
-
-    // Chuẩn hóa dữ liệu để biểu đồ không bị lệch khi backend trả field khác nhau
-    const normalized = raw.map((item, index) => {
-      const monthLabel = item?.name || item?.month || item?.label || `M${index + 1}`;
-      const year = item?.year ? String(item.year).slice(-2) : '';
-
-      return {
-        name: year ? `${monthLabel}/${year}` : monthLabel,
-        newUsers: Number(item?.newUsers ?? item?.newCustomers ?? item?.users ?? 0),
-        activeUsers: Number(item?.activeUsers ?? item?.returningUsers ?? 0)
-      };
-    });
-
-    return normalized;
   };
   
   return (
@@ -585,75 +563,6 @@ const AdminDashboard = () => {
                   loading={orderLoading}
                   error={orderAnalytics === undefined && !orderLoading ? { message: 'Không thể tải phân tích đơn hàng' } : null}
                 />
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-        
-        {/* Customer Growth Chart */}
-        <Row className="g-4 mt-1 mb-4">
-          <Col>
-            <Card className="modern-chart-card">
-              <Card.Header className="chart-card-header">
-                <div className="d-flex justify-content-between align-items-center">
-                  <h5 className="mb-0">Tăng trưởng khách hàng</h5>
-                  <div className="chart-legend">
-                    <span className="legend-item">
-                      <span className="legend-color" style={{ backgroundColor: THEME_COLORS.success }}></span>
-                      Khách hàng mới
-                    </span>
-                    <span className="legend-item">
-                      <span className="legend-color" style={{ backgroundColor: THEME_COLORS.info }}></span>
-                      Khách hàng hoạt động
-                    </span>
-                  </div>
-                </div>
-              </Card.Header>
-              <Card.Body>
-                {userLoading ? (
-                  <div className="chart-loader">
-                    <Spinner animation="border" variant="primary" />
-                  </div>
-                ) : userAnalytics === undefined ? (
-                  <div className="text-center p-4">
-                    <Alert variant="warning">
-                      <i className="fas fa-exclamation-circle me-2"></i>
-                      Không thể tải dữ liệu khách hàng. Đang dùng dữ liệu mẫu.
-                    </Alert>
-                  </div>
-                ) : getCustomerStats().length === 0 ? (
-                  <div className="text-center p-4">
-                    <Alert variant="info">
-                      Chưa có đủ dữ liệu khách hàng để hiển thị biểu đồ tăng trưởng.
-                    </Alert>
-                  </div>
-                ) : (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart
-                      data={getCustomerStats()}
-                      margin={{ top: 10, right: 30, left: 20, bottom: 10 }}
-                      barSize={20}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="name" stroke={THEME_COLORS.gray} />
-                      <YAxis stroke={THEME_COLORS.gray} />
-                      <Tooltip contentStyle={{ borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                      <Legend />
-                      <Bar 
-                        dataKey="newUsers" 
-                        name="Khách hàng mới"
-                        fill={THEME_COLORS.success}
-                        radius={[4, 4, 0, 0]}
-                      />
-                      <Bar 
-                        dataKey="activeUsers" 
-                        name="Khách hàng hoạt động" 
-                        fill={THEME_COLORS.info}
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                )}
               </Card.Body>
             </Card>
           </Col>

@@ -7,64 +7,121 @@ const Product = require("../models/Product");
 // Cache kết quả để tránh tính toán lại mỗi lần gọi API
 const cache = new NodeCache({ stdTTL: 600 }); // Cache trong 10 phút
 
-// Lấy danh sách giao dịch từ MongoDB
-const getTransactions = async (limit = 0) => {
-  try {
-    console.log(`Bắt đầu lấy dữ liệu đơn hàng từ database (limit=${limit})...`);
-    
-    // OPTIMIZATION: Sử dụng projection để chỉ lấy các trường cần thiết, giảm dữ liệu truyền qua mạng
-    // Chỉ cần orderItems và _id, không cần những trường khác của đơn hàng
-    const projection = { 'orderItems.product': 1, 'orderItems.qty': 1, '_id': 1 };
-    
-    // Lấy đơn hàng từ database với projection tối ưu
-    let orders;
-    if (limit > 0) {
-      orders = await Order.find({})
-        .sort({ createdAt: -1 })
-        .limit(limit)
-        .select(projection)
-        .lean();
-    } else {
-      orders = await Order.find({})
-        .select(projection)
-        .lean();
+/** Trùng với bộ lọc giao dịch trong getFrequentlyBoughtTogether (MAX_TRANSACTION_SIZE) */
+const MAX_FBT_DISTINCT_PRODUCTS_PER_ORDER = 20;
+
+/**
+ * Chuyển một đơn thành một hàng giao dịch FBT: ≥2 SP khác nhau, ≤20 SP (đưa vào FP-Growth).
+ * Khác nhánh "lấy tất cả" cho Apriori/FP cache: nhánh đó vẫn cho phép đơn >20 SP.
+ */
+const orderToFbtEligibleTransaction = (order) => {
+  if (!order.orderItems || !Array.isArray(order.orderItems) || order.orderItems.length === 0) {
+    return null;
+  }
+  const productIds = new Set();
+  for (const item of order.orderItems) {
+    if (item && item.product) {
+      const productId = typeof item.product === 'object' && item.product._id
+        ? item.product._id.toString()
+        : item.product.toString();
+      productIds.add(productId);
     }
-    
+  }
+  const uniqueProductIds = [...productIds];
+  if (uniqueProductIds.length < 2 || uniqueProductIds.length > MAX_FBT_DISTINCT_PRODUCTS_PER_ORDER) {
+    return null;
+  }
+  return [...new Set(uniqueProductIds.map(String))];
+};
+
+/**
+ * Lấy giao dịch từ Order.
+ * @param {number} targetFbtValidCount — Nếu > 0: thu thập đúng N giao dịch hợp lệ (FBT), quét đơn mới nhất trước cho đến khi đủ hoặc hết DB.
+ * @returns {{ transactions: string[][], meta: object|null }}
+ */
+const getTransactions = async (targetFbtValidCount = 0) => {
+  try {
+    console.log(`Bắt đầu lấy dữ liệu đơn hàng từ database (targetFbtValidCount=${targetFbtValidCount})...`);
+
+    const projection = { 'orderItems.product': 1, 'orderItems.qty': 1, '_id': 1 };
+
+    if (targetFbtValidCount > 0) {
+      const BATCH = 500;
+      let skip = 0;
+      const transactions = [];
+      let ordersScanned = 0;
+
+      while (transactions.length < targetFbtValidCount) {
+        // sort trên tập đơn lớn có thể vượt giới hạn RAM 32MB của MongoDB nếu không allowDiskUse
+        const batch = await Order.find({})
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(BATCH)
+          .select(projection)
+          .lean()
+          .allowDiskUse(true);
+
+        if (batch.length === 0) break;
+
+        for (const order of batch) {
+          if (transactions.length >= targetFbtValidCount) break;
+          const row = orderToFbtEligibleTransaction(order);
+          if (row) transactions.push(row);
+        }
+
+        ordersScanned += batch.length;
+        skip += batch.length;
+        if (batch.length < BATCH) break;
+      }
+
+      console.log(
+        `FBT: đã thu ${transactions.length} giao dịch hợp lệ (mục tiêu ${targetFbtValidCount}) sau khi quét ${ordersScanned} đơn trong DB`
+      );
+
+      if (transactions.length < 10) {
+        console.log("CẢNH BÁO: Số lượng giao dịch FBT thấp (<10), kết quả có thể không đáng tin cậy");
+      }
+
+      return {
+        transactions,
+        meta: {
+          mode: 'fbt_target_valid',
+          ordersScanned,
+          requestedValidTransactions: targetFbtValidCount,
+          collectedValidTransactions: transactions.length
+        }
+      };
+    }
+
+    const orders = await Order.find({})
+      .select(projection)
+      .lean();
+
     console.log(`Đã lấy ${orders.length} đơn hàng từ database`);
-    
-    // Debug log ngắn gọn hơn
+
     if (orders.length > 0) {
       console.log(`Đơn hàng đầu tiên có ${orders[0].orderItems?.length || 0} sản phẩm`);
     }
-    
-    // OPTIMIZATION: Xử lý transactions trong một lần duyệt, giảm thời gian xử lý
+
     let transactions = [];
     let invalidOrderCount = 0;
-    
-    // Tối ưu việc chuyển đổi đơn hàng thành giao dịch
+
     for (const order of orders) {
-      // Kiểm tra và xử lý orderItems hiệu quả hơn
       if (order.orderItems && Array.isArray(order.orderItems) && order.orderItems.length > 0) {
-        // Xử lý productId trực tiếp, chỉ thêm mỗi sản phẩm một lần (không quan tâm số lượng)
-        // Điều này giúp giảm kích thước giao dịch và tăng tốc độ thuật toán
         const productIds = new Set();
-        
+
         for (const item of order.orderItems) {
           if (item && item.product) {
-            const productId = typeof item.product === 'object' && item.product._id 
-              ? item.product._id.toString() 
+            const productId = typeof item.product === 'object' && item.product._id
+              ? item.product._id.toString()
               : item.product.toString();
-            
-            // Thêm mỗi ID sản phẩm duy nhất một lần
+
             productIds.add(productId);
           }
         }
-        
-        // Chuyển Set thành Array
+
         const uniqueProductIds = [...productIds];
-        
-        // Chỉ thêm vào transactions nếu có ít nhất 2 sản phẩm khác nhau
-        // Điều này giúp giảm số lượng giao dịch không có ý nghĩa
+
         if (uniqueProductIds.length >= 2) {
           transactions.push(uniqueProductIds);
         }
@@ -72,54 +129,53 @@ const getTransactions = async (limit = 0) => {
         invalidOrderCount++;
       }
     }
-    
+
     console.log(`Đã tạo ${transactions.length} giao dịch hợp lệ từ ${orders.length} đơn hàng (${invalidOrderCount} đơn hàng không hợp lệ)`);
-    
-    // OPTIMIZATION: Kiểm tra số lượng giao dịch sớm để tránh xử lý không cần thiết
+
     if (transactions.length < 10) {
       console.log("CẢNH BÁO: Số lượng giao dịch thấp (<10), kết quả có thể không đáng tin cậy");
-      
-      // Nếu giao dịch quá ít (< 5), tạo dữ liệu mẫu từ sản phẩm thực
+
       if (transactions.length < 5) {
         console.log("Số lượng giao dịch quá ít, tạo dữ liệu mẫu từ sản phẩm thực");
-        
-        // Lấy tất cả sản phẩm từ cơ sở dữ liệu, chỉ lấy _id để tối ưu hiệu suất
+
         const allProducts = await Product.find({}).select('_id').lean();
-        
+
         if (allProducts.length === 0) {
           console.log("Không có sản phẩm nào trong database để tạo dữ liệu mẫu");
-          return [];
+          return { transactions: [], meta: { mode: 'all', ordersScanned: orders.length } };
         }
-        
+
         console.log(`Tìm thấy ${allProducts.length} sản phẩm để tạo dữ liệu mẫu`);
-        
-        // Lấy ID của tất cả sản phẩm
+
         const productIds = allProducts.map(product => product._id.toString());
-        
-        // Tạo các giao dịch mẫu với số lượng phù hợp
+
         const sampleTransactions = [];
         const numTransactions = Math.min(50, Math.max(20, productIds.length / 2));
-        
+
         for (let i = 0; i < numTransactions; i++) {
-          // Mỗi giao dịch chứa 2-5 sản phẩm ngẫu nhiên (ít nhất 2 sản phẩm)
-          const numProducts = Math.floor(Math.random() * 4) + 2; // 2-5 sản phẩm
-          
-          // Chọn sản phẩm ngẫu nhiên không trùng lặp
+          const numProducts = Math.floor(Math.random() * 4) + 2;
+
           const shuffled = [...productIds].sort(() => 0.5 - Math.random());
           const selectedProducts = shuffled.slice(0, numProducts);
-          
+
           sampleTransactions.push(selectedProducts);
         }
-        
+
         console.log(`Đã tạo ${sampleTransactions.length} giao dịch mẫu từ sản phẩm thực`);
-        return sampleTransactions;
+        return {
+          transactions: sampleTransactions,
+          meta: { mode: 'all_sample_fallback', ordersScanned: orders.length }
+        };
       }
     }
-    
-    return transactions;
+
+    return {
+      transactions,
+      meta: { mode: 'all', ordersScanned: orders.length }
+    };
   } catch (error) {
     console.error("Lỗi khi lấy dữ liệu đơn hàng:", error);
-    return [];
+    return { transactions: [], meta: null };
   }
 };
 
@@ -136,7 +192,7 @@ const getAprioriRecommendations = async () => {
   if (cachedData) return cachedData;
 
   try {
-    const transactions = await getTransactions();
+    const { transactions } = await getTransactions();
     
     if (!transactions || transactions.length < 2) {
       console.log("Không đủ dữ liệu giao dịch cho Apriori");
@@ -328,7 +384,7 @@ const getFPGrowthRecommendations = async () => {
   const cachedData = cache.get("fp-growth");
   if (cachedData) return cachedData;
 
-  const transactions = await getTransactions();
+  const { transactions } = await getTransactions();
   if (!transactions || transactions.length < 2) {
     console.log("Không đủ dữ liệu giao dịch cho FP-Growth");
     return [];
@@ -436,8 +492,8 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
     
     console.log(`Phân tích dữ liệu với minSupport=${minSupport}, limit=${limit}, orderLimit=${orderLimit}, minItems=${minItems}`);
     
-    // Lấy dữ liệu giao dịch từ database với giới hạn số đơn hàng
-    const transactions = await getTransactions(orderLimit);
+    // Lấy đủ orderLimit giao dịch FBT hợp lệ (≥2 SP, ≤20 SP), quét đơn mới nhất trước
+    const { transactions, meta: transactionsSourceMeta } = await getTransactions(orderLimit);
     
     // Chi tiết debug
     console.log(`DEBUG: Số lượng giao dịch: ${transactions.length}`);
@@ -458,12 +514,9 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
     // Determine minSupport: use provided minSupport if >0, otherwise use a dynamic value
     // (moved below so we can base dynamic choice on the number of valid transactions)
 
-    // OPTIMIZATION: Lọc các giao dịch quá lớn có thể gây chậm thuật toán
-    const MAX_TRANSACTION_SIZE = 20; // Giới hạn số lượng sản phẩm tối đa trong 1 giao dịch
-    
-    // Đảm bảo rằng transactions là một mảng các mảng chuỗi (required by FPGrowth) và có kích thước hợp lý
+    // Đảm bảo transactions là mảng mảng chuỗi (FP-Growth); đơn >20 SP đã loại khi thu thập có orderLimit
     const validTransactions = transactions.filter(trans => {
-      return Array.isArray(trans) && trans.length > 0 && trans.length <= MAX_TRANSACTION_SIZE;
+      return Array.isArray(trans) && trans.length > 0 && trans.length <= MAX_FBT_DISTINCT_PRODUCTS_PER_ORDER;
     }).map(trans => {
       // Chuyển đổi tất cả ID thành chuỗi và loại bỏ các ID trùng lặp
       return [...new Set(trans.map(item => String(item)))];
@@ -497,15 +550,15 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
       
       console.log("Bắt đầu chạy thuật toán FP-Growth...");
       
-      // OPTIMIZATION: Thiết lập timeout để tránh chạy quá lâu
-      const TIMEOUT_MS = 30000; // 30 giây
+      // Timeout tăng theo số giao dịch: 30s cố định thường khiến tập ~6k+ bị cắt giữa chừng rồi rơi vào Apriori (rất nặng).
+      const TIMEOUT_MS = Math.min(240000, Math.max(45000, 35000 + validTransactions.length * 22));
       
       let results;
       try {
         // Wrap FP-Growth execution in a promise with timeout
         const fpGrowthPromise = new Promise((resolve, reject) => {
           const timeout = setTimeout(() => {
-            reject(new Error("FP-Growth execution timed out after 30 seconds"));
+            reject(new Error(`FP-Growth execution timed out after ${TIMEOUT_MS}ms`));
           }, TIMEOUT_MS);
           
           fpgrowth.exec(validTransactions)
@@ -591,7 +644,8 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
         console.log("Không tìm thấy mẫu mua hàng nào thỏa mãn điều kiện");
         return {
           frequentItemsets: [],
-          message: "Không tìm thấy mẫu mua hàng nào thỏa mãn điều kiện. Thử giảm minSupport hoặc thêm dữ liệu.",
+          message:
+            "Không tìm thấy mẫu thỏa minSupport/minItems. Khi tăng số giao dịch, thêm đơn cũ hơn có thể làm support tương đối giảm; thử giảm minSupport, giảm số mẫu, hoặc xem log server (FP-Growth timeout / Apriori lỗi).",
           success: false
         };
       }
@@ -657,13 +711,17 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
       
       const result = {
         frequentItemsets: validPatterns,
-        message: `Danh sách sản phẩm thường được mua cùng nhau (từ ${validTransactions.length} đơn hàng)`,
+        message: `Danh sách sản phẩm thường được mua cùng nhau (từ ${validTransactions.length} giao dịch hợp lệ)`,
         success: true,
         info: {
           totalTransactions: validTransactions.length,
           totalOrders: totalOrders,
           minSupport: usedMinSupport,
-          processTime: (endTime-startTime)/1000
+          processTime: (endTime-startTime)/1000,
+          fpGrowthTimeoutMs: TIMEOUT_MS,
+          ordersScanned: transactionsSourceMeta?.ordersScanned,
+          requestedValidTransactions: transactionsSourceMeta?.requestedValidTransactions ?? orderLimit,
+          collectedValidTransactions: transactionsSourceMeta?.collectedValidTransactions ?? validTransactions.length
         }
       };
       
@@ -726,7 +784,10 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
           info: {
               totalTransactions: validTransactions.length,
               algorithm: "Apriori (FP-Growth failed)",
-              minSupport: usedMinSupport
+              minSupport: usedMinSupport,
+              ordersScanned: transactionsSourceMeta?.ordersScanned,
+              requestedValidTransactions: transactionsSourceMeta?.requestedValidTransactions ?? orderLimit,
+              collectedValidTransactions: transactionsSourceMeta?.collectedValidTransactions ?? validTransactions.length
             }
         };
       }
@@ -892,7 +953,7 @@ const getDynamicAprioriParameters = (transactions) => {
 
 const updateAprioriRecommendations = async () => {
   try {
-    const transactions = await getTransactions();
+    const { transactions } = await getTransactions();
     console.log(`Fetched ${transactions.length} transactions for Apriori update`);
     
     if (!transactions || transactions.length < 2) {
@@ -927,7 +988,7 @@ const updateAprioriRecommendations = async () => {
 
 const updateFPGrowthRecommendations = async () => {
   try {
-    const transactions = await getTransactions();
+    const { transactions } = await getTransactions();
     if (!transactions || transactions.length < 2) {
       console.log("Không đủ dữ liệu để cập nhật FP-Growth");
       cache.set("fp-growth", [], 3600 * 72);
