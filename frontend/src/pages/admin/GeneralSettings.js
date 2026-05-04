@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Row, Col, Spinner, Alert, Image, Tab, Nav, InputGroup } from 'react-bootstrap';
 import { FaSave, FaStore, FaGlobe, FaEnvelope, FaPhone, FaMapMarkerAlt, FaFacebook, FaTwitter, FaInstagram, FaMoneyBillWave } from 'react-icons/fa';
+import { useDispatch } from 'react-redux';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useGetGeneralSettingsQuery, useUpdateGeneralSettingsMutation } from '../../services/api';
+import { setSiteCurrencyFromApi } from '../../redux/slices/siteSettingsSlice';
 import './GeneralSettings.css';
 
 const GeneralSettings = () => {
+  const dispatch = useDispatch();
   // Fetch settings
   const { data: settings, isLoading, error, refetch } = useGetGeneralSettingsQuery();
   
@@ -33,10 +36,11 @@ const GeneralSettings = () => {
     },
     currencyCode: 'GBP',
     currencySymbol: '£',
-    currencyPosition: 'after',
-    thousandSeparator: '.',
-    decimalSeparator: ',',
-    numberOfDecimals: 0
+    currencyPosition: 'before',
+    // Định dạng chuẩn UK: £1,234.56
+    thousandSeparator: ',',
+    decimalSeparator: '.',
+    numberOfDecimals: 2
   });
   
   const [activeTab, setActiveTab] = useState('general');
@@ -70,10 +74,22 @@ const GeneralSettings = () => {
         },
         currencyCode: settingsData.currencyCode || 'GBP',
         currencySymbol: settingsData.currencySymbol || '£',
-        currencyPosition: settingsData.currencyPosition || 'after',
-        thousandSeparator: settingsData.thousandSeparator || '.',
-        decimalSeparator: settingsData.decimalSeparator || ',',
-        numberOfDecimals: settingsData.numberOfDecimals !== undefined ? settingsData.numberOfDecimals : 0
+        currencyPosition: settingsData.currencyPosition || 'before',
+        thousandSeparator:
+          settingsData.thousandSeparator !== undefined && settingsData.thousandSeparator !== ''
+            ? settingsData.thousandSeparator
+            : ',',
+        decimalSeparator:
+          settingsData.decimalSeparator !== undefined && settingsData.decimalSeparator !== ''
+            ? settingsData.decimalSeparator
+            : '.',
+        numberOfDecimals: (() => {
+          const raw = parseInt(settingsData.numberOfDecimals, 10);
+          if (settingsData.numberOfDecimals === undefined || settingsData.numberOfDecimals === null || settingsData.numberOfDecimals === '') {
+            return 2;
+          }
+          return Number.isFinite(raw) ? Math.min(4, Math.max(0, raw)) : 2;
+        })()
       });
       
       setLogoPreview(settingsData.logo || null);
@@ -106,6 +122,12 @@ const GeneralSettings = () => {
           [child]: value
         }
       });
+    } else if (name === 'numberOfDecimals') {
+      const n = parseInt(value, 10);
+      setFormData({
+        ...formData,
+        numberOfDecimals: Number.isFinite(n) ? Math.min(4, Math.max(0, n)) : 2
+      });
     } else {
       setFormData({
         ...formData,
@@ -126,11 +148,48 @@ const GeneralSettings = () => {
     e.preventDefault();
     
     try {
-      await updateSettings(formData).unwrap();
+      const payload = {
+        ...formData,
+        numberOfDecimals: Math.min(
+          4,
+          Math.max(0, parseInt(formData.numberOfDecimals, 10) || 2)
+        )
+      };
+      const saved = await updateSettings(payload).unwrap();
+      dispatch(setSiteCurrencyFromApi(saved));
       refetch();
     } catch (err) {
       console.error('Failed to update settings:', err);
     }
+  };
+
+  const currencyPreviewAmount = 1234567.89;
+  const formatCurrencyPreview = (amount) => {
+    const sym = (formData.currencySymbol || '£').trim() || '£';
+    const pos = formData.currencyPosition === 'after' ? 'after' : 'before';
+    const thou =
+      formData.thousandSeparator !== undefined && formData.thousandSeparator !== ''
+        ? formData.thousandSeparator
+        : ',';
+    const decSep =
+      formData.decimalSeparator !== undefined && formData.decimalSeparator !== ''
+        ? formData.decimalSeparator
+        : '.';
+    let decPlaces = parseInt(formData.numberOfDecimals, 10);
+    if (!Number.isFinite(decPlaces)) decPlaces = 2;
+    decPlaces = Math.min(4, Math.max(0, decPlaces));
+
+    const sign = amount < 0 ? '-' : '';
+    const abs = Math.abs(amount);
+    const fixed = abs.toFixed(decPlaces);
+    const [intRaw, fracRaw] = fixed.split('.');
+    const intPart = intRaw.replace(/\B(?=(\d{3})+(?!\d))/g, thou);
+    const numCore =
+      decPlaces > 0 && fracRaw !== undefined
+        ? `${intPart}${decSep}${fracRaw}`
+        : intPart;
+    const withSign = `${sign}${numCore}`;
+    return pos === 'after' ? `${withSign}${sym}` : `${sym}${withSign}`;
   };
   
   return (
@@ -468,8 +527,8 @@ const GeneralSettings = () => {
                               value={formData.currencyPosition}
                               onChange={handleChange}
                             >
-                              <option value="before">Trước số tiền ($100)</option>
-                              <option value="after">Sau số tiền (100£)</option>
+                              <option value="before">Trước số tiền (£1,234.56)</option>
+                              <option value="after">Sau số tiền (1,234.56£)</option>
                             </Form.Select>
                           </Form.Group>
                           
@@ -485,7 +544,7 @@ const GeneralSettings = () => {
                                   maxLength={1}
                                 />
                                 <Form.Text className="text-muted">
-                                  Ví dụ: "." trong 1.000.000
+                                  Với GBP (UK): dấu phẩy trong 1,234,567
                                 </Form.Text>
                               </Form.Group>
                             </Col>
@@ -500,7 +559,7 @@ const GeneralSettings = () => {
                                   maxLength={1}
                                 />
                                 <Form.Text className="text-muted">
-                                  Ví dụ: "," trong 1.000,50
+                                  Với GBP (UK): dấu chấm trong 1,234.56
                                 </Form.Text>
                               </Form.Group>
                             </Col>
@@ -518,6 +577,14 @@ const GeneralSettings = () => {
                               </Form.Group>
                             </Col>
                           </Row>
+
+                          <Alert variant="light" className="border mb-0">
+                            <strong>Xem trước định dạng:</strong>{' '}
+                            <span className="text-primary">{formatCurrencyPreview(currencyPreviewAmount)}</span>
+                            <span className="text-muted ms-2">
+                              (số mẫu {currencyPreviewAmount})
+                            </span>
+                          </Alert>
                         </Tab.Pane>
                       </Tab.Content>
                       

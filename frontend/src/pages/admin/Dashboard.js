@@ -16,6 +16,7 @@ import {
 } from '../../services/api';
 import '../../styles/AdminTheme.css';
 import './Dashboard.css';
+import { formatPrice } from '../../utils/productHelpers';
 
 const Dashboard = () => {
   const [timeRange, setTimeRange] = useState('month');
@@ -27,14 +28,7 @@ const Dashboard = () => {
   const { data: userAnalytics, isLoading: userLoading } = useGetUserAnalyticsQuery();
   const { data: orderAnalytics, isLoading: orderLoading } = useGetOrderAnalyticsQuery();
   
-  // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'GBP',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
+  const formatCurrency = (amount) => formatPrice(amount || 0);
   
   // Format date
   const formatDate = (dateString) => {

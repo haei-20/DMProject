@@ -5,6 +5,7 @@ import './App.css';
 
 // Import ApiStatus component
 import ApiStatus from './components/ApiStatus';
+import SiteSettingsBootstrap from './components/SiteSettingsBootstrap';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -64,6 +65,7 @@ import ComboManagement from './pages/admin/ComboManagement';
 function App() {
   return (
     <Router>
+      <SiteSettingsBootstrap />
       {/* Add ApiStatus component */}
       <ApiStatus />
       

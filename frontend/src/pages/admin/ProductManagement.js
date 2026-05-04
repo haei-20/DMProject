@@ -17,6 +17,7 @@ import {
 } from '../../services/api';
 import '../../styles/AdminTheme.css';
 import './ProductManagement.css';
+import { formatPrice } from '../../utils/productHelpers';
 
 const ProductManagement = () => {
   // State for filters and pagination
@@ -66,14 +67,7 @@ const ProductManagement = () => {
     { value: 'discontinued', label: 'Ngừng bán', variant: 'warning' }
   ];
   
-  // Format currency to GBP
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'GBP',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
+  const formatCurrency = (amount) => formatPrice(amount || 0);
   
   // Handle filter change
   const handleFilterChange = (e) => {

@@ -9,6 +9,7 @@ import {
   useDeleteCouponMutation
 } from '../../services/api';
 import './CouponList.css';
+import { formatPrice } from '../../utils/productHelpers';
 
 const CouponList = () => {
   // Fetch coupons
@@ -39,13 +40,7 @@ const CouponList = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [copiedCode, setCopiedCode] = useState(null);
   
-  // Format currency
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'GBP'
-    }).format(value);
-  };
+  const formatCurrency = (value) => formatPrice(value || 0);
   
   // Format date
   const formatDate = (dateString) => {

@@ -10,6 +10,7 @@ import {
   useGetUserAnalyticsQuery,
   useGetOrderAnalyticsQuery
 } from '../../services/api';
+import { formatPrice } from '../../utils/productHelpers';
 
 const AdminStats = () => {
   const { data: dashboardStats, isLoading: statsLoading, error: statsError } = useGetDashboardStatsQuery();
@@ -25,15 +26,7 @@ const AdminStats = () => {
     (statsLoading || productLoading || userLoading || orderLoading);
   const error = statsError || (!dashboardStats && !productAnalytics && !userAnalytics && !orderAnalytics);
 
-  // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount || 0);
-  };
+  const formatCurrency = (amount) => formatPrice(amount || 0);
 
   // Get top products data
   const getTopProducts = () => {

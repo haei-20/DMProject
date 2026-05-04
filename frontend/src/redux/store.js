@@ -5,6 +5,7 @@ import authReducer from './slices/authSlice';
 import cartReducer from './slices/cartSlice';
 import wishlistReducer from './slices/wishlistSlice';
 import uiReducer from './slices/uiSlice';
+import siteSettingsReducer from './slices/siteSettingsSlice';
 import { authMiddleware } from '../middleware/authMiddleware';
 import { statusApi } from '../components/ApiStatus';
 
@@ -18,6 +19,7 @@ const store = configureStore({
     cart: cartReducer,
     wishlist: wishlistReducer,
     ui: uiReducer,
+    siteSettings: siteSettingsReducer,
     [statusApi.reducerPath]: statusApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>

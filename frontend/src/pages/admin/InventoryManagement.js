@@ -17,6 +17,7 @@ import {
 } from '../../services/api';
 import '../../styles/AdminTheme.css';
 import './InventoryManagement.css';
+import { formatPrice } from '../../utils/productHelpers';
 
 const InventoryManagement = () => {
   // State for filters and pagination
@@ -175,14 +176,7 @@ const InventoryManagement = () => {
     }
   };
   
-  // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      minimumFractionDigits: 2
-    }).format(amount || 0);
-  };
+  const formatCurrency = (amount) => formatPrice(amount || 0);
   
   // Determine stock status class
   const getStockStatusClass = (stock) => {

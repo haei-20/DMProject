@@ -9,6 +9,7 @@ import {
   useDeleteCustomerGroupMutation
 } from '../../services/api';
 import './CustomerGroups.css';
+import { formatPrice } from '../../utils/productHelpers';
 
 const CustomerGroups = () => {
   // Fetch customer groups
@@ -32,13 +33,7 @@ const CustomerGroups = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
   
-  // Format currency
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'GBP'
-    }).format(value);
-  };
+  const formatCurrency = (value) => formatPrice(value || 0);
   
   // Handle form change
   const handleChange = (e) => {

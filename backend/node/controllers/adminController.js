@@ -1322,7 +1322,7 @@ exports.getPaymentSettings = async (req, res) => {
       const defaultSettings = await Setting.create({
         type: 'payment',
         data: {
-          currency: 'VND',
+          currency: 'GBP',
           paymentMethods: {
             cod: {
               enabled: true,

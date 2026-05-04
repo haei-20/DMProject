@@ -656,34 +656,8 @@ router.put("/order/:id", protect, isAdmin, async (req, res) => {
 // Settings routes
 router.get("/settings/general", protect, isAdmin, async (req, res) => {
   try {
-    const Setting = require("../models/Setting");
-    const generalSettings = await Setting.findOne({ type: 'general' }).lean() || { 
-      type: 'general',
-      siteName: '2NADH',
-      siteDescription: 'Cửa hàng thương mại điện tử',
-      logo: 'https://via.placeholder.com/200x60?text=2NADH',
-      favicon: 'https://via.placeholder.com/32x32',
-      email: 'contact@example.com',
-      phone: '+84 123 456 789',
-      address: 'Hà Nội, Việt Nam',
-      socialLinks: {
-        facebook: 'https://facebook.com',
-        twitter: 'https://twitter.com',
-        instagram: 'https://instagram.com'
-      },
-      metaTags: {
-        title: '2NADH - Cửa hàng thương mại điện tử',
-        description: 'Mua sắm trực tuyến với giá tốt nhất',
-        keywords: 'thương mại điện tử, mua sắm, trực tuyến'
-      },
-      currencyCode: 'VND',
-      currencySymbol: '₫',
-      currencyPosition: 'after',
-      thousandSeparator: '.',
-      decimalSeparator: ',',
-      numberOfDecimals: 0
-    };
-    
+    const { getMergedGeneralSettings } = require("../services/generalSettingsService");
+    const generalSettings = await getMergedGeneralSettings();
     res.status(200).json(generalSettings);
   } catch (error) {
     console.error("Error fetching general settings:", error);
@@ -694,13 +668,25 @@ router.get("/settings/general", protect, isAdmin, async (req, res) => {
 router.put("/settings/general", protect, isAdmin, async (req, res) => {
   try {
     const Setting = require("../models/Setting");
+    const payload = { ...req.body };
+    delete payload._id;
+    delete payload.type;
+    if (payload.numberOfDecimals !== undefined && payload.numberOfDecimals !== null && payload.numberOfDecimals !== '') {
+      const n = parseInt(payload.numberOfDecimals, 10);
+      payload.numberOfDecimals = Number.isFinite(n) ? Math.min(4, Math.max(0, n)) : 2;
+    }
+
     const updatedSettings = await Setting.findOneAndUpdate(
       { type: 'general' },
-      { ...req.body, type: 'general' },
-      { new: true, upsert: true }
+      {
+        type: 'general',
+        data: payload,
+        updatedBy: req.user?._id
+      },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
     );
     
-    res.status(200).json(updatedSettings);
+    res.status(200).json({ type: 'general', ...(updatedSettings?.data || {}) });
   } catch (error) {
     console.error("Error updating general settings:", error);
     res.status(500).json({ message: "Error updating general settings", error: error.toString() });

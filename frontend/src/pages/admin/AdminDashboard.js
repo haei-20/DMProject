@@ -25,6 +25,7 @@ import './AdminDashboard.css';
 import { useSelector } from 'react-redux';
 import { getUserData } from '../../utils/tokenHelper';
 import { Link } from 'react-router-dom';
+import { formatPrice } from '../../utils/productHelpers';
 
 const AdminDashboard = () => {
   const [period, setPeriod] = useState('monthly');
@@ -128,14 +129,7 @@ const AdminDashboard = () => {
   const COLORS = [THEME_COLORS.primary, THEME_COLORS.warning, THEME_COLORS.success, 
                   THEME_COLORS.info, THEME_COLORS.accent1, THEME_COLORS.accent2];
   
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount || 0);
-  };
+  const formatCurrency = (amount) => formatPrice(amount || 0);
   
   // Redesigned stat card with elegant styling
   const StatCard = ({ title, value, icon, color, isLoading, suffix = '', description = '', trend = null }) => (

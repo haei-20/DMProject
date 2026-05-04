@@ -10,6 +10,7 @@ import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, 
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
+import { formatPrice } from '../../utils/productHelpers';
 
 const ProductAnalytics = () => {
   const [activeTab, setActiveTab] = useState('frequentlyBought');
@@ -94,7 +95,7 @@ const ProductAnalytics = () => {
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip formatter={(value) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'GBP' }).format(value)} />
+          <Tooltip formatter={(value) => formatPrice(value)} />
           <Legend />
         </PieChart>
       </ResponsiveContainer>
@@ -235,11 +236,7 @@ const ProductAnalytics = () => {
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>
-                          <Tooltip formatter={(value) => new Intl.NumberFormat('vi-VN', { 
-                            style: 'currency', 
-                            currency: 'GBP',
-                            maximumFractionDigits: 0
-                          }).format(value)} />
+                          <Tooltip formatter={(value) => formatPrice(value)} />
                         </PieChart>
                       </ResponsiveContainer>
                     </Card.Body>

@@ -18,6 +18,7 @@ import {
 } from '../../services/api';
 import '../../styles/AdminTheme.css';
 import './OrderManagement.css';
+import { formatPrice } from '../../utils/productHelpers';
 
 const OrderManagement = () => {
   // State for filters and pagination
@@ -86,14 +87,7 @@ const OrderManagement = () => {
     { value: 'cancelled', label: 'Đã hủy', variant: 'danger', index: 5 }
   ];
   
-  // Format currency to GBP
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'GBP',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
+  const formatCurrency = (amount) => formatPrice(amount || 0);
   
   // Format date
   const formatDate = (dateString) => {

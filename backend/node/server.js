@@ -61,8 +61,10 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const metricsRoutes = require("./routes/metricsRoutes");
 const uploadRoutes = require('./routes/uploadRoutes');
 const comboRoutes = require('./routes/comboRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 // Áp dụng routes
+app.use("/api/settings", settingsRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/cart", cartRoutes);

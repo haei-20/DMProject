@@ -224,7 +224,7 @@ const baseQueryWithLogging = async (args, api, extraOptions) => {
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithLogging,
-  tagTypes: ['User', 'Product', 'Order', 'Cart', 'Wishlist', 'Category', 'Attribute', 'Customer', 'CustomerGroup', 'Discount', 'Coupon', 'Banner', 'Settings', 'DealHot', 'Notification', 'Combo'],
+  tagTypes: ['User', 'Product', 'Order', 'Cart', 'Wishlist', 'Category', 'Attribute', 'Customer', 'CustomerGroup', 'Discount', 'Coupon', 'Banner', 'Settings', 'PublicSettings', 'DealHot', 'Notification', 'Combo'],
   endpoints: (builder) => ({
     // Auth endpoints
     login: builder.mutation({
@@ -888,6 +888,12 @@ export const api = createApi({
       invalidatesTags: ['Banner'],
     }),
     
+    // Cài đặt chung công khai (tiền tệ hiển thị) — không cần đăng nhập
+    getPublicGeneralSettings: builder.query({
+      query: () => '/settings/general',
+      providesTags: ['PublicSettings'],
+    }),
+
     // Admin Settings endpoints
     getGeneralSettings: builder.query({
       query: () => '/admin/settings/general',
@@ -899,7 +905,7 @@ export const api = createApi({
         method: 'PUT',
         body: settingsData,
       }),
-      invalidatesTags: ['Settings'],
+      invalidatesTags: ['Settings', 'PublicSettings'],
     }),
     
     getPaymentSettings: builder.query({
@@ -1407,6 +1413,7 @@ export const {
   useCreateBannerMutation,
   useUpdateBannerMutation,
   useDeleteBannerMutation,
+  useGetPublicGeneralSettingsQuery,
   useGetGeneralSettingsQuery,
   useUpdateGeneralSettingsMutation,
   useGetPaymentSettingsQuery,

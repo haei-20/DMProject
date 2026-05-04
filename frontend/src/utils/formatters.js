@@ -1,3 +1,5 @@
+import { formatPrice } from './productHelpers';
+
 /**
  * Format a date to a readable string
  * @param {Date|string} date - Date to format
@@ -60,25 +62,14 @@ export const formatDate = (date, options = {}) => {
 };
 
 /**
- * Format a number as currency
- * @param {number} amount - Amount to format
- * @param {string} currency - Currency code (default: GBP)
- * @returns {string} Formatted currency string
+ * Format a number as currency (theo cài đặt tiền tệ trên site).
+ * @param {number} amount
+ * @param {string} _currency — giữ tham số để tương thích; không dùng (định dạng lấy từ cài đặt chung).
  */
-export const formatCurrency = (amount, currency = 'GBP') => {
+export const formatCurrency = (amount, _currency = 'GBP') => {
   if (amount === undefined || amount === null) return 'N/A';
-  
-  try {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount);
-  } catch (error) {
-    console.error('Currency formatting error:', error);
-    return `${amount} ${currency}`;
-  }
+  const formatted = formatPrice(amount);
+  return formatted === '' ? 'N/A' : formatted;
 };
 
 /**

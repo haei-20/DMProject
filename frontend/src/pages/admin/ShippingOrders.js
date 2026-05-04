@@ -4,6 +4,7 @@ import { FaEye, FaCheck } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useGetShippingOrdersQuery, useUpdateOrderStatusMutation } from '../../services/api';
+import { formatPrice } from '../../utils/productHelpers';
 
 const ShippingOrders = () => {
   const { data: shippingOrders, isLoading, error, refetch } = useGetShippingOrdersQuery(undefined, {
@@ -110,7 +111,7 @@ const ShippingOrders = () => {
                       <td>{customerName}</td>
                       <td>{formatDate(order.createdAt)}</td>
                       <td>{itemsCount} sản phẩm</td>
-                      <td>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'GBP' }).format(totalPrice)}</td>
+                      <td>{formatPrice(totalPrice || 0)}</td>
                       <td>{formatPaymentMethod(order.paymentMethod)}</td>
                       <td className="actions">
                         <Link to={`/admin/order/${orderId}`} className="btn btn-info btn-sm me-2">

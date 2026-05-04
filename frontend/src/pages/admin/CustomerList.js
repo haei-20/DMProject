@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useGetCustomersQuery } from '../../services/api';
 import './CustomerList.css';
+import { formatPrice } from '../../utils/productHelpers';
 
 const CustomerList = () => {
   // Fetch customers
@@ -303,12 +304,7 @@ const CustomerList = () => {
                         <td>{customer.phone || 'N/A'}</td>
                         <td>{formatDate(customer.createdAt || customer.registrationDate)}</td>
                         <td>{customer.orderCount || customer.orders?.length || 0}</td>
-                        <td>
-                          {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'GBP'
-                          }).format(customer.totalSpent || 0)}
-                        </td>
+                        <td>{formatPrice(customer.totalSpent || 0)}</td>
                         <td>
                           <Badge bg={customer.isVerified ? "success" : "warning"}>
                             {customer.isVerified ? "Đã xác thực" : "Chưa xác thực"}

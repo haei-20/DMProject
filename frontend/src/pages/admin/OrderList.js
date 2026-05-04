@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useGetAdminOrdersQuery, useUpdateOrderStatusMutation } from '../../services/api';
 import './OrderList.css';
+import { formatPrice } from '../../utils/productHelpers';
 
 const OrderList = () => {
   const [forceRefresh, setForceRefresh] = useState(0); // Force refetch
@@ -467,7 +468,7 @@ const OrderList = () => {
                     <td>{customerName}</td>
                     <td>{formatDate(order.createdAt || order.date)}</td>
                     <td>{itemsCount}</td>
-                    <td>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'GBP' }).format(totalPrice)}</td>
+                    <td>{formatPrice(totalPrice || 0)}</td>
                     <td>{formatPaymentMethod(order.paymentMethod)}</td>
                     <td>
                       <Dropdown>

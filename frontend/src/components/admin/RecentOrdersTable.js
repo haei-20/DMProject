@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { formatDate } from '../../utils/formatters';
 import { FaExclamationTriangle, FaShoppingBag } from 'react-icons/fa';
 import './RecentOrdersTable.css';
+import { formatPrice } from '../../utils/productHelpers';
 
 const RecentOrdersTable = ({ orders = [], loading = false, error = null }) => {
   const getStatusLabel = (status) => {
@@ -40,15 +41,7 @@ const RecentOrdersTable = ({ orders = [], loading = false, error = null }) => {
     }
   };
   
-  // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount || 0);
-  };
+  const formatCurrency = (amount) => formatPrice(amount || 0);
   
   // Show loading spinner
   if (loading) {
