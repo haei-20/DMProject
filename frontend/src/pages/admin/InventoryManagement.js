@@ -156,7 +156,7 @@ const InventoryManagement = () => {
       
       if (newStock < 0) {
         // Don't allow negative stock
-        alert("Error: Stock cannot be negative");
+        alert("Lỗi: Tồn kho không thể là số âm");
         return;
       }
       
@@ -177,9 +177,9 @@ const InventoryManagement = () => {
   
   // Format currency
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'VND',
       minimumFractionDigits: 2
     }).format(amount || 0);
   };
@@ -195,11 +195,11 @@ const InventoryManagement = () => {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'active':
-        return <Badge bg="success">Active</Badge>;
+        return <Badge bg="success">Đang hoạt động</Badge>;
       case 'draft':
-        return <Badge bg="secondary">Draft</Badge>;
+        return <Badge bg="secondary">Bản nháp</Badge>;
       case 'archived':
-        return <Badge bg="dark">Archived</Badge>;
+        return <Badge bg="dark">Lưu trữ</Badge>;
       default:
         return <Badge bg="secondary">{status}</Badge>;
     }
@@ -269,7 +269,7 @@ const InventoryManagement = () => {
     return (
       <AdminLayout>
         <Alert variant="danger" className="admin-my-4">
-          {error.data?.message || 'Error loading products'}
+          {error.data?.message || 'Lỗi tải sản phẩm'}
         </Alert>
       </AdminLayout>
     );
@@ -280,9 +280,9 @@ const InventoryManagement = () => {
       <div className="admin-container">
         <div className="admin-page-header admin-d-flex admin-justify-content-between admin-align-items-center admin-mb-4">
           <div>
-            <h1 className="admin-page-title">Inventory Management</h1>
+            <h1 className="admin-page-title">Quản lý tồn kho</h1>
             <p className="admin-text-muted">
-              Manage product stock levels, track inventory, and adjust quantities
+              Quản lý mức tồn kho, theo dõi hàng tồn và điều chỉnh số lượng
             </p>
           </div>
         </div>
@@ -302,10 +302,10 @@ const InventoryManagement = () => {
                   }}
                   className="admin-tabs admin-mb-3"
                 >
-                  <Tab eventKey="all" title="All Products" />
-                  <Tab eventKey="inStock" title="In Stock" />
-                  <Tab eventKey="lowStock" title="Low Stock" />
-                  <Tab eventKey="outOfStock" title="Out of Stock" />
+                  <Tab eventKey="all" title="Tất cả sản phẩm" />
+                  <Tab eventKey="inStock" title="Còn hàng" />
+                  <Tab eventKey="lowStock" title="Sắp hết hàng" />
+                  <Tab eventKey="outOfStock" title="Hết hàng" />
                 </Tabs>
               </Card.Body>
             </Card>
@@ -322,7 +322,7 @@ const InventoryManagement = () => {
                     <FaSearch className="admin-text-muted" />
                   </InputGroup.Text>
                   <Form.Control
-                    placeholder="Search products by name or SKU..."
+                    placeholder="Tìm theo tên sản phẩm hoặc SKU..."
                     value={filters.search}
                     onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                   />
@@ -333,7 +333,7 @@ const InventoryManagement = () => {
                   className="admin-btn admin-me-2"
                   onClick={() => setShowFilters(!showFilters)}
                 >
-                  <FaFilter className="admin-me-1" /> Filters
+                  <FaFilter className="admin-me-1" /> Bộ lọc
                 </Button>
               </div>
               
@@ -347,9 +347,9 @@ const InventoryManagement = () => {
                     setCurrentPage(1);
                   }}
                 >
-                  <option value={10}>10 per page</option>
-                  <option value={20}>20 per page</option>
-                  <option value={50}>50 per page</option>
+                  <option value={10}>10 mục/trang</option>
+                  <option value={20}>20 mục/trang</option>
+                  <option value={50}>50 mục/trang</option>
                 </Form.Select>
               </div>
             </div>
@@ -360,12 +360,12 @@ const InventoryManagement = () => {
                 <Row>
                   <Col md={4} lg={3}>
                     <Form.Group className="admin-mb-3">
-                      <Form.Label>Category</Form.Label>
+                      <Form.Label>Danh mục</Form.Label>
                       <Form.Select
                         value={filters.category}
                         onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
                       >
-                        <option value="">All Categories</option>
+                        <option value="">Tất cả danh mục</option>
                         {categories.map((category) => (
                           <option key={category._id} value={category._id}>
                             {category.name}
@@ -376,11 +376,11 @@ const InventoryManagement = () => {
                   </Col>
                   <Col md={4} lg={3}>
                     <Form.Group className="admin-mb-3">
-                      <Form.Label>Min Stock</Form.Label>
+                      <Form.Label>Tồn kho tối thiểu</Form.Label>
                       <Form.Control 
                         type="number" 
                         min="0"
-                        placeholder="Min stock"
+                        placeholder="Tồn kho tối thiểu"
                         value={filters.minStock}
                         onChange={(e) => setFilters(prev => ({ ...prev, minStock: e.target.value }))}
                       />
@@ -388,11 +388,11 @@ const InventoryManagement = () => {
                   </Col>
                   <Col md={4} lg={3}>
                     <Form.Group className="admin-mb-3">
-                      <Form.Label>Max Stock</Form.Label>
+                      <Form.Label>Tồn kho tối đa</Form.Label>
                       <Form.Control 
                         type="number" 
                         min="0"
-                        placeholder="Max stock"
+                        placeholder="Tồn kho tối đa"
                         value={filters.maxStock}
                         onChange={(e) => setFilters(prev => ({ ...prev, maxStock: e.target.value }))}
                       />
@@ -400,15 +400,15 @@ const InventoryManagement = () => {
                   </Col>
                   <Col md={4} lg={3}>
                     <Form.Group className="admin-mb-3">
-                      <Form.Label>Status</Form.Label>
+                      <Form.Label>Trạng thái</Form.Label>
                       <Form.Select
                         value={filters.status}
                         onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
                       >
-                        <option value="">All Statuses</option>
-                        <option value="active">Active</option>
-                        <option value="draft">Draft</option>
-                        <option value="archived">Archived</option>
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="active">Đang hoạt động</option>
+                        <option value="draft">Bản nháp</option>
+                        <option value="archived">Lưu trữ</option>
                       </Form.Select>
                     </Form.Group>
                   </Col>
@@ -425,7 +425,7 @@ const InventoryManagement = () => {
                           status: ''
                         })}
                       >
-                        Clear
+                        Xóa bộ lọc
                       </Button>
                     </div>
                   </Col>
@@ -443,7 +443,7 @@ const InventoryManagement = () => {
                       className="admin-sortable" 
                       onClick={() => handleSort('name')}
                     >
-                      Product {getSortIcon('name')}
+                      Sản phẩm {getSortIcon('name')}
                     </th>
                     <th 
                       className="admin-sortable" 
@@ -455,23 +455,23 @@ const InventoryManagement = () => {
                       className="admin-sortable" 
                       onClick={() => handleSort('category')}
                     >
-                      Category {getSortIcon('category')}
+                      Danh mục {getSortIcon('category')}
                     </th>
                     <th 
                       className="admin-sortable" 
                       onClick={() => handleSort('stock')}
                     >
-                      Stock {getSortIcon('stock')}
+                      Tồn kho {getSortIcon('stock')}
                     </th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   {getDisplayedProducts().products.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="admin-text-center admin-p-4">
-                        No products found
+                        Không tìm thấy sản phẩm
                       </td>
                     </tr>
                   ) : (
@@ -496,9 +496,9 @@ const InventoryManagement = () => {
                             </div>
                           </div>
                         </td>
-                        <td>{product.sku || product._id || 'N/A'}</td>
+                        <td>{product.sku || product._id || 'Không có'}</td>
                         <td>
-                          {categories.find(c => c._id === product.category)?.name || 'Uncategorized'}
+                          {categories.find(c => c._id === product.category)?.name || 'Chưa phân loại'}
                         </td>
                         <td>
                           <span className={`admin-fw-medium ${getStockStatusClass(product.stock)}`}>
@@ -507,7 +507,7 @@ const InventoryManagement = () => {
                               <FaExclamationTriangle className="ms-2" />
                             )}
                             {(product.stock === 0 || product.stock === null || product.stock === undefined) && (
-                              <Badge bg="danger" className="ms-2">Out of Stock</Badge>
+                              <Badge bg="danger" className="ms-2">Hết hàng</Badge>
                             )}
                           </span>
                         </td>
@@ -522,7 +522,7 @@ const InventoryManagement = () => {
                                 setShowStockModal(true);
                               }}
                             >
-                              Adjust Stock
+                              Điều chỉnh tồn kho
                             </Button>
                             
                             <Link to={`/admin/products/edit/${product._id}`} className="admin-btn admin-btn-icon admin-btn-sm admin-me-1">
@@ -546,32 +546,32 @@ const InventoryManagement = () => {
       {/* Stock Adjustment Modal */}
       <Modal show={showStockModal} onHide={() => setShowStockModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Adjust Stock</Modal.Title>
+          <Modal.Title>Điều chỉnh tồn kho</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedProduct && (
             <>
               <div className="admin-mb-3">
-                <strong>Product:</strong> {selectedProduct.name}
+                <strong>Sản phẩm:</strong> {selectedProduct.name}
               </div>
               <div className="admin-mb-3">
-                <strong>Current Stock:</strong> {selectedProduct.stock || 0} units
+                <strong>Tồn kho hiện tại:</strong> {selectedProduct.stock || 0} sản phẩm
               </div>
               <Form.Group className="admin-mb-3">
-                <Form.Label>Adjustment Type</Form.Label>
+                <Form.Label>Loại điều chỉnh</Form.Label>
                 <Form.Select
                   value={stockAdjustment.reason}
                   onChange={(e) => setStockAdjustment(prev => ({ ...prev, reason: e.target.value }))}
                 >
-                  <option value="restock">Restock (Add Inventory)</option>
-                  <option value="returned">Returned Items</option>
-                  <option value="correction">Inventory Correction</option>
-                  <option value="damaged">Damaged/Lost Items</option>
-                  <option value="other">Other</option>
+                  <option value="restock">Nhập thêm hàng</option>
+                  <option value="returned">Hàng hoàn trả</option>
+                  <option value="correction">Điều chỉnh kiểm kho</option>
+                  <option value="damaged">Hàng hỏng/thất lạc</option>
+                  <option value="other">Khác</option>
                 </Form.Select>
               </Form.Group>
               <Form.Group className="admin-mb-3">
-                <Form.Label>Quantity</Form.Label>
+                <Form.Label>Số lượng</Form.Label>
                 <InputGroup>
                   <Button 
                     variant="outline-secondary"
@@ -601,13 +601,13 @@ const InventoryManagement = () => {
                   </Button>
                 </InputGroup>
                 <Form.Text className="text-muted">
-                  Enter a positive number to add inventory or a negative number to remove inventory.
+                  Nhập số dương để tăng tồn kho hoặc số âm để giảm tồn kho.
                 </Form.Text>
               </Form.Group>
               <div className="admin-mb-3">
-                <strong>New Stock Will Be:</strong> 
+                <strong>Tồn kho sau điều chỉnh:</strong> 
                 <span className={getStockStatusClass((selectedProduct.stock || 0) + parseInt(stockAdjustment.quantity || 0))}>
-                  {" " + ((selectedProduct.stock || 0) + parseInt(stockAdjustment.quantity || 0))} units
+                  {" " + ((selectedProduct.stock || 0) + parseInt(stockAdjustment.quantity || 0))} sản phẩm
                 </span>
               </div>
             </>
@@ -615,7 +615,7 @@ const InventoryManagement = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowStockModal(false)}>
-            Cancel
+            Hủy
           </Button>
           <Button 
             variant="primary" 
@@ -625,12 +625,12 @@ const InventoryManagement = () => {
             {isUpdating ? (
               <>
                 <Spinner animation="border" size="sm" className="me-2" />
-                Updating...
+                Đang cập nhật...
               </>
             ) : (
               <>
                 <FaSave className="me-2" />
-                Save Changes
+                Lưu thay đổi
               </>
             )}
           </Button>

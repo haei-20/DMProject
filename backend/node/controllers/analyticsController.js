@@ -220,7 +220,7 @@ exports.getRelatedProducts = asyncHandler(async (req, res) => {
 exports.getProductAnalytics = asyncHandler(async (req, res) => {
   try {
     // Get top selling products
-    const topProducts = await Order.aggregate([
+    const topProductsPromise = Order.aggregate([
       { $unwind: "$orderItems" },
       { $group: {
           _id: "$orderItems.product",
@@ -253,7 +253,7 @@ exports.getProductAnalytics = asyncHandler(async (req, res) => {
     ]);
 
     // Get sales by category
-    const salesByCategory = await Order.aggregate([
+    const salesByCategoryPromise = Order.aggregate([
       { $unwind: "$orderItems" },
       { $lookup: {
           from: "products",
@@ -262,7 +262,7 @@ exports.getProductAnalytics = asyncHandler(async (req, res) => {
           as: "product"
         }
       },
-      { $unwind: "$product" },
+      { $unwind: { path: "$product", preserveNullAndEmptyArrays: true } },
       { $lookup: {
           from: "categories",
           localField: "product.category",
@@ -270,9 +270,32 @@ exports.getProductAnalytics = asyncHandler(async (req, res) => {
           as: "categoryDetails"
         }
       },
-      { $unwind: "$categoryDetails" },
+      { $unwind: { path: "$categoryDetails", preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          categoryName: {
+            $ifNull: [
+              "$categoryDetails.name",
+              {
+                $ifNull: [
+                  {
+                    $cond: [
+                      { $eq: [{ $type: "$product.category" }, "string"] },
+                      "$product.category",
+                      null
+                    ]
+                  },
+                  {
+                    $ifNull: ["$orderItems.category", "Khác"]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
       { $group: {
-          _id: "$categoryDetails.name",
+          _id: "$categoryName",
           value: { $sum: { $multiply: [{ $ifNull: ["$orderItems.qty", "$orderItems.quantity"] }, "$orderItems.price"] } }
         }
       },
@@ -287,7 +310,7 @@ exports.getProductAnalytics = asyncHandler(async (req, res) => {
     ]);
 
     // Get product views
-    const productViews = await UserBehavior.aggregate([
+    const productViewsPromise = UserBehavior.aggregate([
       { $unwind: "$behaviors" },
       { $match: { "behaviors.type": "view" } },
       { $group: {
@@ -311,6 +334,12 @@ exports.getProductAnalytics = asyncHandler(async (req, res) => {
           views: 1
         }
       }
+    ]);
+
+    const [topProducts, salesByCategory, productViews] = await Promise.all([
+      topProductsPromise,
+      salesByCategoryPromise,
+      productViewsPromise
     ]);
 
     res.status(200).json({
@@ -425,6 +454,30 @@ exports.getUserAnalytics = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 exports.getOrderAnalytics = asyncHandler(async (req, res) => {
   try {
+    const currentYear = new Date().getFullYear();
+    const rawFromYear = parseInt(req.query.fromYear, 10);
+    const rawToYear = parseInt(req.query.toYear, 10);
+    const defaultFromYear = currentYear - 4;
+    const defaultToYear = currentYear;
+
+    let fromYear = Number.isFinite(rawFromYear) ? rawFromYear : defaultFromYear;
+    let toYear = Number.isFinite(rawToYear) ? rawToYear : defaultToYear;
+
+    fromYear = Math.max(2000, Math.min(fromYear, currentYear));
+    toYear = Math.max(2000, Math.min(toYear, currentYear));
+
+    if (fromYear > toYear) {
+      [fromYear, toYear] = [toYear, fromYear];
+    }
+    // So sánh deliveredAt, paidAt, createdAt và lấy ngày cũ nhất
+    const analyticsDateExpr = {
+      $min: [
+        { $ifNull: ["$deliveredAt", new Date("9999-12-31T23:59:59.999Z")] },
+        { $ifNull: ["$paidAt", new Date("9999-12-31T23:59:59.999Z")] },
+        { $ifNull: ["$createdAt", new Date("9999-12-31T23:59:59.999Z")] }
+      ]
+    };
+
     // Get monthly revenue and order count
     const monthsAgo = new Date();
     monthsAgo.setMonth(monthsAgo.getMonth() - 8); // Get data for last 8 months
@@ -433,9 +486,15 @@ exports.getOrderAnalytics = asyncHandler(async (req, res) => {
     
     // Get monthly data
     const orderDataByMonth = await Order.aggregate([
-      { $match: { createdAt: { $gte: monthsAgo } } },
+      {
+        $project: {
+          totalPrice: 1,
+          analyticsDate: analyticsDateExpr
+        }
+      },
+      { $match: { analyticsDate: { $gte: monthsAgo } } },
       { $group: {
-          _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } },
+          _id: { month: { $month: "$analyticsDate" }, year: { $year: "$analyticsDate" } },
           revenue: { $sum: "$totalPrice" },
           orders: { $sum: 1 }
         }
@@ -448,12 +507,18 @@ exports.getOrderAnalytics = asyncHandler(async (req, res) => {
     weeksAgo.setDate(weeksAgo.getDate() - 7 * 8); // Get data for last 8 weeks
     
     const orderDataByWeek = await Order.aggregate([
-      { $match: { createdAt: { $gte: weeksAgo } } },
       {
         $project: {
           totalPrice: 1,
-          week: { $week: "$createdAt" },
-          year: { $year: "$createdAt" }
+          analyticsDate: analyticsDateExpr
+        }
+      },
+      { $match: { analyticsDate: { $gte: weeksAgo } } },
+      {
+        $project: {
+          totalPrice: 1,
+          week: { $week: "$analyticsDate" },
+          year: { $year: "$analyticsDate" }
         }
       },
       {
@@ -466,21 +531,50 @@ exports.getOrderAnalytics = asyncHandler(async (req, res) => {
       { $sort: { "_id.year": 1, "_id.week": 1 } }
     ]);
     
-    // Get yearly data
-    const yearsAgo = new Date();
-    yearsAgo.setFullYear(yearsAgo.getFullYear() - 5); // Get data for last 5 years
-    
+    // Get yearly data theo khoảng năm từ frontend
     const orderDataByYear = await Order.aggregate([
-      { $match: { createdAt: { $gte: yearsAgo } } },
+      {
+        $project: {
+          totalPrice: 1,
+          analyticsDate: analyticsDateExpr
+        }
+      },
+      {
+        $match: {
+          analyticsDate: {
+            $gte: new Date(fromYear, 0, 1),
+            $lte: new Date(toYear, 11, 31, 23, 59, 59, 999)
+          }
+        }
+      },
       {
         $group: {
-          _id: { year: { $year: "$createdAt" } },
+          _id: { year: { $year: "$analyticsDate" } },
           revenue: { $sum: "$totalPrice" },
           orders: { $sum: 1 }
         }
       },
       { $sort: { "_id.year": 1 } }
     ]);
+
+    // Lấy năm nhỏ nhất/lớn nhất có dữ liệu theo analyticsDate (toàn bộ dữ liệu)
+    const [yearBounds] = await Order.aggregate([
+      {
+        $project: {
+          analyticsDate: analyticsDateExpr
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          minDate: { $min: "$analyticsDate" },
+          maxDate: { $max: "$analyticsDate" }
+        }
+      }
+    ]);
+
+    const minDataYear = yearBounds?.minDate ? new Date(yearBounds.minDate).getFullYear() : null;
+    const maxDataYear = yearBounds?.maxDate ? new Date(yearBounds.maxDate).getFullYear() : null;
     
     // Format data for frontend chart
     const revenueByPeriod = [];
@@ -527,14 +621,8 @@ exports.getOrderAnalytics = asyncHandler(async (req, res) => {
       });
     }
     
-    // Create last 5 years of data
-    for (let i = 0; i < 5; i++) {
-      const year = new Date().getFullYear() - 4 + i;
-      
-      const data = orderDataByYear.find(
-        item => item._id.year === year
-      );
-      
+    for (let year = fromYear; year <= toYear; year++) {
+      const data = orderDataByYear.find((item) => item._id.year === year);
       revenueByPeriod.push({
         name: year.toString(),
         revenue: data ? data.revenue : 0,
@@ -555,8 +643,8 @@ exports.getOrderAnalytics = asyncHandler(async (req, res) => {
       _id: order._id,
       orderNumber: order.orderNumber || `ORD-${order._id.toString().substring(0, 8)}`,
       user: {
-        name: order.user ? order.user.name : 'Unknown Customer',
-        email: order.user ? order.user.email : 'No email provided'
+        name: order.user?.name || order.guestInfo?.name || 'Khách hàng không xác định',
+        email: order.user?.email || order.guestInfo?.email || 'Không có email'
       },
       totalPrice: order.totalPrice,
       status: order.status || 'pending',
@@ -575,7 +663,14 @@ exports.getOrderAnalytics = asyncHandler(async (req, res) => {
     res.status(200).json({
       revenueByPeriod,
       recentOrders: formattedRecentOrders,
-      ordersByPaymentMethod
+      ordersByPaymentMethod,
+      info: {
+        fromYear,
+        toYear,
+        minDataYear,
+        maxDataYear,
+        dateSource: "min(deliveredAt,paidAt,createdAt)"
+      }
     });
   } catch (error) {
     console.error("Error getting order analytics:", error);

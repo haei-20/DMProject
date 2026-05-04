@@ -21,13 +21,13 @@
   overflow-x: hidden;
 }
 
-/* Collapsed sidebar state */
-.admin-layout.sidebar-collapsed .admin-main {
-  margin-left: 0;
-}
-
 .admin-sidebar-overlay {
   display: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  background: transparent;
 }
 
 /* Responsive styles */
@@ -57,5 +57,9 @@
   
   .admin-sidebar-overlay.visible {
     display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.45);
   }
 } 

@@ -5,6 +5,26 @@ const { protect, isAdmin } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/upload/image:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Upload 1 ảnh (admin)
+ *     security:
+ *       - BearerAuth: []
+ * /api/upload/image/{publicId}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Xóa ảnh (admin)
+ *     security:
+ *       - BearerAuth: []
+ * /api/upload/status:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Kiểm tra trạng thái upload (Cloudinary/local)
+ */
+
 // Upload single image
 router.post('/image', protect, isAdmin, upload.single('image'), (req, res) => {
   try {

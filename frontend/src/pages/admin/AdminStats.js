@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Row, Col, Card, Spinner, Alert } from 'react-bootstrap';
 import { FaChartLine, FaShoppingCart, FaUsers, FaMoneyBillWave, FaChartBar, FaChartPie } from 'react-icons/fa';
 import AdminLayout from './AdminLayout';
@@ -21,7 +21,8 @@ const AdminStats = () => {
   const { data: userAnalytics, isLoading: userLoading } = useGetUserAnalyticsQuery();
   const { data: orderAnalytics, isLoading: orderLoading } = useGetOrderAnalyticsQuery();
 
-  const loading = statsLoading || productLoading || userLoading || orderLoading;
+  const loading = !dashboardStats && !productAnalytics && !userAnalytics && !orderAnalytics &&
+    (statsLoading || productLoading || userLoading || orderLoading);
   const error = statsError || (!dashboardStats && !productAnalytics && !userAnalytics && !orderAnalytics);
 
   // Format currency
@@ -52,23 +53,23 @@ const AdminStats = () => {
   return (
     <AdminLayout>
       <div className="admin-stats">
-        <h1>Statistics & Analytics</h1>
+        <h1>Thống kê và phân tích</h1>
         
         {loading ? (
           <div className="text-center my-5">
             <Spinner animation="border" variant="primary" />
-            <p className="mt-2">Loading statistics...</p>
+            <p className="mt-2">Đang tải thống kê...</p>
           </div>
         ) : error ? (
           <Alert variant="danger">
-            <Alert.Heading>Error loading data</Alert.Heading>
-            <p>Could not load analytics data. Using mock data instead.</p>
+            <Alert.Heading>Lỗi tải dữ liệu</Alert.Heading>
+            <p>Không thể tải dữ liệu phân tích. Đang dùng dữ liệu mẫu.</p>
           </Alert>
         ) : (
           <>
             {/* Key Metrics */}
             <div className="stats-section">
-              <h2>Key Metrics</h2>
+              <h2>Chỉ số chính</h2>
               <Row>
                 <Col md={3}>
                   <Card className="stats-card">
@@ -78,7 +79,7 @@ const AdminStats = () => {
                       </div>
                       <div className="stats-info">
                         <h3>{formatCurrency(dashboardStats?.totalRevenue)}</h3>
-                        <p>Total Revenue</p>
+                        <p>Tổng doanh thu</p>
                       </div>
                     </Card.Body>
                   </Card>
@@ -91,7 +92,7 @@ const AdminStats = () => {
                       </div>
                       <div className="stats-info">
                         <h3>{dashboardStats?.totalOrders || 0}</h3>
-                        <p>Total Orders</p>
+                        <p>Tổng đơn hàng</p>
                       </div>
                     </Card.Body>
                   </Card>
@@ -104,7 +105,7 @@ const AdminStats = () => {
                       </div>
                       <div className="stats-info">
                         <h3>{dashboardStats?.totalCustomers || 0}</h3>
-                        <p>Total Customers</p>
+                        <p>Tổng khách hàng</p>
                       </div>
                     </Card.Body>
                   </Card>
@@ -117,7 +118,7 @@ const AdminStats = () => {
                       </div>
                       <div className="stats-info">
                         <h3>{dashboardStats?.newCustomers || 0}</h3>
-                        <p>New Customers This Month</p>
+                        <p>Khách hàng mới tháng này</p>
                       </div>
                     </Card.Body>
                   </Card>
@@ -127,12 +128,12 @@ const AdminStats = () => {
             
             {/* Revenue Chart */}
             <div className="stats-section">
-              <h2>Monthly Revenue</h2>
+              <h2>Doanh thu theo tháng</h2>
               <Card className="chart-card">
                 <Card.Body>
                   <div className="chart-placeholder">
                     <FaChartBar className="chart-icon" />
-                    <p>Monthly Revenue Chart</p>
+                    <p>Biểu đồ doanh thu tháng</p>
                     <div className="mock-bar-chart">
                       {getRevenueData().map((item, index) => {
                         const maxRevenue = Math.max(...getRevenueData().map(i => i.revenue));
@@ -158,15 +159,15 @@ const AdminStats = () => {
             <Row>
               <Col md={7}>
                 <div className="stats-section">
-                  <h2>Top Selling Products</h2>
+                  <h2>Sản phẩm bán chạy</h2>
                   <Card className="table-card">
                     <Card.Body>
                       <table className="stats-table">
                         <thead>
                           <tr>
-                            <th>Product</th>
-                            <th>Sales</th>
-                            <th>Price</th>
+                            <th>Sản phẩm</th>
+                            <th>Đã bán</th>
+                            <th>Giá</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -191,26 +192,37 @@ const AdminStats = () => {
               </Col>
               <Col md={5}>
                 <div className="stats-section">
-                  <h2>Sales by Category</h2>
+                  <h2>Doanh số theo danh mục</h2>
                   <Card className="chart-card">
                     <Card.Body>
-                      <div className="chart-placeholder pie-chart-placeholder">
-                        <FaChartPie className="chart-icon" />
-                        <p>Category Distribution</p>
-                        <div className="category-list">
-                          {getSalesByCategory().map((category, index) => {
-                            const totalValue = getSalesByCategory().reduce((sum, cat) => sum + cat.value, 0);
-                            const percentage = totalValue ? Math.round((category.value / totalValue) * 100) : 0;
-                            return (
-                              <div key={index} className="category-item">
-                                <div className="category-color" style={{ backgroundColor: getColorForIndex(index) }}></div>
-                                <div className="category-name">{category.name}</div>
-                                <div className="category-percentage">{percentage}%</div>
-                              </div>
-                            );
-                          })}
+                      {productLoading ? (
+                        <div className="text-center py-4">
+                          <Spinner animation="border" size="sm" />
+                          <p className="mt-2 mb-0">Đang tải dữ liệu danh mục...</p>
                         </div>
-                      </div>
+                      ) : getSalesByCategory().length === 0 ? (
+                        <Alert variant="info" className="mb-0">
+                          Không có dữ liệu doanh số theo danh mục
+                        </Alert>
+                      ) : (
+                        <div className="chart-placeholder pie-chart-placeholder">
+                          <FaChartPie className="chart-icon" />
+                          <p>Phân bố danh mục</p>
+                          <div className="category-list">
+                            {getSalesByCategory().map((category, index) => {
+                              const totalValue = getSalesByCategory().reduce((sum, cat) => sum + cat.value, 0);
+                              const percentage = totalValue ? Math.round((category.value / totalValue) * 100) : 0;
+                              return (
+                                <div key={index} className="category-item">
+                                  <div className="category-color" style={{ backgroundColor: getColorForIndex(index) }}></div>
+                                  <div className="category-name">{category.name}</div>
+                                  <div className="category-percentage">{percentage}%</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </Card.Body>
                   </Card>
                 </div>

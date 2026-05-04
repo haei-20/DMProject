@@ -2,6 +2,29 @@ const express = require("express");
 const { getAprioriRecommendations, getFPGrowthRecommendations } = require("../services/recommendationService");
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/recommend/user:
+ *   get:
+ *     tags: [Recommendations]
+ *     summary: Lấy gợi ý cho người dùng (Apriori)
+ *     responses:
+ *       200:
+ *         description: Thành công
+ *       500:
+ *         description: Lỗi hệ thống khi tạo gợi ý
+ *
+ * /api/recommend/admin:
+ *   get:
+ *     tags: [Recommendations, Admin]
+ *     summary: Lấy gợi ý cho admin (FP-Growth)
+ *     responses:
+ *       200:
+ *         description: Thành công
+ *       500:
+ *         description: Lỗi hệ thống khi tạo gợi ý
+ */
+
 // API gợi ý sản phẩm cho người dùng
 router.get("/user", async (req, res) => {
   try {

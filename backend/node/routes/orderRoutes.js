@@ -12,6 +12,41 @@ const { protect, isAdmin, optionalAuth } = require("../middlewares/authMiddlewar
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/orders:
+ *   post:
+ *     tags: [Orders]
+ *     summary: Tạo đơn hàng (user hoặc guest)
+ *   get:
+ *     tags: [Orders, Admin]
+ *     summary: Lấy tất cả đơn hàng (admin)
+ *     security:
+ *       - BearerAuth: []
+ * /api/orders/myorders:
+ *   get:
+ *     tags: [Orders]
+ *     summary: Lấy đơn hàng của người dùng hiện tại
+ *     security:
+ *       - BearerAuth: []
+ * /api/orders/guest/{id}/{email}:
+ *   get:
+ *     tags: [Orders]
+ *     summary: Lấy đơn hàng của khách
+ * /api/orders/{id}:
+ *   get:
+ *     tags: [Orders]
+ *     summary: Lấy chi tiết đơn hàng theo ID
+ *     security:
+ *       - BearerAuth: []
+ * /api/orders/{id}/status:
+ *   put:
+ *     tags: [Orders, Admin]
+ *     summary: Cập nhật trạng thái đơn hàng
+ *     security:
+ *       - BearerAuth: []
+ */
+
 // Tạo đơn hàng - cập nhật để cho phép khách đặt hàng
 router.post("/", optionalAuth, createOrder);
 

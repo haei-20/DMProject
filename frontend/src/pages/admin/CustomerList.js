@@ -263,7 +263,7 @@ const CustomerList = () => {
         {error && (
           <Alert variant="danger">
             <div className="d-flex justify-content-between align-items-center">
-              <span>Lỗi khi tải danh sách khách hàng: {error.message || 'Unknown error'}</span>
+              <span>Lỗi khi tải danh sách khách hàng: {error.message || 'Lỗi không xác định'}</span>
               <Button variant="outline-danger" size="sm" onClick={handleRefresh}>
                 <FaSync /> Thử lại
               </Button>

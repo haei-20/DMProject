@@ -48,7 +48,7 @@ const OrderList = () => {
 
   // Format date function
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return 'Không có';
     const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     return new Date(dateString).toLocaleDateString('vi-VN', options);
   };
@@ -245,7 +245,7 @@ const OrderList = () => {
       
     } catch (err) {
       console.error('Failed to update order status:', err);
-      alert(`Không thể cập nhật trạng thái đơn hàng. Lỗi: ${err.data?.message || err.error || 'Unknown error'}`);
+      alert(`Không thể cập nhật trạng thái đơn hàng. Lỗi: ${err.data?.message || err.error || 'Lỗi không xác định'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -268,7 +268,7 @@ const OrderList = () => {
     
     // Không cho phép chuyển từ đã hủy hoặc đã giao sang trạng thái khác
     if (currentStatus === 'cancelled' || currentStatus === 'delivered') {
-      return newStatus === 'pending'; // Chỉ cho phép đặt lại về pending
+      return newStatus === 'pending'; // Chỉ cho phép đặt lại về chờ xử lý
     }
     
     return true;
@@ -414,7 +414,7 @@ const OrderList = () => {
         {error && (
           <Alert variant="danger">
             <div className="d-flex justify-content-between align-items-center">
-              <span>Lỗi khi tải danh sách đơn hàng: {error.message || 'Unknown error'}</span>
+              <span>Lỗi khi tải danh sách đơn hàng: {error.message || 'Lỗi không xác định'}</span>
               <Button variant="outline-danger" size="sm" onClick={handleForceRefresh}>
                 <FaSync /> Thử lại
               </Button>
@@ -444,7 +444,7 @@ const OrderList = () => {
             <tbody>
               {getFilteredOrders().map(order => {
                 // Trích xuất dữ liệu đơn hàng từ các định dạng khác nhau
-                const orderId = order._id || order.id || 'N/A';
+                const orderId = order._id || order.id || 'Không có';
                 const orderNumber = order.orderNumber || `#${orderId.slice(-6)}`;
                 
                 // Lấy thông tin khách hàng từ cả định dạng API thực tế và mẫu

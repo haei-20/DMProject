@@ -221,7 +221,7 @@ const ComboManagement = () => {
         setActiveTab('combos');
       } catch (error) {
         console.error('Failed to save combo:', error);
-        showMessage(`Lỗi khi lưu combo: ${error.message || 'Unknown error'}`, 'danger');
+        showMessage(`Lỗi khi lưu combo: ${error.message || 'Lỗi không xác định'}`, 'danger');
       }
     }
   };
@@ -251,7 +251,7 @@ const ComboManagement = () => {
       showMessage('Combo đã được xóa thành công');
     } catch (error) {
       console.error('Failed to delete combo:', error);
-      showMessage(`Lỗi khi xóa combo: ${error.message || 'Unknown error'}`, 'danger');
+      showMessage(`Lỗi khi xóa combo: ${error.message || 'Lỗi không xác định'}`, 'danger');
     }
   };
   

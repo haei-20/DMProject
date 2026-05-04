@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Nav } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  FaHome, FaBox, FaShoppingBag, FaList, FaTags, FaChartPie,
-  FaChartBar, FaCog, FaSignOutAlt, FaAngleDown, FaAngleRight, FaStore,
-  FaCreditCard, FaHammer, FaImages, FaPercent, FaShieldAlt, FaBell
+  FaHome, FaBox, FaShoppingBag, FaList, FaChartPie,
+  FaCog, FaSignOutAlt, FaStore,
+  FaImages, FaPercent, FaShieldAlt
 } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/slices/authSlice';
@@ -17,59 +17,27 @@ const AdminSidebar = () => {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
   
-  // Fetch pending orders to display count
   const { data: pendingOrders } = useGetPendingOrdersQuery(undefined, {
-    pollingInterval: 60000, // Poll every minute
+    pollingInterval: 60000,
     refetchOnMountOrArgChange: true
   });
   
-  // Fetch processing orders to display count
   const { data: processingOrders } = useGetProcessingOrdersQuery(undefined, {
-    pollingInterval: 60000, // Poll every minute
+    pollingInterval: 60000,
     refetchOnMountOrArgChange: true
   });
   
-  // Fetch shipping orders to display count
   const { data: shippingOrders } = useGetShippingOrdersQuery(undefined, {
-    pollingInterval: 60000, // Poll every minute
+    pollingInterval: 60000,
     refetchOnMountOrArgChange: true
   });
   
-  // Calculate count of pending orders
   const pendingOrderCount = pendingOrders?.length || 0;
-  
-  // Calculate count of processing orders
   const processingOrderCount = processingOrders?.length || 0;
-  
-  // Calculate count of shipping orders
   const shippingOrderCount = shippingOrders?.length || 0;
-  
-  const [expanded, setExpanded] = useState({
-    products: false,
-    orders: false,
-    marketing: false,
-    settings: false,
-  });
-  
-  // Function to toggle dropdown state
-  const toggleDropdown = (key) => {
-    setExpanded(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-  
-  // Check if a route is active
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
-  
-  // Check if a parent route is active
-  const isParentActive = (pathPrefix) => {
-    return location.pathname.startsWith(pathPrefix);
-  };
-  
-  // Handle logout
+
+  const isActive = (path) => location.pathname === path;
+
   const handleLogout = () => {
     dispatch(logout());
   };
@@ -88,7 +56,7 @@ const AdminSidebar = () => {
           {user?.name?.charAt(0) || 'A'}
         </div>
         <div className="admin-user-details">
-          <h5 className="admin-user-name">{user?.name || 'Admin User'}</h5>
+          <h5 className="admin-user-name">{user?.name || 'Quản trị viên'}</h5>
           <p className="admin-user-role">Quản trị viên</p>
         </div>
       </div>
@@ -97,15 +65,15 @@ const AdminSidebar = () => {
         <div className="admin-menu-section">
           <h6 className="admin-menu-label">Tổng quan</h6>
           
-        <Nav.Item>
-          <Link 
-            to="/admin/dashboard" 
-            className={`admin-menu-item ${isActive('/admin/dashboard') ? 'active' : ''}`}
-          >
-            <FaHome className="admin-menu-icon" />
-              <span className="admin-menu-text">Dashboard</span>
-          </Link>
-        </Nav.Item>
+          <Nav.Item>
+            <Link 
+              to="/admin/dashboard" 
+              className={`admin-menu-item ${isActive('/admin/dashboard') ? 'active' : ''}`}
+            >
+              <FaHome className="admin-menu-icon" />
+              <span className="admin-menu-text">Bảng điều khiển</span>
+            </Link>
+          </Nav.Item>
         
           <Nav.Item>
             <Link 
@@ -120,218 +88,144 @@ const AdminSidebar = () => {
         
         <div className="admin-menu-section">
           <h6 className="admin-menu-label">Quản lý sản phẩm</h6>
-        
-        <Nav.Item>
-          <div 
-            className={`admin-menu-item dropdown-toggle ${isParentActive('/admin/products') ? 'active' : ''}`}
-            onClick={() => toggleDropdown('products')}
-          >
-            <FaBox className="admin-menu-icon" />
-              <span className="admin-menu-text">Sản phẩm</span>
-              {expanded.products ? (
-                <FaAngleDown className="dropdown-icon" />
-              ) : (
-                <FaAngleRight className="dropdown-icon" />
-              )}
-          </div>
-          
-            <div className={`admin-dropdown-menu ${expanded.products ? 'expanded' : ''}`}>
+          <p className="admin-menu-group-label">Sản phẩm</p>
+          <Nav.Item>
             <Link 
               to="/admin/products" 
-                className={`admin-dropdown-item ${isActive('/admin/products') ? 'active' : ''}`}
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/products') ? 'active' : ''}`}
             >
-                <span className="dropdown-bullet"></span>
-                Tất cả sản phẩm
+              <FaBox className="admin-menu-icon" />
+              <span className="admin-menu-text">Tất cả sản phẩm</span>
             </Link>
+          </Nav.Item>
+          <Nav.Item>
             <Link 
               to="/admin/products/create" 
-                className={`admin-dropdown-item ${isActive('/admin/products/create') ? 'active' : ''}`}
-              >
-                <span className="dropdown-bullet"></span>
-                Thêm sản phẩm mới
-              </Link>
-              <Link 
-                to="/admin/products/inventory" 
-                className={`admin-dropdown-item ${isActive('/admin/products/inventory') ? 'active' : ''}`}
-              >
-                <span className="dropdown-bullet"></span>
-                Quản lý tồn kho
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/products/create') ? 'active' : ''}`}
+            >
+              <span className="admin-menu-icon admin-menu-icon-placeholder" aria-hidden />
+              <span className="admin-menu-text">Thêm sản phẩm mới</span>
             </Link>
-          </div>
-        </Nav.Item>
-        
-        <Nav.Item>
-          <Link 
-            to="/admin/categories" 
-            className={`admin-menu-item ${isActive('/admin/categories') ? 'active' : ''}`}
-          >
-            <FaList className="admin-menu-icon" />
+          </Nav.Item>
+          <Nav.Item>
+            <Link 
+              to="/admin/products/inventory" 
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/products/inventory') ? 'active' : ''}`}
+            >
+              <span className="admin-menu-icon admin-menu-icon-placeholder" aria-hidden />
+              <span className="admin-menu-text">Quản lý tồn kho</span>
+            </Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Link 
+              to="/admin/categories" 
+              className={`admin-menu-item ${isActive('/admin/categories') ? 'active' : ''}`}
+            >
+              <FaList className="admin-menu-icon" />
               <span className="admin-menu-text">Danh mục</span>
-          </Link>
-        </Nav.Item>
+            </Link>
+          </Nav.Item>
         </div>
         
         <div className="admin-menu-section">
           <h6 className="admin-menu-label">Bán hàng</h6>
-        
-        <Nav.Item>
-          <div 
-            className={`admin-menu-item dropdown-toggle ${isParentActive('/admin/orders') ? 'active' : ''}`}
-            onClick={() => toggleDropdown('orders')}
-          >
-            <FaShoppingBag className="admin-menu-icon" />
-              <span className="admin-menu-text">Đơn hàng</span>
-              {expanded.orders ? (
-                <FaAngleDown className="dropdown-icon" />
-              ) : (
-                <FaAngleRight className="dropdown-icon" />
-              )}
-          </div>
-          
-            <div className={`admin-dropdown-menu ${expanded.orders ? 'expanded' : ''}`}>
+          <p className="admin-menu-group-label">Đơn hàng</p>
+          <Nav.Item>
             <Link 
               to="/admin/orders/pending" 
-                className={`admin-dropdown-item ${isActive('/admin/orders/pending') ? 'active' : ''}`}
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/orders/pending') ? 'active' : ''}`}
             >
-                <span className="dropdown-bullet"></span>
-                Đơn hàng mới
-                {pendingOrderCount > 0 && (
-                  <span className="admin-badge admin-badge-primary admin-notification-badge">
-                    {pendingOrderCount}
-                  </span>
-                )}
+              <FaShoppingBag className="admin-menu-icon" />
+              <span className="admin-menu-text">Đơn hàng mới</span>
+              {pendingOrderCount > 0 && (
+                <span className="admin-badge admin-badge-primary admin-notification-badge">
+                  {pendingOrderCount}
+                </span>
+              )}
             </Link>
+          </Nav.Item>
+          <Nav.Item>
             <Link 
-                to="/admin/orders/processing" 
-                className={`admin-dropdown-item ${isActive('/admin/orders/processing') ? 'active' : ''}`}
+              to="/admin/orders/processing" 
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/orders/processing') ? 'active' : ''}`}
             >
-                <span className="dropdown-bullet"></span>
-                Đang xử lý
-                {processingOrderCount > 0 && (
-                  <span className="admin-badge admin-badge-info admin-notification-badge">
-                    {processingOrderCount}
-                  </span>
-                )}
+              <span className="admin-menu-icon admin-menu-icon-placeholder" aria-hidden />
+              <span className="admin-menu-text">Đang xử lý</span>
+              {processingOrderCount > 0 && (
+                <span className="admin-badge admin-badge-info admin-notification-badge">
+                  {processingOrderCount}
+                </span>
+              )}
             </Link>
-              <Link 
-                to="/admin/orders/shipping" 
-                className={`admin-dropdown-item ${isActive('/admin/orders/shipping') ? 'active' : ''}`}
-              >
-                <span className="dropdown-bullet"></span>
-                Đang giao
-                {shippingOrderCount > 0 && (
-                  <span className="admin-badge admin-badge-warning admin-notification-badge">
-                    {shippingOrderCount}
-                  </span>
-                )}
-          </Link>
-            </div>
-        </Nav.Item>
+          </Nav.Item>
+          <Nav.Item>
+            <Link 
+              to="/admin/orders/shipping" 
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/orders/shipping') ? 'active' : ''}`}
+            >
+              <span className="admin-menu-icon admin-menu-icon-placeholder" aria-hidden />
+              <span className="admin-menu-text">Đang giao</span>
+              {shippingOrderCount > 0 && (
+                <span className="admin-badge admin-badge-warning admin-notification-badge">
+                  {shippingOrderCount}
+                </span>
+              )}
+            </Link>
+          </Nav.Item>
         </div>
         
         <div className="admin-menu-section">
           <h6 className="admin-menu-label">Marketing</h6>
-          
+          <p className="admin-menu-group-label">Khuyến mãi</p>
           <Nav.Item>
-            <div 
-              className={`admin-menu-item dropdown-toggle ${isParentActive('/admin/marketing') ? 'active' : ''}`}
-              onClick={() => toggleDropdown('marketing')}
+            <Link 
+              to="/admin/marketing/discounts" 
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/marketing/discounts') ? 'active' : ''}`}
             >
               <FaPercent className="admin-menu-icon" />
-              <span className="admin-menu-text">Khuyến mãi</span>
-              {expanded.marketing ? (
-                <FaAngleDown className="dropdown-icon" />
-              ) : (
-                <FaAngleRight className="dropdown-icon" />
-              )}
-            </div>
-            
-            <div className={`admin-dropdown-menu ${expanded.marketing ? 'expanded' : ''}`}>
-              <Link 
-                to="/admin/marketing/discounts" 
-                className={`admin-dropdown-item ${isActive('/admin/marketing/discounts') ? 'active' : ''}`}
-              >
-                <span className="dropdown-bullet"></span>
-                Giảm giá
-              </Link>
-              <Link 
-                to="/admin/marketing/coupons" 
-                className={`admin-dropdown-item ${isActive('/admin/marketing/coupons') ? 'active' : ''}`}
-              >
-                <span className="dropdown-bullet"></span>
-                Mã giảm giá
-              </Link>
-             
-              <Link 
-                to="/admin/marketing/deal-hot" 
-                className={`admin-dropdown-item ${isActive('/admin/marketing/deal-hot') ? 'active' : ''}`}
-              >
-                <span className="dropdown-bullet"></span>
-                Deal Hot
-              </Link>
-              <Link 
-                to="/admin/marketing/combo" 
-                className={`admin-dropdown-item ${isActive('/admin/marketing/combo') ? 'active' : ''}`}
-              >
-                <span className="dropdown-bullet"></span>
-                Combo Sản Phẩm
-              </Link>
-            </div>
+              <span className="admin-menu-text">Giảm giá</span>
+            </Link>
           </Nav.Item>
-        
-        <Nav.Item>
-          <Link 
+          <Nav.Item>
+            <Link 
+              to="/admin/marketing/coupons" 
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/marketing/coupons') ? 'active' : ''}`}
+            >
+              <span className="admin-menu-icon admin-menu-icon-placeholder" aria-hidden />
+              <span className="admin-menu-text">Mã giảm giá</span>
+            </Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Link 
+              to="/admin/marketing/deal-hot" 
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/marketing/deal-hot') ? 'active' : ''}`}
+            >
+              <span className="admin-menu-icon admin-menu-icon-placeholder" aria-hidden />
+              <span className="admin-menu-text">Deal Hot</span>
+            </Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Link 
+              to="/admin/marketing/combo" 
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/marketing/combo') ? 'active' : ''}`}
+            >
+              <span className="admin-menu-icon admin-menu-icon-placeholder" aria-hidden />
+              <span className="admin-menu-text">Combo sản phẩm</span>
+            </Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Link 
               to="/admin/marketing/banner" 
               className={`admin-menu-item ${isActive('/admin/marketing/banner') ? 'active' : ''}`}
-          >
+            >
               <FaImages className="admin-menu-icon" />
               <span className="admin-menu-text">Banner</span>
-          </Link>
-        </Nav.Item>
+            </Link>
+          </Nav.Item>
         </div>
-        
+
         <div className="admin-menu-section">
           <h6 className="admin-menu-label">Hệ thống</h6>
-        
-        <Nav.Item>
-          <div 
-            className={`admin-menu-item dropdown-toggle ${isParentActive('/admin/settings') ? 'active' : ''}`}
-            onClick={() => toggleDropdown('settings')}
-          >
-            <FaCog className="admin-menu-icon" />
-              <span className="admin-menu-text">Cài đặt</span>
-              {expanded.settings ? (
-                <FaAngleDown className="dropdown-icon" />
-              ) : (
-                <FaAngleRight className="dropdown-icon" />
-              )}
-          </div>
-          
-            <div className={`admin-dropdown-menu ${expanded.settings ? 'expanded' : ''}`}>
-              <Link 
-                to="/admin/settings/general" 
-                className={`admin-dropdown-item ${isActive('/admin/settings/general') ? 'active' : ''}`}
-              >
-                <span className="dropdown-bullet"></span>
-                Cài đặt chung
-              </Link>
-            <Link 
-                to="/admin/settings/payment" 
-                className={`admin-dropdown-item ${isActive('/admin/settings/payment') ? 'active' : ''}`}
-            >
-                <span className="dropdown-bullet"></span>
-                Phương thức thanh toán
-            </Link>
-            <Link 
-                to="/admin/settings/shipping" 
-                className={`admin-dropdown-item ${isActive('/admin/settings/shipping') ? 'active' : ''}`}
-            >
-                <span className="dropdown-bullet"></span>
-                Vận chuyển
-            </Link>
-          </div>
-        </Nav.Item>
-        
           <Nav.Item>
             <Link 
               to="/admin/users" 
@@ -339,6 +233,34 @@ const AdminSidebar = () => {
             >
               <FaShieldAlt className="admin-menu-icon" />
               <span className="admin-menu-text">Người dùng hệ thống</span>
+            </Link>
+          </Nav.Item>
+          <p className="admin-menu-group-label">Cài đặt</p>
+          <Nav.Item>
+            <Link 
+              to="/admin/settings/general" 
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/settings/general') ? 'active' : ''}`}
+            >
+              <FaCog className="admin-menu-icon" />
+              <span className="admin-menu-text">Cài đặt chung</span>
+            </Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Link 
+              to="/admin/settings/payment" 
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/settings/payment') ? 'active' : ''}`}
+            >
+              <span className="admin-menu-icon admin-menu-icon-placeholder" aria-hidden />
+              <span className="admin-menu-text">Phương thức thanh toán</span>
+            </Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Link 
+              to="/admin/settings/shipping" 
+              className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/settings/shipping') ? 'active' : ''}`}
+            >
+              <span className="admin-menu-icon admin-menu-icon-placeholder" aria-hidden />
+              <span className="admin-menu-text">Vận chuyển</span>
             </Link>
           </Nav.Item>
         </div>
@@ -354,4 +276,4 @@ const AdminSidebar = () => {
   );
 };
 
-export default AdminSidebar; 
+export default AdminSidebar;

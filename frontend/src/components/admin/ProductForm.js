@@ -101,25 +101,25 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.name) newErrors.name = 'Product name is required';
-    if (!formData.price) newErrors.price = 'Product price is required';
+    if (!formData.name) newErrors.name = 'Tên sản phẩm là bắt buộc';
+    if (!formData.price) newErrors.price = 'Giá sản phẩm là bắt buộc';
     else if (isNaN(formData.price) || Number(formData.price) <= 0) {
-      newErrors.price = 'Price must be a positive number';
+      newErrors.price = 'Giá phải là số dương';
     }
     
-    if (!formData.stock) newErrors.stock = 'Stock quantity is required';
+    if (!formData.stock) newErrors.stock = 'Số lượng tồn kho là bắt buộc';
     else if (isNaN(formData.stock) || Number(formData.stock) < 0) {
-      newErrors.stock = 'Stock must be a non-negative number';
+      newErrors.stock = 'Tồn kho phải là số không âm';
     }
     
     if (formData.discount) {
       if (isNaN(formData.discount) || Number(formData.discount) < 0 || Number(formData.discount) > 100) {
-        newErrors.discount = 'Discount must be between 0 and 100';
+        newErrors.discount = 'Giảm giá phải nằm trong khoảng 0 đến 100';
       }
     }
     
     if (mode === 'create' && !imageFile && !formData.image) {
-      newErrors.image = 'Product image is required';
+      newErrors.image = 'Hình ảnh sản phẩm là bắt buộc';
     }
     
     setErrors(newErrors);
@@ -250,7 +250,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
       
     } catch (error) {
       console.error('Failed to save product:', error);
-      setErrors({ submit: error.data?.message || 'Failed to save product' });
+      setErrors({ submit: error.data?.message || 'Không thể lưu sản phẩm' });
     }
   };
   
@@ -262,7 +262,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
         <Row>
           <Col md={8}>
             <Form.Group className="mb-3">
-              <Form.Label>Product Name*</Form.Label>
+              <Form.Label>Tên sản phẩm*</Form.Label>
               <Form.Control
                 type="text"
                 name="name"
@@ -279,7 +279,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Price*</Form.Label>
+                  <Form.Label>Giá*</Form.Label>
                   <Form.Control
                     type="number"
                     name="price"
@@ -297,7 +297,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Discount</Form.Label>
+                  <Form.Label>Giảm giá</Form.Label>
                   <Form.Control
                     type="number"
                     name="discount"
@@ -317,7 +317,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Category*</Form.Label>
+                  <Form.Label>Danh mục*</Form.Label>
                   <Form.Select
                     name="category"
                     value={formData.category}
@@ -325,7 +325,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
                     isInvalid={!!errors.category}
                     required
                   >
-                    <option value="">Select a category</option>
+                    <option value="">Chọn danh mục</option>
                     {categories.map((category) => (
                       <option key={category._id} value={category._id}>
                         {category.name}
@@ -340,7 +340,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
             </Row>
             
             <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
+              <Form.Label>Mô tả</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
@@ -353,7 +353,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Stock*</Form.Label>
+                  <Form.Label>Tồn kho*</Form.Label>
                   <Form.Control
                     type="number"
                     name="stock"
@@ -380,7 +380,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
                     name="featured"
                     checked={formData.featured}
                     onChange={handleChange}
-                    label="Featured Product"
+                    label="Sản phẩm nổi bật"
                   />
                 </Col>
               </Row>
@@ -389,7 +389,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
           
           <Col md={4}>
             <Form.Group className="mb-3">
-              <Form.Label>Product Image*</Form.Label>
+              <Form.Label>Hình ảnh sản phẩm*</Form.Label>
               
               {/* Thêm tab để chọn giữa tải ảnh và nhập URL */}
               <Nav variant="tabs" className="mb-3">
@@ -398,7 +398,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
                     active={imageInputType === 'file'} 
                     onClick={() => setImageInputType('file')}
                   >
-                    Upload File
+                    Tải tệp
                   </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
@@ -406,7 +406,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
                     active={imageInputType === 'url'} 
                     onClick={() => setImageInputType('url')}
                   >
-                    Image URL
+                    URL hình ảnh
                   </Nav.Link>
                 </Nav.Item>
               </Nav>
@@ -416,7 +416,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
                   <div className="image-preview">
                     <img
                       src={imagePreview}
-                      alt="Product preview"
+                      alt="Xem trước sản phẩm"
                       className="img-fluid mb-2"
                     />
                     <Button
@@ -431,7 +431,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
                         });
                       }}
                     >
-                      Remove Image
+                      Xóa ảnh
                     </Button>
                   </div>
                 ) : imageInputType === 'file' ? (
@@ -447,14 +447,14 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
                       <div className="upload-icon">
                         <i className="bi bi-cloud-arrow-up"></i>
                       </div>
-                      <span>Click to upload image</span>
+                      <span>Nhấn để tải ảnh lên</span>
                     </label>
                   </div>
                 ) : (
                   <div className="image-url-input">
                     <Form.Control
                       type="text"
-                      placeholder="Enter image URL"
+                      placeholder="Nhập URL hình ảnh"
                       name="image"
                       value={formData.image || ''}
                       onChange={handleImageUrlChange}
@@ -465,7 +465,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
                       size="sm" 
                       onClick={validateImageUrl}
                     >
-                      Preview Image
+                      Xem trước ảnh
                     </Button>
                   </div>
                 )}
@@ -487,7 +487,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
               if (onSuccess) onSuccess();
             }}
           >
-            Cancel
+            Hủy
           </Button>
           <Button
             type="submit"
@@ -497,10 +497,10 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
             {isCreating || isUpdating ? (
               <>
                 <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Saving...
+                Đang lưu...
               </>
             ) : (
-              mode === 'edit' ? 'Update Product' : 'Create Product'
+              mode === 'edit' ? 'Cập nhật sản phẩm' : 'Tạo sản phẩm'
             )}
           </Button>
         </div>

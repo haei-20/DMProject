@@ -11,6 +11,8 @@
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  /* Chỉ .admin-menu được cuộn; tránh toàn bộ sidebar kéo dài vượt màn hình khi mở dropdown */
+  overflow-y: hidden;
   transition: all 0.3s ease;
 }
 
@@ -90,13 +92,19 @@
 .admin-menu {
   display: flex;
   flex-direction: column;
-  padding: 0;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  padding: 0 0 1.25rem;
   flex: 1;
-  overflow-y: scroll;
+  min-height: 0;
+  overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
+  /* Một cỡ chữ nền cho toàn bộ menu (mục + nhãn) */
+  font-size: 0.875rem;
+  line-height: 1.35;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.5) rgba(0, 0, 0, 0.2);
-  max-height: calc(100vh - 150px);
+  scrollbar-color: rgba(255, 255, 255, 0.55) rgba(0, 0, 0, 0.25);
 }
 
 .admin-menu-section {
@@ -108,25 +116,48 @@
 
 .admin-menu-label {
   width: 100%;
-  font-size: 0.75rem;
-  padding: 0.25rem 1rem;
-  margin-bottom: 0;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: inherit;
+  padding: 0.35rem 1rem 0.25rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.55);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.08em;
   font-weight: 600;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Nhóm con trong section — cùng cỡ chữ với nhãn section */
+.admin-menu-group-label {
+  margin: 0;
+  padding: 0.35rem 1rem 0.2rem;
+  font-size: inherit;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.admin-menu-item-nested {
+  padding-left: 1.5rem;
+  font-size: inherit;
+}
+
+.admin-menu-icon-placeholder {
+  min-width: 18px;
+  flex-shrink: 0;
+  visibility: hidden;
+}
+
 .admin-menu-item {
   width: 100%;
-  padding: 0.5rem 1rem;
-  color: rgba(255, 255, 255, 0.8);
+  padding: 0.45rem 1rem;
+  font-size: inherit;
+  color: rgba(255, 255, 255, 0.88);
   display: flex;
   align-items: center;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
   position: relative;
   cursor: pointer;
   gap: 0.5rem;
@@ -140,7 +171,15 @@
 
 .admin-menu-item.active {
   color: #fff;
-  background-color: rgba(67, 97, 238, 0.3);
+  background-color: rgba(67, 97, 238, 0.35);
+}
+
+/* Tránh rule .active ghi đè lề trái của mục lồng (khiến layout nhảy / khó đọc) */
+.admin-menu-item.admin-menu-item-nested.active {
+  padding-left: 1.5rem;
+}
+
+.admin-menu-item.active:not(.admin-menu-item-nested) {
   padding-left: 1rem;
 }
 
@@ -246,7 +285,7 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
@@ -257,23 +296,24 @@
 }
 
 .admin-menu::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
   display: block;
 }
 
 .admin-menu::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.22);
   border-radius: 0;
 }
 
 .admin-menu::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.4);
-  border-radius: 4px;
-  border: none;
+  background-color: rgba(255, 255, 255, 0.45);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 .admin-menu:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.65);
 }
 
 /* Responsive sidebar for mobile */

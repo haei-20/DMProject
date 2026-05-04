@@ -9,6 +9,258 @@ const { protect, isAdmin } = require("../middlewares/authMiddleware");
 const adminController = require("../controllers/adminController");
 const { getFrequentlyBoughtTogether } = require("../services/recommendationService");
 
+/**
+ * @swagger
+ * /api/admin/debug:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Kiểm tra route admin
+ * /api/admin/debug-db:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Kiểm tra kết nối DB
+ * /api/admin/users:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy danh sách user
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/products:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy danh sách sản phẩm (admin)
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/categories:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy danh sách danh mục
+ *     security:
+ *       - BearerAuth: []
+ *   post:
+ *     tags: [Admin]
+ *     summary: Tạo danh mục
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/categories/{id}:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy chi tiết danh mục
+ *     security:
+ *       - BearerAuth: []
+ *   put:
+ *     tags: [Admin]
+ *     summary: Cập nhật danh mục
+ *     security:
+ *       - BearerAuth: []
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Xóa danh mục
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/attributes:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy danh sách thuộc tính
+ *     security:
+ *       - BearerAuth: []
+ *   post:
+ *     tags: [Admin]
+ *     summary: Tạo thuộc tính
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/attributes/{id}:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy chi tiết thuộc tính
+ *     security:
+ *       - BearerAuth: []
+ *   put:
+ *     tags: [Admin]
+ *     summary: Cập nhật thuộc tính
+ *     security:
+ *       - BearerAuth: []
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Xóa thuộc tính
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/marketing/banners:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy danh sách banner
+ *     security:
+ *       - BearerAuth: []
+ *   post:
+ *     tags: [Admin]
+ *     summary: Tạo banner
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/marketing/banners/{id}:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Cập nhật banner
+ *     security:
+ *       - BearerAuth: []
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Xóa banner
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/marketing/deal-hot:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy sản phẩm Deal Hot cho admin
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/marketing/discounts:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy danh sách giảm giá
+ *     security:
+ *       - BearerAuth: []
+ *   post:
+ *     tags: [Admin]
+ *     summary: Tạo giảm giá
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/marketing/discounts/{id}:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Cập nhật giảm giá
+ *     security:
+ *       - BearerAuth: []
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Xóa giảm giá
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/marketing/coupons:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy danh sách mã giảm giá
+ *     security:
+ *       - BearerAuth: []
+ *   post:
+ *     tags: [Admin]
+ *     summary: Tạo mã giảm giá
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/marketing/coupons/{id}:
+ *   put:
+ *     tags: [Admin]
+ *     summary: Cập nhật mã giảm giá
+ *     security:
+ *       - BearerAuth: []
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Xóa mã giảm giá
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/all-orders:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy tất cả đơn hàng
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/order/{id}:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy chi tiết đơn hàng
+ *     security:
+ *       - BearerAuth: []
+ *   put:
+ *     tags: [Admin]
+ *     summary: Cập nhật trạng thái đơn hàng
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/orders-pending:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy đơn hàng chờ xử lý
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/orders-processing:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy đơn hàng đang xử lý
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/orders-shipping:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy đơn hàng đang giao
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/reports/frequently-bought-together:
+ *   get:
+ *     tags: [Admin, Recommendations]
+ *     summary: Báo cáo sản phẩm thường mua cùng nhau
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: minSupport
+ *         schema:
+ *           type: number
+ *           default: 0.01
+ *         description: Ngưỡng support tối thiểu (0-1)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *         description: Số pattern tối đa trả về
+ *       - in: query
+ *         name: orderLimit
+ *         schema:
+ *           type: integer
+ *           default: 1000
+ *         description: Số đơn hàng tối đa dùng để phân tích
+ *     responses:
+ *       200:
+ *         description: Lấy báo cáo thành công
+ *       401:
+ *         description: Chưa đăng nhập hoặc token không hợp lệ
+ *       403:
+ *         description: Không có quyền admin
+ *       500:
+ *         description: Lỗi máy chủ
+ * /api/admin/settings/general:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy cấu hình chung
+ *     security:
+ *       - BearerAuth: []
+ *   put:
+ *     tags: [Admin]
+ *     summary: Cập nhật cấu hình chung
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/settings/payment:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy cấu hình thanh toán
+ *     security:
+ *       - BearerAuth: []
+ *   put:
+ *     tags: [Admin]
+ *     summary: Cập nhật cấu hình thanh toán
+ *     security:
+ *       - BearerAuth: []
+ * /api/admin/settings/shipping:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Lấy cấu hình vận chuyển
+ *     security:
+ *       - BearerAuth: []
+ *   put:
+ *     tags: [Admin]
+ *     summary: Cập nhật cấu hình vận chuyển
+ *     security:
+ *       - BearerAuth: []
+ */
+
 // Create a simplified debug route
 router.get("/debug", (req, res) => {
   res.status(200).json({
@@ -249,14 +501,15 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
     let minSupport = parseFloat(req.query.minSupport) || 0.01;
     const limit = parseInt(req.query.limit) || 50;
     let orderLimit = parseInt(req.query.orderLimit) || 1000;
+    let minItems = parseInt(req.query.minItems) || 2;
     
-    // Đảm bảo minSupport là số hợp lệ và không quá nhỏ để tránh quá tải
+    // Đảm bảo minSupport là số hợp lệ
     if (isNaN(minSupport) || minSupport <= 0) {
       minSupport = 0.01; // Giá trị mặc định an toàn
-    } else if (minSupport < 0.01) {
-      // Giới hạn nhỏ nhất cho minSupport là 0.01 để đảm bảo hiệu năng
-      minSupport = 0.01;
-      console.log("minSupport đã được điều chỉnh lên 0.01 để đảm bảo hiệu năng");
+    } else if (minSupport < 0.00001) {
+      // Cho phép support rất nhỏ nhưng vẫn chặn giá trị quá thấp
+      minSupport = 0.00001;
+      console.log("minSupport đã được điều chỉnh lên 0.00001");
     } else if (minSupport > 1) {
       minSupport = 1; // Support không thể lớn hơn 1 (100%)
     }
@@ -268,11 +521,18 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
       orderLimit = 5000;
       console.log("orderLimit đã được giới hạn về 5000 để đảm bảo hiệu năng");
     }
+
+    // Giới hạn minItems để tránh tham số không hợp lệ
+    if (isNaN(minItems) || minItems < 2) {
+      minItems = 2;
+    } else if (minItems > 10) {
+      minItems = 10;
+    }
     
-    console.log(`Processing frequently-bought-together request with: minSupport=${minSupport}, limit=${limit}, orderLimit=${orderLimit}`);
+    console.log(`Processing frequently-bought-together request with: minSupport=${minSupport}, limit=${limit}, orderLimit=${orderLimit}, minItems=${minItems}`);
     
     // Gọi service function
-    const result = await getFrequentlyBoughtTogether(minSupport, limit, orderLimit);
+    const result = await getFrequentlyBoughtTogether(minSupport, limit, orderLimit, minItems);
     
     // Ensure we have a properly formed frequentItemsets array
     let frequentItemsets = [];
@@ -299,6 +559,7 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
           minSupport,
           limit,
           orderLimit,
+          minItems,
           algorithm: result?.info?.algorithm || "FP-Growth"
         }
       });
@@ -328,6 +589,7 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
         minSupport,
         limit, 
         orderLimit,
+        minItems,
         totalTransactions: frequentItemsets[0]?.totalTransactions || 0
       }
     });

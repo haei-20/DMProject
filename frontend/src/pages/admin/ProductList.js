@@ -324,23 +324,23 @@ const ProductList = () => {
     const stockValue = product.stock !== undefined ? product.stock : (product.countInStock || 0);
     
     if (stockValue === 0 || stockValue === null || stockValue === undefined) {
-      return <Badge bg="danger">Out of Stock</Badge>;
+      return <Badge bg="danger">Hết hàng</Badge>;
     }
     
     if (stockValue < 10) {
-      return <Badge bg="warning" text="dark">Low Stock: {stockValue}</Badge>;
+      return <Badge bg="warning" text="dark">Sắp hết: {stockValue}</Badge>;
     }
     
-    return <Badge bg="success">In Stock: {stockValue}</Badge>;
+    return <Badge bg="success">Còn hàng: {stockValue}</Badge>;
   };
   
   return (
     <AdminLayout>
       <div className="product-list-container">
         <div className="d-flex justify-content-between align-items-center mb-4">
-            <h3 className="page-title">Products</h3>
+            <h3 className="page-title">Sản phẩm</h3>
           <Button variant="primary" onClick={handleNewProduct}>
-            <FaPlus className="me-2" /> Add Product
+            <FaPlus className="me-2" /> Thêm sản phẩm
             </Button>
           </div>
           
@@ -352,7 +352,7 @@ const ProductList = () => {
             <Form onSubmit={handleSearchSubmit}>
                   <InputGroup>
                     <Form.Control
-                      placeholder="Search products..."
+                      placeholder="Tìm sản phẩm..."
                       value={filters.search}
                       onChange={handleSearchChange}
                     />
@@ -364,7 +364,7 @@ const ProductList = () => {
                       variant="outline-secondary"
                       onClick={() => setAdvancedFilterVisible(!advancedFilterVisible)}
                     >
-                      <FaFilter /> {advancedFilterVisible ? 'Hide Filters' : 'Filters'}
+                      <FaFilter /> {advancedFilterVisible ? 'Ẩn bộ lọc' : 'Bộ lọc'}
                     </Button>
                   </InputGroup>
                 </Form>
@@ -388,7 +388,7 @@ const ProductList = () => {
                   </Form.Select>
                   
                   <span className="d-flex align-items-center">
-                    per page
+                    mục/trang
                   </span>
                 </div>
                 </Col>
@@ -400,13 +400,13 @@ const ProductList = () => {
                 <Row>
                   <Col md={3}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Category</Form.Label>
+                      <Form.Label>Danh mục</Form.Label>
                     <Form.Select
                       name="category"
                       value={filters.category}
                       onChange={handleFilterChange}
                     >
-                      <option value="">All Categories</option>
+                      <option value="">Tất cả danh mục</option>
                         {categories.map((category) => (
                         <option key={category._id} value={category.name}>
                           {category.name}
@@ -418,12 +418,12 @@ const ProductList = () => {
                   
                   <Col md={4}>
                         <Form.Group className="mb-3">
-                          <Form.Label>Price Range</Form.Label>
+                          <Form.Label>Khoảng giá</Form.Label>
                           <Row>
                             <Col>
                               <Form.Control
                                 type="number"
-                                placeholder="Min"
+                                placeholder="Từ"
                                 name="price.min"
                                 value={filters.price.min}
                                 onChange={handleFilterChange}
@@ -433,7 +433,7 @@ const ProductList = () => {
                             <Col>
                               <Form.Control
                                 type="number"
-                                placeholder="Max"
+                                placeholder="Đến"
                                 name="price.max"
                                 value={filters.price.max}
                                 onChange={handleFilterChange}
@@ -446,16 +446,16 @@ const ProductList = () => {
                   
                   <Col md={3}>
                         <Form.Group className="mb-3">
-                      <Form.Label>Stock Status</Form.Label>
+                      <Form.Label>Trạng thái tồn kho</Form.Label>
                       <Form.Select
                                 name="stock.min"
                                 value={filters.stock.min}
                             onChange={handleFilterChange}
                           >
-                        <option value="">All</option>
-                        <option value="1">In Stock</option>
-                        <option value="0">Out of Stock</option>
-                        <option value="10">10+ in Stock</option>
+                        <option value="">Tất cả</option>
+                        <option value="1">Còn hàng</option>
+                        <option value="0">Hết hàng</option>
+                        <option value="10">Tồn kho từ 10+</option>
                           </Form.Select>
                         </Form.Group>
                       </Col>
@@ -464,11 +464,11 @@ const ProductList = () => {
                     <div className="mb-3 w-100">
                       <div className="d-grid gap-2">
                         <Button variant="primary" onClick={applyFilters}>
-                            Apply Filters
+                            Áp dụng
                           </Button>
                           <Button variant="outline-secondary" onClick={resetFilters}>
                           <FaTimes className="me-1" />
-                            Reset
+                            Đặt lại
                           </Button>
                       </div>
                         </div>
@@ -480,7 +480,7 @@ const ProductList = () => {
             {/* Products table */}
             {productsError ? (
               <Alert variant="danger">
-                Error loading products: {JSON.stringify(productsError)}
+                Lỗi tải sản phẩm: {JSON.stringify(productsError)}
           </Alert>
             ) : (
               <>
@@ -495,7 +495,7 @@ const ProductList = () => {
                           style={{ cursor: 'pointer' }}
                         >
                           <div className="d-flex align-items-center">
-                            Product {getSortIcon('name')}
+                            Sản phẩm {getSortIcon('name')}
                           </div>
                         </th>
                         <th 
@@ -504,7 +504,7 @@ const ProductList = () => {
                           style={{ cursor: 'pointer' }}
                         >
                           <div className="d-flex align-items-center">
-                            Price {getSortIcon('price')}
+                            Giá {getSortIcon('price')}
                           </div>
                         </th>
                         <th 
@@ -513,7 +513,7 @@ const ProductList = () => {
                           style={{ cursor: 'pointer' }}
                         >
                           <div className="d-flex align-items-center">
-                            Category {getSortIcon('category')}
+                            Danh mục {getSortIcon('category')}
                           </div>
                         </th>
                         <th 
@@ -522,7 +522,7 @@ const ProductList = () => {
                           style={{ cursor: 'pointer' }}
                         >
                           <div className="d-flex align-items-center">
-                            Stock {getSortIcon('stock')}
+                            Tồn kho {getSortIcon('stock')}
                           </div>
                         </th>
                         <th 
@@ -531,10 +531,10 @@ const ProductList = () => {
                           style={{ cursor: 'pointer' }}
                         >
                           <div className="d-flex align-items-center">
-                            Created {getSortIcon('createdAt')}
+                            Ngày tạo {getSortIcon('createdAt')}
                           </div>
                         </th>
-                        <th width="120">Actions</th>
+                        <th width="120">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -547,7 +547,7 @@ const ProductList = () => {
                       ) : products.length === 0 ? (
                         <tr>
                           <td colSpan="7" className="text-center py-4">
-                            No products found
+                            Không tìm thấy sản phẩm
                           </td>
                         </tr>
                       ) : (
@@ -619,7 +619,7 @@ const ProductList = () => {
                 {totalPages > 1 && (
                   <div className="d-flex justify-content-between align-items-center mt-3">
                     <div>
-                      Showing {(page - 1) * limit + 1} - {Math.min(page * limit, totalProducts)} of {totalProducts} products
+                      Hiển thị {(page - 1) * limit + 1} - {Math.min(page * limit, totalProducts)} trên {totalProducts} sản phẩm
                     </div>
                     <Pagination>
                       <Pagination.Prev
@@ -650,7 +650,7 @@ const ProductList = () => {
       >
         <Modal.Header closeButton>
           <Modal.Title id="product-form-modal">
-            {editingProduct ? 'Edit Product' : 'Add New Product'}
+            {editingProduct ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -665,15 +665,15 @@ const ProductList = () => {
       {/* Delete confirmation modal */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Confirm Delete</Modal.Title>
+          <Modal.Title>Xác nhận xóa</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete <strong>{productToDelete?.name}</strong>?
-          This action cannot be undone.
+          Bạn có chắc chắn muốn xóa <strong>{productToDelete?.name}</strong>?
+          Hành động này không thể hoàn tác.
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-            Cancel
+            Hủy
           </Button>
           <Button 
             variant="danger" 

@@ -20,10 +20,10 @@ const UserList = () => {
   };
 
   const handleDelete = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
+    if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này không?')) {
       try {
         await deleteUser(userId).unwrap();
-        setSuccessMessage('User deleted successfully');
+        setSuccessMessage('Xóa người dùng thành công');
         // Success message will be cleared after 3 seconds
         setTimeout(() => setSuccessMessage(''), 3000);
       } catch (err) {
@@ -46,11 +46,11 @@ const UserList = () => {
             isAdmin: currentUser.isAdmin
           }
         }).unwrap();
-        setSuccessMessage('User updated successfully');
+        setSuccessMessage('Cập nhật người dùng thành công');
       } else {
         // Create new user - this would need a createUser mutation
         // For simplicity, we'll just show a message
-        setSuccessMessage('This would create a new user in a real API');
+        setSuccessMessage('Đã tạo người dùng mới (mô phỏng theo API hiện tại)');
       }
       
     setShowModal(false);
@@ -70,9 +70,9 @@ const UserList = () => {
     <AdminLayout>
       <div className="user-list">
         <div className="user-list-header">
-          <h1>Users Management</h1>
+          <h1>Quản lý người dùng</h1>
           <Button variant="primary" onClick={handleAddNew}>
-            <FaUserPlus /> ADD NEW USER
+            <FaUserPlus /> THÊM NGƯỜI DÙNG
           </Button>
         </div>
 
@@ -84,26 +84,26 @@ const UserList = () => {
 
         {error && (
           <Alert variant="danger" className="my-3">
-            Error loading users: {error.message}
-            <Button variant="link" onClick={refetch}>Try again</Button>
+            Lỗi tải người dùng: {error.message}
+            <Button variant="link" onClick={refetch}>Thử lại</Button>
           </Alert>
         )}
 
         {isLoading ? (
           <div className="text-center my-5">
             <Spinner animation="border" variant="primary" />
-            <p className="mt-2">Loading users...</p>
+            <p className="mt-2">Đang tải người dùng...</p>
           </div>
         ) : (
           <Table striped bordered hover responsive className="user-table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Name</th>
+                <th>Tên</th>
                 <th>Email</th>
-                <th>Admin</th>
-                <th>Created At</th>
-                <th>Actions</th>
+                <th>Quản trị</th>
+                <th>Ngày tạo</th>
+                <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -112,7 +112,7 @@ const UserList = () => {
                   <td>{user._id}</td>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
-                  <td>{user.isAdmin ? 'Yes' : 'No'}</td>
+                  <td>{user.isAdmin ? 'Có' : 'Không'}</td>
                   <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                   <td>
                     <Button 
@@ -141,12 +141,12 @@ const UserList = () => {
 
         <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
-            <Modal.Title>{currentUser?._id ? 'Edit User' : 'Add New User'}</Modal.Title>
+            <Modal.Title>{currentUser?._id ? 'Sửa người dùng' : 'Thêm người dùng mới'}</Modal.Title>
           </Modal.Header>
           <Form onSubmit={handleSave}>
             <Modal.Body>
               <Form.Group className="mb-3">
-                <Form.Label>Name</Form.Label>
+                <Form.Label>Tên</Form.Label>
                 <Form.Control 
                   type="text" 
                   value={currentUser?.name || ''} 
@@ -166,14 +166,14 @@ const UserList = () => {
               <Form.Group className="mb-3">
                 <Form.Check 
                   type="checkbox" 
-                  label="Admin Privileges" 
+                  label="Quyền quản trị"
                   checked={currentUser?.isAdmin || false} 
                   onChange={(e) => setCurrentUser({...currentUser, isAdmin: e.target.checked})}
                 />
               </Form.Group>
               {!currentUser?._id && (
                 <Form.Group className="mb-3">
-                  <Form.Label>Password</Form.Label>
+                  <Form.Label>Mật khẩu</Form.Label>
                   <Form.Control 
                     type="password" 
                     onChange={(e) => setCurrentUser({...currentUser, password: e.target.value})}
@@ -184,7 +184,7 @@ const UserList = () => {
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={() => setShowModal(false)}>
-                Cancel
+                Hủy
               </Button>
               <Button 
                 variant="primary" 
@@ -192,7 +192,7 @@ const UserList = () => {
                 disabled={isUpdating}
               >
                 {isUpdating && <Spinner as="span" animation="border" size="sm" className="me-2" />}
-                Save
+                Lưu
               </Button>
             </Modal.Footer>
           </Form>

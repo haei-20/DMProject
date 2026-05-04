@@ -156,7 +156,7 @@ const AdminHeader = ({ toggleSidebar }) => {
               <Dropdown align="end">
                 <Dropdown.Toggle as={Button} variant="link" className="user-dropdown-toggle" id="user-dropdown">
                   <div className="user-info">
-                    <span className="user-name d-none d-md-block">{user?.name || 'Admin User'}</span>
+                    <span className="user-name d-none d-md-block">{user?.name || 'Quản trị viên'}</span>
                     <div className="user-avatar">
                       {user?.avatar ? (
                         <img src={user.avatar} alt={user.name} />
@@ -170,11 +170,11 @@ const AdminHeader = ({ toggleSidebar }) => {
                 <Dropdown.Menu className="user-dropdown-menu">
                   <Dropdown.Item as={Link} to="/admin/profile">
                     <FaUser className="dropdown-icon" />
-                    Profile
+                    Hồ sơ
                   </Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/admin/settings/site">
+                  <Dropdown.Item as={Link} to="/admin/settings/general">
                     <FaCog className="dropdown-icon" />
-                    Settings
+                    Cài đặt
                   </Dropdown.Item>
                   <Dropdown.Divider />
                   <Dropdown.Item onClick={handleLogout}>

@@ -73,7 +73,7 @@ const ShippingOrders = () => {
 
         {error && (
           <Alert variant="danger">
-            Lỗi khi tải danh sách đơn hàng: {error.message || 'Unknown error'}
+            Lỗi khi tải danh sách đơn hàng: {error.message || 'Lỗi không xác định'}
           </Alert>
         )}
 

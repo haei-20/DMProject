@@ -6,19 +6,19 @@ import './TopProductsTable.css';
 
 const TopProductsTable = ({ products = [], loading = false, error = null }) => {
   const getCategoryLabel = (category) => {
-    if (!category) return 'Uncategorized';
+    if (!category) return 'Chưa phân loại';
     if (typeof category === 'string') return category;
-    return category.name || 'Uncategorized';
+    return category.name || 'Chưa phân loại';
   };
 
   // Get stock status
   const getStockStatus = (stockValue) => {
     if (stockValue === 0 || stockValue === null || stockValue === undefined) {
-      return { variant: 'danger', text: 'Out of Stock' };
+      return { variant: 'danger', text: 'Hết hàng' };
     } else if (stockValue < 10) {
-      return { variant: 'warning', text: 'Low Stock' };
+      return { variant: 'warning', text: 'Sắp hết hàng' };
     } else {
-      return { variant: 'success', text: 'In Stock' };
+      return { variant: 'success', text: 'Còn hàng' };
     }
   };
   
@@ -37,7 +37,7 @@ const TopProductsTable = ({ products = [], loading = false, error = null }) => {
     return (
       <div className="text-center p-5">
         <Spinner animation="border" variant="primary" />
-        <p className="mt-2">Loading product data...</p>
+        <p className="mt-2">Đang tải dữ liệu sản phẩm...</p>
       </div>
     );
   }
@@ -48,9 +48,9 @@ const TopProductsTable = ({ products = [], loading = false, error = null }) => {
       <Alert variant="danger" className="m-3">
         <div className="d-flex align-items-center">
           <FaExclamationTriangle className="me-2" size={18} />
-          <strong>Error loading product data</strong>
+          <strong>Lỗi tải dữ liệu sản phẩm</strong>
         </div>
-        <p className="mb-0 mt-2">{error.message || 'An unknown error occurred'}</p>
+        <p className="mb-0 mt-2">{error.message || 'Đã xảy ra lỗi không xác định'}</p>
       </Alert>
     );
   }
@@ -60,7 +60,7 @@ const TopProductsTable = ({ products = [], loading = false, error = null }) => {
     return (
       <div className="text-center p-4">
         <FaBoxOpen size={32} className="text-muted mb-3" />
-        <p className="mb-0">No product data available.</p>
+        <p className="mb-0">Không có dữ liệu sản phẩm.</p>
       </div>
     );
   }
@@ -73,11 +73,11 @@ const TopProductsTable = ({ products = [], loading = false, error = null }) => {
       <Table responsive hover>
         <thead>
           <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Sold</th>
-            <th>Revenue</th>
-            <th>Stock</th>
+            <th>Sản phẩm</th>
+            <th>Giá</th>
+            <th>Đã bán</th>
+            <th>Doanh thu</th>
+            <th>Tồn kho</th>
           </tr>
         </thead>
         <tbody>
@@ -132,7 +132,7 @@ const TopProductsTable = ({ products = [], loading = false, error = null }) => {
                   <Badge bg={stockStatus.variant} className="stock-badge">
                     {stockStatus.text}
                   </Badge>
-                  <span className="stock-count">{stockValue} units</span>
+                  <span className="stock-count">{stockValue} sản phẩm</span>
                 </td>
               </tr>
             );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Spinner, Alert, Tabs, Tab, Badge } from 'react-bootstrap';
+import { Row, Col, Card, Spinner, Alert, Tabs, Tab, Badge, Form } from 'react-bootstrap';
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell, AreaChart, Area
@@ -28,19 +28,43 @@ import { Link } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const [period, setPeriod] = useState('monthly');
+  const currentYear = new Date().getFullYear();
+  const [fromYear, setFromYear] = useState(currentYear - 4);
+  const [toYear, setToYear] = useState(currentYear);
+  const [isYearRangeAutoInitialized, setIsYearRangeAutoInitialized] = useState(false);
+  const [fbtFilters, setFbtFilters] = useState({
+    minSupport: 0.01,
+    minItems: 2,
+    orderLimit: 500
+  });
+  const [debouncedFbtFilters, setDebouncedFbtFilters] = useState({
+    minSupport: 0.01,
+    minItems: 2,
+    orderLimit: 500
+  });
   const { data: dashboardStats, isLoading: statsLoading, error: statsError } = useGetDashboardStatsQuery();
   const { data: topProducts = [], isLoading: topProductsLoading, error: topProductsError } = useGetTopProductsQuery({
     limit: 5,
     timeRange: 'month'
   });
   const { data: userAnalytics, isLoading: userLoading } = useGetUserAnalyticsQuery();
-  const { data: orderAnalytics, isLoading: orderLoading } = useGetOrderAnalyticsQuery();
+  const normalizedFromYear = Math.min(fromYear, toYear);
+  const normalizedToYear = Math.max(fromYear, toYear);
+  const { data: orderAnalytics, isLoading: orderLoading } = useGetOrderAnalyticsQuery({
+    fromYear: normalizedFromYear,
+    toYear: normalizedToYear
+  });
   const { data: dealHotData, isLoading: dealHotLoading } = useGetDealHotQuery({ limit: 3 });
-  const { data: frequentlyBoughtTogetherData, isLoading: frequentlyBoughtTogetherLoading } = useGetFrequentlyBoughtTogetherQuery({
-    // Dùng ngưỡng an toàn để tránh query quá nặng khiến API trả rỗng/timeout
-    minSupport: 0.01,
+  const {
+    data: frequentlyBoughtTogetherData,
+    isLoading: frequentlyBoughtTogetherLoading,
+    isFetching: frequentlyBoughtTogetherFetching
+  } = useGetFrequentlyBoughtTogetherQuery({
+    // Refetch backend khi đổi các bộ lọc FBT
+    minSupport: debouncedFbtFilters.minSupport,
+    minItems: debouncedFbtFilters.minItems,
     limit: 20,
-    orderLimit: 500
+    orderLimit: debouncedFbtFilters.orderLimit
   });
   
   // Debug user authentication
@@ -58,6 +82,32 @@ const AdminDashboard = () => {
         (localStorageUser.role === 'admin' || localStorageUser.isAdmin === true)
     });
   }, [user, isAuthenticated]);
+
+  // Lần đầu vào dashboard: tự set khoảng năm theo dữ liệu thực tế trong DB
+  useEffect(() => {
+    if (isYearRangeAutoInitialized) return;
+    const minDataYear = Number(orderAnalytics?.info?.minDataYear);
+    const maxDataYear = Number(orderAnalytics?.info?.maxDataYear);
+    if (!Number.isFinite(minDataYear) || !Number.isFinite(maxDataYear)) return;
+
+    setFromYear(minDataYear);
+    setToYear(maxDataYear);
+    setIsYearRangeAutoInitialized(true);
+  }, [orderAnalytics, isYearRangeAutoInitialized]);
+
+  // Debounce filter để tránh gọi API liên tục khi người dùng đổi nhanh
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFbtFilters(fbtFilters);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [fbtFilters]);
+
+  const isFbtFilterDebouncing =
+    fbtFilters.minSupport !== debouncedFbtFilters.minSupport ||
+    fbtFilters.minItems !== debouncedFbtFilters.minItems ||
+    fbtFilters.orderLimit !== debouncedFbtFilters.orderLimit;
+  const isFbtRecomputing = isFbtFilterDebouncing || frequentlyBoughtTogetherFetching;
   
   // Modern, elegant color palette
   const THEME_COLORS = {
@@ -125,7 +175,7 @@ const AdminDashboard = () => {
       <AdminLayout>
         <Alert variant="danger" className="modern-alert">
           <i className="fas fa-exclamation-circle me-2"></i>
-          Error loading dashboard data: {statsError.data?.message || 'An error occurred'}
+          Lỗi tải dữ liệu dashboard: {statsError.data?.message || 'Đã xảy ra lỗi'}
         </Alert>
       </AdminLayout>
     );
@@ -165,7 +215,22 @@ const AdminDashboard = () => {
   
   // Get customer stats
   const getCustomerStats = () => {
-    return userAnalytics?.customersByPeriod || [];
+    const raw = userAnalytics?.customersByPeriod;
+    if (!Array.isArray(raw)) return [];
+
+    // Chuẩn hóa dữ liệu để biểu đồ không bị lệch khi backend trả field khác nhau
+    const normalized = raw.map((item, index) => {
+      const monthLabel = item?.name || item?.month || item?.label || `M${index + 1}`;
+      const year = item?.year ? String(item.year).slice(-2) : '';
+
+      return {
+        name: year ? `${monthLabel}/${year}` : monthLabel,
+        newUsers: Number(item?.newUsers ?? item?.newCustomers ?? item?.users ?? 0),
+        activeUsers: Number(item?.activeUsers ?? item?.returningUsers ?? 0)
+      };
+    });
+
+    return normalized;
   };
   
   return (
@@ -174,8 +239,8 @@ const AdminDashboard = () => {
         {/* Dashboard Header */}
         <div className="dashboard-header">
           <div>
-            <h2 className="dashboard-title">Dashboard</h2>
-            <p className="dashboard-subtitle">Welcome back, {user?.name || 'Admin'}</p>
+            <h2 className="dashboard-title">Bảng điều khiển</h2>
+            <p className="dashboard-subtitle">Chào mừng quay lại, {user?.name || 'Quản trị viên'}</p>
           </div>
           <div className="dashboard-actions">
             {/* Buttons removed as requested */}
@@ -186,45 +251,45 @@ const AdminDashboard = () => {
         <Row className="stats-row g-4">
           <Col md={6} xl={3}>
             <StatCard
-              title="Total Revenue"
+              title="Tổng doanh thu"
               value={formatCurrency(dashboardStats?.totalRevenue || 0)}
               icon={<FaMoneyBillWave />}
               color={THEME_COLORS.primary}
               isLoading={statsLoading}
-              description="All-time revenue"
+              description="Doanh thu toàn thời gian"
               trend={{ direction: 'up', value: 12 }}
             />
           </Col>
           <Col md={6} xl={3}>
             <StatCard
-              title="Orders"
+              title="Đơn hàng"
               value={dashboardStats?.totalOrders || 0}
               icon={<FaShoppingBag />}
               color={THEME_COLORS.warning}
               isLoading={statsLoading}
-              description={`${dashboardStats?.pendingOrders || 0} pending`}
+              description={`${dashboardStats?.pendingOrders || 0} đang chờ`}
               trend={{ direction: 'up', value: 8 }}
             />
           </Col>
           <Col md={6} xl={3}>
             <StatCard
-              title="Customers"
+              title="Khách hàng"
               value={dashboardStats?.totalCustomers || 0}
               icon={<FaUsers />}
               color={THEME_COLORS.success}
               isLoading={statsLoading}
-              description={`${dashboardStats?.newCustomers || 0} new this month`}
+              description={`${dashboardStats?.newCustomers || 0} mới trong tháng`}
               trend={{ direction: 'up', value: 24 }}
             />
           </Col>
           <Col md={6} xl={3}>
             <StatCard
-              title="Products"
+              title="Sản phẩm"
               value={dashboardStats?.totalProducts || 0}
               icon={<FaShoppingCart />}
               color={THEME_COLORS.info}
               isLoading={statsLoading}
-              description={`${dashboardStats?.lowStockProducts || 0} low in stock`}
+              description={`${dashboardStats?.lowStockProducts || 0} sắp hết hàng`}
               trend={{ direction: 'down', value: 3 }}
             />
           </Col>
@@ -236,16 +301,56 @@ const AdminDashboard = () => {
             <Card className="modern-chart-card">
               <Card.Header className="chart-card-header">
                 <div className="d-flex justify-content-between align-items-center">
-                  <h5 className="mb-0">Revenue Overview</h5>
-                  <Tabs
-                    activeKey={period}
-                    onSelect={handlePeriodChange}
-                    className="modern-chart-tabs"
-                  >
-                    <Tab eventKey="weekly" title="Weekly" />
-                    <Tab eventKey="monthly" title="Monthly" />
-                    <Tab eventKey="yearly" title="Yearly" />
-                  </Tabs>
+                  <h5 className="mb-0">Tổng quan doanh thu</h5>
+                  <div className="d-flex align-items-center gap-2">
+                    <Tabs
+                      activeKey={period}
+                      onSelect={handlePeriodChange}
+                      className="modern-chart-tabs"
+                    >
+                      <Tab eventKey="weekly" title="Tuần" />
+                      <Tab eventKey="monthly" title="Tháng" />
+                      <Tab eventKey="yearly" title="Năm" />
+                    </Tabs>
+                    {period === 'yearly' && (
+                      <div className="d-flex align-items-center gap-2">
+                        <Form.Label className="mb-0 small text-muted">Từ năm</Form.Label>
+                        <Form.Control
+                          size="sm"
+                          type="number"
+                          min={2000}
+                          max={currentYear}
+                          value={fromYear}
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+                            if (!Number.isNaN(value)) {
+                              const safeValue = Math.min(Math.max(value, 2000), currentYear);
+                              setFromYear(safeValue);
+                            }
+                          }}
+                          aria-label="Từ năm"
+                          style={{ width: 96 }}
+                        />
+                        <Form.Label className="mb-0 small text-muted">Đến năm</Form.Label>
+                        <Form.Control
+                          size="sm"
+                          type="number"
+                          min={2000}
+                          max={currentYear}
+                          value={toYear}
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+                            if (!Number.isNaN(value)) {
+                              const safeValue = Math.min(Math.max(value, 2000), currentYear);
+                              setToYear(safeValue);
+                            }
+                          }}
+                          aria-label="Đến năm"
+                          style={{ width: 96 }}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </Card.Header>
               <Card.Body>
@@ -284,7 +389,7 @@ const AdminDashboard = () => {
                       <Area
                         type="monotone"
                         dataKey="revenue"
-                        name="Revenue"
+                        name="Doanh thu"
                         stroke={THEME_COLORS.primary}
                         fillOpacity={1}
                         fill="url(#colorRevenue)"
@@ -294,7 +399,7 @@ const AdminDashboard = () => {
                       <Area
                         type="monotone"
                         dataKey="orders"
-                        name="Orders"
+                        name="Đơn hàng"
                         stroke={THEME_COLORS.warning}
                         fillOpacity={1}
                         fill="url(#colorOrders)"
@@ -352,7 +457,7 @@ const AdminDashboard = () => {
                               </div>
                               <div className="deal-product-discount">
                                 <Badge bg="warning" text="dark">
-                                  {((1 - (product.salePrice || product.price) / product.price) * 100).toFixed(0)}% OFF
+                                  Giảm {((1 - (product.salePrice || product.price) / product.price) * 100).toFixed(0)}%
                                 </Badge>
                               </div>
                             </div>
@@ -361,7 +466,7 @@ const AdminDashboard = () => {
                       {(dealHotData?.products || []).length === 0 && (
                         <div className="no-deals-message">
                           <Alert variant="info">
-                            Không có sản phẩm Deal Hot hợp lệ. Hãy kiểm tra giá sale và thời gian hiệu lực.
+                            Không có sản phẩm Deal Hot hợp lệ. Hãy kiểm tra giá giảm và thời gian hiệu lực.
                           </Alert>
                         </div>
                       )}
@@ -463,13 +568,13 @@ const AdminDashboard = () => {
           <Col xs={12}>
             <Card className="modern-table-card">
               <Card.Header className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Top Selling Products</h5>
+                <h5 className="mb-0">Sản phẩm bán chạy</h5>
               </Card.Header>
               <Card.Body className="p-0 dashboard-table-body">
                 <TopProductsTable 
                   products={getTopProducts()} 
                   loading={topProductsLoading} 
-                  error={topProductsError ? { message: topProductsError?.data?.message || 'Could not load top products' } : null} 
+                  error={topProductsError ? { message: topProductsError?.data?.message || 'Không thể tải sản phẩm bán chạy' } : null} 
                 />
               </Card.Body>
             </Card>
@@ -478,13 +583,13 @@ const AdminDashboard = () => {
           <Col xs={12}>
             <Card className="modern-table-card">
               <Card.Header className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Recent Orders</h5>
+                <h5 className="mb-0">Đơn hàng gần đây</h5>
               </Card.Header>
               <Card.Body className="p-0 dashboard-table-body">
                 <RecentOrdersTable 
                   orders={getRecentOrders()} 
                   loading={orderLoading}
-                  error={orderAnalytics === undefined && !orderLoading ? { message: 'Could not load order analytics' } : null}
+                  error={orderAnalytics === undefined && !orderLoading ? { message: 'Không thể tải phân tích đơn hàng' } : null}
                 />
               </Card.Body>
             </Card>
@@ -497,15 +602,15 @@ const AdminDashboard = () => {
             <Card className="modern-chart-card">
               <Card.Header className="chart-card-header">
                 <div className="d-flex justify-content-between align-items-center">
-                  <h5 className="mb-0">Customer Growth</h5>
+                  <h5 className="mb-0">Tăng trưởng khách hàng</h5>
                   <div className="chart-legend">
                     <span className="legend-item">
                       <span className="legend-color" style={{ backgroundColor: THEME_COLORS.success }}></span>
-                      New Customers
+                      Khách hàng mới
                     </span>
                     <span className="legend-item">
                       <span className="legend-color" style={{ backgroundColor: THEME_COLORS.info }}></span>
-                      Active Customers
+                      Khách hàng hoạt động
                     </span>
                   </div>
                 </div>
@@ -519,7 +624,13 @@ const AdminDashboard = () => {
                   <div className="text-center p-4">
                     <Alert variant="warning">
                       <i className="fas fa-exclamation-circle me-2"></i>
-                      Customer data could not be loaded. Using mock data instead.
+                      Không thể tải dữ liệu khách hàng. Đang dùng dữ liệu mẫu.
+                    </Alert>
+                  </div>
+                ) : getCustomerStats().length === 0 ? (
+                  <div className="text-center p-4">
+                    <Alert variant="info">
+                      Chưa có đủ dữ liệu khách hàng để hiển thị biểu đồ tăng trưởng.
                     </Alert>
                   </div>
                 ) : (
@@ -536,13 +647,13 @@ const AdminDashboard = () => {
                       <Legend />
                       <Bar 
                         dataKey="newUsers" 
-                        name="New Customers"
+                        name="Khách hàng mới"
                         fill={THEME_COLORS.success}
                         radius={[4, 4, 0, 0]}
                       />
                       <Bar 
                         dataKey="activeUsers" 
-                        name="Active Customers" 
+                        name="Khách hàng hoạt động" 
                         fill={THEME_COLORS.info}
                         radius={[4, 4, 0, 0]}
                       />
@@ -559,13 +670,20 @@ const AdminDashboard = () => {
           <Col>
             <Card className="modern-table-card">
               <Card.Header className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Frequently Bought Together</h5>
+                <h5 className="mb-0">Sản phẩm thường mua cùng nhau</h5>
               </Card.Header>
               <Card.Body className="p-0">
                 <FrequentlyBoughtTogetherTable 
                   data={frequentlyBoughtTogetherData}
                   loading={frequentlyBoughtTogetherLoading}
-                  error={frequentlyBoughtTogetherData === undefined && !frequentlyBoughtTogetherLoading ? { message: 'Could not load frequently bought together data' } : null}
+                  isRecomputing={isFbtRecomputing}
+                  minSupport={fbtFilters.minSupport}
+                  minItems={fbtFilters.minItems}
+                  orderLimit={fbtFilters.orderLimit}
+                  onMinSupportChange={(value) => setFbtFilters((prev) => ({ ...prev, minSupport: value }))}
+                  onMinItemsChange={(value) => setFbtFilters((prev) => ({ ...prev, minItems: value }))}
+                  onOrderLimitChange={(value) => setFbtFilters((prev) => ({ ...prev, orderLimit: value }))}
+                  error={frequentlyBoughtTogetherData === undefined && !frequentlyBoughtTogetherLoading ? { message: 'Không thể tải dữ liệu sản phẩm thường mua cùng nhau' } : null}
                 />
               </Card.Body>
             </Card>

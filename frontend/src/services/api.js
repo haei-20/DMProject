@@ -1037,7 +1037,13 @@ export const api = createApi({
       }
     }),
     getOrderAnalytics: builder.query({
-      query: () => '/analytics/orders',
+      query: (params = {}) => ({
+        url: '/analytics/orders',
+        params: {
+          fromYear: params.fromYear,
+          toYear: params.toYear
+        }
+      }),
       transformResponse: (response) => {
         // If API returns no data, provide mock data to prevent dashboard errors
         if (!response) {
@@ -1097,7 +1103,8 @@ export const api = createApi({
           params: {
             minSupport: params.minSupport || 0.01,
             limit: params.limit || 50,
-            orderLimit: params.orderLimit || 1000
+            orderLimit: params.orderLimit || 1000,
+            minItems: params.minItems || 2
           },
         };
       },

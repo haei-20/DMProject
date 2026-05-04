@@ -422,10 +422,10 @@ const getHomepageRecommendations = async (userId = null, limit = 8) => {
 };
 
 // Lấy đề xuất sản phẩm thường được mua cùng nhau cho admin (để tạo combo)
-const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderLimit = 1000) => {
+const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderLimit = 1000, minItems = 2) => {
   try {
     // Tạo key cho cache dựa vào tham số đầu vào
-    const cacheKey = `frequently-bought-together-${minSupport}-${limit}-${orderLimit}`;
+    const cacheKey = `frequently-bought-together-${minSupport}-${limit}-${orderLimit}-${minItems}`;
     
     // Kiểm tra cache trước khi tính toán
     const cachedResult = cache.get(cacheKey);
@@ -434,7 +434,7 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
       return cachedResult;
     }
     
-    console.log(`Phân tích dữ liệu với minSupport=${minSupport}, limit=${limit}, orderLimit=${orderLimit}`);
+    console.log(`Phân tích dữ liệu với minSupport=${minSupport}, limit=${limit}, orderLimit=${orderLimit}, minItems=${minItems}`);
     
     // Lấy dữ liệu giao dịch từ database với giới hạn số đơn hàng
     const transactions = await getTransactions(orderLimit);
@@ -539,7 +539,7 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
           
           // Biến đổi kết quả từ Apriori sang cùng định dạng với FP-Growth
           results = aprioriResults.frequentItemSets
-            .filter(itemset => Array.isArray(itemset.items) && itemset.items.length >= 2)
+            .filter(itemset => Array.isArray(itemset.items) && itemset.items.length >= minItems)
             .map(itemset => ({
               items: itemset.items,
               support: itemset.support
@@ -562,9 +562,9 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
       console.log(`Phân tích xong trong ${(endTime-startTime)/1000}s. Tìm thấy ${results.length} mẫu.`);
       console.log(`DEBUG: Kết quả đầu tiên:`, results.length > 0 ? JSON.stringify(results[0]) : "Không có kết quả");
       
-      // Lọc các pattern có từ 2 sản phẩm trở lên và sắp xếp theo support giảm dần
+      // Lọc các pattern có từ minItems sản phẩm trở lên và sắp xếp theo support giảm dần
       const frequentPatterns = results
-        .filter(pattern => pattern.items.length >= 2)
+        .filter(pattern => pattern.items.length >= minItems)
         .map(pattern => {
           // IMPORTANT FIX: Kiểm tra nếu support là số nguyên (>1) thì đó là frequency chứ không phải support
           // Support phải nằm trong khoảng 0-1
@@ -715,7 +715,9 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
         }
         
         // Giới hạn số lượng kết quả
-        const limitedItemsets = frequentItemsets.slice(0, limit);
+        const limitedItemsets = frequentItemsets
+          .filter(itemset => Array.isArray(itemset.products) && itemset.products.length >= minItems)
+          .slice(0, limit);
         
         return {
           frequentItemsets: limitedItemsets,

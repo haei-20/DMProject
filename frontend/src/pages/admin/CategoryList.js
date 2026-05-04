@@ -66,7 +66,7 @@ const CategoryList = () => {
   };
 
   const handleDelete = async (categoryId) => {
-    if (window.confirm('Are you sure you want to delete this category?')) {
+    if (window.confirm('Bạn có chắc chắn muốn xóa danh mục này không?')) {
       try {
         // Try API call first
         await deleteCategory(categoryId).unwrap();
@@ -77,7 +77,7 @@ const CategoryList = () => {
         // If API call fails, update locally
         const updatedCategories = localCategories.filter(cat => cat._id !== categoryId);
         setLocalCategories(updatedCategories);
-        alert('API call failed, but category was removed from the UI.');
+        alert('Gọi API thất bại, nhưng danh mục đã được xóa trên giao diện.');
       }
     }
   };
@@ -127,7 +127,7 @@ const CategoryList = () => {
       setShowModal(false);
     } catch (err) {
       console.error('Failed to save category:', err);
-      alert('Failed to save category. Please try again.');
+      alert('Không thể lưu danh mục. Vui lòng thử lại.');
     }
   };
 
@@ -156,11 +156,11 @@ const CategoryList = () => {
         isLoading={isLoading}
         error={error}
         data={apiCategories}
-        name="API Categories"
+        name="Danh mục API"
       />
       <div className="category-list">
         <div className="category-list-header">
-          <h1>Categories Management</h1>
+          <h1>Quản lý danh mục</h1>
           <div className="category-actions">
             <Button variant="primary" onClick={handleAddNew}>
               <FaPlus /> Thêm danh mục
@@ -176,23 +176,23 @@ const CategoryList = () => {
 
         {error && (
           <Alert variant="danger" className="my-3">
-            Error loading categories from API: {error.message || 'Unknown error'}. Using default categories.
+            Lỗi tải danh mục từ API: {error.message || 'Lỗi không xác định'}. Đang dùng danh mục mặc định.
           </Alert>
         )}
 
         {isLoading ? (
           <div className="text-center my-5">
             <Spinner animation="border" variant="primary" />
-            <p className="mt-2">Loading categories...</p>
+            <p className="mt-2">Đang tải danh mục...</p>
           </div>
         ) : (
           <Table striped bordered hover responsive className="category-table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Name</th>
+                <th>Tên danh mục</th>
                 <th>Slug</th>
-                <th>Actions</th>
+                <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -228,12 +228,12 @@ const CategoryList = () => {
 
         <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
-            <Modal.Title>{currentCategory?._id ? 'Edit Category' : 'Add New Category'}</Modal.Title>
+            <Modal.Title>{currentCategory?._id ? 'Sửa danh mục' : 'Thêm danh mục mới'}</Modal.Title>
           </Modal.Header>
           <Form onSubmit={handleSave}>
             <Modal.Body>
               <Form.Group className="mb-3">
-                <Form.Label>Category Name</Form.Label>
+                <Form.Label>Tên danh mục</Form.Label>
                 <Form.Control 
                   type="text" 
                   value={currentCategory?.name || ''} 
@@ -253,11 +253,11 @@ const CategoryList = () => {
                   />
                 </InputGroup>
                 <Form.Text className="text-muted">
-                  Used for URL. Auto-generated from name, but you can customize it.
+                  Dùng cho URL. Tự động tạo từ tên, bạn có thể chỉnh thủ công.
                 </Form.Text>
               </Form.Group>
               <Form.Group className="mb-3">
-                <Form.Label>Description</Form.Label>
+                <Form.Label>Mô tả</Form.Label>
                 <Form.Control 
                   as="textarea"
                   rows={3}
@@ -268,7 +268,7 @@ const CategoryList = () => {
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={() => setShowModal(false)}>
-                Cancel
+                Hủy
               </Button>
               <Button 
                 variant="primary" 
@@ -276,7 +276,7 @@ const CategoryList = () => {
                 disabled={isCreating || isUpdating}
               >
                 {(isCreating || isUpdating) && <Spinner animation="border" size="sm" className="me-2" />}
-                Save
+                Lưu
               </Button>
             </Modal.Footer>
           </Form>

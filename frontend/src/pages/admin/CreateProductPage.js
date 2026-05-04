@@ -15,7 +15,7 @@ const CreateProductPage = () => {
   return (
     <AdminLayout>
       <Container>
-        <h1 className="mb-4">Add New Product</h1>
+        <h1 className="mb-4">Thêm sản phẩm mới</h1>
         <ProductForm 
           mode="create"
           onSuccess={handleSuccess}

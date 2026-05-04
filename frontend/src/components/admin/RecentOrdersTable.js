@@ -6,6 +6,20 @@ import { FaExclamationTriangle, FaShoppingBag } from 'react-icons/fa';
 import './RecentOrdersTable.css';
 
 const RecentOrdersTable = ({ orders = [], loading = false, error = null }) => {
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'pending': return 'Chờ xử lý';
+      case 'placed': return 'Đã đặt';
+      case 'confirmed': return 'Đã xác nhận';
+      case 'processing': return 'Đang xử lý';
+      case 'shipped': return 'Đang giao';
+      case 'delivered': return 'Đã giao';
+      case 'cancelled': return 'Đã hủy';
+      case 'paid': return 'Đã thanh toán';
+      default: return 'Không xác định';
+    }
+  };
+
   // Get order status color
   const getStatusColor = (status) => {
     switch (status) {
@@ -22,7 +36,7 @@ const RecentOrdersTable = ({ orders = [], loading = false, error = null }) => {
     try {
       return formatDate(date, { includeTime: true });
     } catch (error) {
-      return 'Invalid date';
+      return 'Ngày không hợp lệ';
     }
   };
   
@@ -41,7 +55,7 @@ const RecentOrdersTable = ({ orders = [], loading = false, error = null }) => {
     return (
       <div className="text-center p-5">
         <Spinner animation="border" variant="primary" />
-        <p className="mt-2">Loading order data...</p>
+        <p className="mt-2">Đang tải dữ liệu đơn hàng...</p>
       </div>
     );
   }
@@ -52,9 +66,9 @@ const RecentOrdersTable = ({ orders = [], loading = false, error = null }) => {
       <Alert variant="danger" className="m-3">
         <div className="d-flex align-items-center">
           <FaExclamationTriangle className="me-2" size={18} />
-          <strong>Error loading order data</strong>
+          <strong>Lỗi tải dữ liệu đơn hàng</strong>
         </div>
-        <p className="mb-0 mt-2">{error.message || 'An unknown error occurred'}</p>
+        <p className="mb-0 mt-2">{error.message || 'Đã xảy ra lỗi không xác định'}</p>
       </Alert>
     );
   }
@@ -64,7 +78,7 @@ const RecentOrdersTable = ({ orders = [], loading = false, error = null }) => {
     return (
       <div className="text-center p-4">
         <FaShoppingBag size={32} className="text-muted mb-3" />
-        <p className="mb-0">No recent orders found.</p>
+        <p className="mb-0">Không có đơn hàng gần đây.</p>
       </div>
     );
   }
@@ -74,13 +88,13 @@ const RecentOrdersTable = ({ orders = [], loading = false, error = null }) => {
       <Table hover>
         <thead>
           <tr>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Date</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Payment</th>
-            <th className="text-end">Actions</th>
+            <th>Mã đơn hàng</th>
+            <th>Khách hàng</th>
+            <th>Ngày</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Thanh toán</th>
+            <th className="text-end">Thao tác</th>
           </tr>
         </thead>
         <tbody>
@@ -91,26 +105,26 @@ const RecentOrdersTable = ({ orders = [], loading = false, error = null }) => {
               </td>
               <td>
                 <div className="customer-info">
-                  <span className="customer-name">{order.user?.name || 'Unknown Customer'}</span>
-                  <span className="customer-email">{order.user?.email || 'No email provided'}</span>
+                  <span className="customer-name">{order.user?.name || 'Khách hàng không xác định'}</span>
+                  <span className="customer-email">{order.user?.email || 'Không có email'}</span>
                 </div>
               </td>
               <td>{formatDateTime(order.createdAt)}</td>
               <td>{formatCurrency(order.totalPrice)}</td>
               <td>
                 <Badge bg={getStatusColor(order.status)} className="status-badge">
-                  {(order.status || 'pending').toUpperCase()}
+                  {getStatusLabel(order.status || 'pending')}
                 </Badge>
               </td>
               <td>
                 <Badge bg={order.isPaid ? 'success' : 'warning'} pill>
-                  {order.isPaid ? 'Paid' : 'Pending'}
+                  {order.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
                 </Badge>
               </td>
               <td className="text-end">
-                <Link to={`/admin/orders/${order._id}`}>
+                <Link to={`/admin/order/${order._id}`}>
                   <Button size="sm" variant="outline-primary">
-                    View
+                    Xem
                   </Button>
                 </Link>
               </td>

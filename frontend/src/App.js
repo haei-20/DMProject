@@ -174,6 +174,11 @@ function App() {
             <OrderDetail />
           </AdminRoute>
         } />
+        <Route path="/admin/orders/:id" element={
+          <AdminRoute>
+            <OrderDetail />
+          </AdminRoute>
+        } />
         <Route path="/admin/categories" element={
           <AdminRoute>
             <CategoryList />
@@ -222,6 +227,11 @@ function App() {
         <Route path="/admin/marketing/combo" element={
           <AdminRoute>
             <ComboManagement />
+          </AdminRoute>
+        } />
+        <Route path="/admin/settings/site" element={
+          <AdminRoute>
+            <Navigate to="/admin/settings/general" replace />
           </AdminRoute>
         } />
         <Route path="/admin/settings/general" element={

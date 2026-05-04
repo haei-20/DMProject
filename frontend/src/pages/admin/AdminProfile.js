@@ -57,7 +57,7 @@ const AdminProfile = () => {
       setLoading(false);
       setMessage({
         type: 'success',
-        content: 'Profile updated successfully!'
+        content: 'Cập nhật hồ sơ thành công!'
       });
       
       // Clear message after 3 seconds
@@ -91,7 +91,7 @@ const AdminProfile = () => {
       });
       setMessage({
         type: 'success',
-        content: 'Password changed successfully!'
+        content: 'Đổi mật khẩu thành công!'
       });
       
       // Clear message after 3 seconds
@@ -104,13 +104,13 @@ const AdminProfile = () => {
   return (
     <AdminLayout>
       <div className="admin-profile">
-        <h1>Admin Profile</h1>
+        <h1>Hồ sơ quản trị</h1>
         
         <Row>
           <Col md={3}>
             <div className="profile-sidebar">
               <div className="profile-avatar">
-                <img src={profile.avatar} alt="Admin Avatar" />
+                <img src={profile.avatar} alt="Ảnh đại diện quản trị" />
                 <h3>{profile.name}</h3>
                 <p>{profile.email}</p>
               </div>
@@ -120,14 +120,14 @@ const AdminProfile = () => {
                   className="profile-nav-btn" 
                   onClick={() => setActiveTab('profile')}
                 >
-                  <FaUser /> Profile Information
+                  <FaUser /> Thông tin hồ sơ
                 </Button>
                 <Button 
                   variant={activeTab === 'security' ? 'primary' : 'light'} 
                   className="profile-nav-btn" 
                   onClick={() => setActiveTab('security')}
                 >
-                  <FaKey /> Security Settings
+                  <FaKey /> Cài đặt bảo mật
                 </Button>
               </div>
             </div>
@@ -143,12 +143,12 @@ const AdminProfile = () => {
             {activeTab === 'profile' ? (
               <Card className="profile-card">
                 <Card.Header>
-                  <h2>Profile Information</h2>
+                  <h2>Thông tin hồ sơ</h2>
                 </Card.Header>
                 <Card.Body>
                   <Form onSubmit={handleProfileSubmit}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Full Name</Form.Label>
+                      <Form.Label>Họ và tên</Form.Label>
                       <InputWithIcon icon={<FaUser />}>
                         <Form.Control 
                           type="text" 
@@ -161,7 +161,7 @@ const AdminProfile = () => {
                     </Form.Group>
                     
                     <Form.Group className="mb-3">
-                      <Form.Label>Email Address</Form.Label>
+                      <Form.Label>Địa chỉ email</Form.Label>
                       <InputWithIcon icon={<FaEnvelope />}>
                         <Form.Control 
                           type="email" 
@@ -174,7 +174,7 @@ const AdminProfile = () => {
                     </Form.Group>
                     
                     <Form.Group className="mb-3">
-                      <Form.Label>Phone Number</Form.Label>
+                      <Form.Label>Số điện thoại</Form.Label>
                       <InputWithIcon icon={<FaPhone />}>
                         <Form.Control 
                           type="text" 
@@ -186,7 +186,7 @@ const AdminProfile = () => {
                     </Form.Group>
                     
                     <Form.Group className="mb-3">
-                      <Form.Label>Profile Picture URL</Form.Label>
+                      <Form.Label>URL ảnh đại diện</Form.Label>
                       <Form.Control 
                         type="text" 
                         name="avatar" 
@@ -194,7 +194,7 @@ const AdminProfile = () => {
                         onChange={handleProfileChange}
                       />
                       <Form.Text className="text-muted">
-                        Enter a URL for your profile picture.
+                        Nhập URL ảnh đại diện của bạn.
                       </Form.Text>
                     </Form.Group>
                     
@@ -204,7 +204,7 @@ const AdminProfile = () => {
                       disabled={loading}
                       className="profile-save-btn"
                     >
-                      {loading ? 'Saving...' : <><FaSave /> Save Changes</>}
+                      {loading ? 'Đang lưu...' : <><FaSave /> Lưu thay đổi</>}
                     </Button>
                   </Form>
                 </Card.Body>
@@ -212,12 +212,12 @@ const AdminProfile = () => {
             ) : (
               <Card className="profile-card">
                 <Card.Header>
-                  <h2>Change Password</h2>
+                  <h2>Đổi mật khẩu</h2>
                 </Card.Header>
                 <Card.Body>
                   <Form onSubmit={handlePasswordSubmit}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Current Password</Form.Label>
+                      <Form.Label>Mật khẩu hiện tại</Form.Label>
                       <InputWithIcon icon={<FaKey />}>
                         <Form.Control 
                           type="password" 
@@ -230,7 +230,7 @@ const AdminProfile = () => {
                     </Form.Group>
                     
                     <Form.Group className="mb-3">
-                      <Form.Label>New Password</Form.Label>
+                      <Form.Label>Mật khẩu mới</Form.Label>
                       <InputWithIcon icon={<FaKey />}>
                         <Form.Control 
                           type="password" 
@@ -244,7 +244,7 @@ const AdminProfile = () => {
                     </Form.Group>
                     
                     <Form.Group className="mb-3">
-                      <Form.Label>Confirm New Password</Form.Label>
+                      <Form.Label>Xác nhận mật khẩu mới</Form.Label>
                       <InputWithIcon icon={<FaKey />}>
                         <Form.Control 
                           type="password" 
@@ -263,7 +263,7 @@ const AdminProfile = () => {
                       disabled={loading}
                       className="profile-save-btn"
                     >
-                      {loading ? 'Updating...' : <><FaSave /> Update Password</>}
+                      {loading ? 'Đang cập nhật...' : <><FaSave /> Cập nhật mật khẩu</>}
                     </Button>
                   </Form>
                 </Card.Body>

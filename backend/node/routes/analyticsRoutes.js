@@ -12,6 +12,48 @@ const { protect, isAdmin } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/analytics/track:
+ *   post:
+ *     tags: [Analytics]
+ *     summary: Ghi nhận hành vi người dùng
+ *     security:
+ *       - BearerAuth: []
+ * /api/analytics/recommendations:
+ *   get:
+ *     tags: [Analytics]
+ *     summary: Lấy gợi ý sản phẩm theo hành vi
+ *     security:
+ *       - BearerAuth: []
+ * /api/analytics/popular:
+ *   get:
+ *     tags: [Analytics]
+ *     summary: Lấy sản phẩm phổ biến
+ * /api/analytics/related/{productId}:
+ *   get:
+ *     tags: [Analytics]
+ *     summary: Lấy sản phẩm liên quan theo productId
+ * /api/analytics/products:
+ *   get:
+ *     tags: [Analytics, Admin]
+ *     summary: Phân tích sản phẩm cho dashboard admin
+ *     security:
+ *       - BearerAuth: []
+ * /api/analytics/users:
+ *   get:
+ *     tags: [Analytics, Admin]
+ *     summary: Phân tích người dùng cho dashboard admin
+ *     security:
+ *       - BearerAuth: []
+ * /api/analytics/orders:
+ *   get:
+ *     tags: [Analytics, Admin]
+ *     summary: Phân tích đơn hàng cho dashboard admin
+ *     security:
+ *       - BearerAuth: []
+ */
+
 // @desc    Ghi nhận hành vi người dùng
 // @route   POST /api/analytics/track
 // @access  Private

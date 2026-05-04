@@ -17,17 +17,23 @@ const ProductAnalytics = () => {
   const [minSupport, setMinSupport] = useState(0.00001);
   // Use high limits to capture as much data as possible
   const [limit, setLimit] = useState(100);
-  const [orderLimit, setOrderLimit] = useState(100000);
+  const [orderLimit, setOrderLimit] = useState(3000);
   
   // Log parameters being used for debugging
   console.log(`Fetching frequently bought data with: minSupport=${minSupport}, limit=${limit}, orderLimit=${orderLimit}`);
   
   const { data: productAnalytics, isLoading: productLoading } = useGetProductAnalyticsQuery();
-  const { data: frequentlyBoughtData, isLoading: frequentlyBoughtLoading, refetch } = useGetFrequentlyBoughtTogetherQuery({
-    minSupport,
-    limit,
-    orderLimit
-  });
+  const { data: frequentlyBoughtData, isLoading: frequentlyBoughtLoading, refetch } = useGetFrequentlyBoughtTogetherQuery(
+    {
+      minSupport,
+      limit,
+      orderLimit
+    },
+    {
+      // Chỉ tải dữ liệu FBT khi mở đúng tab để tránh làm chậm trang analytics.
+      skip: activeTab !== 'frequentlyBought'
+    }
+  );
   
   // Log received data for debugging
   React.useEffect(() => {
@@ -64,7 +70,7 @@ const ProductAnalytics = () => {
     if (!productAnalytics || !productAnalytics.salesByCategory) {
       return (
         <Alert variant="info">
-          No data available for category sales
+          Không có dữ liệu doanh số theo danh mục
         </Alert>
       );
     }
