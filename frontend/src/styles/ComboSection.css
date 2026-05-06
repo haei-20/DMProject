@@ -195,6 +195,12 @@
   text-overflow: ellipsis;
 }
 
+.combo-description-fallback {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
 .product-count {
   font-size: 0.9rem;
   color: #555;

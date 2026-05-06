@@ -99,13 +99,6 @@
   font-weight: 600;
 }
 
-.combo-preview-description {
-  padding: 1rem;
-  border-bottom: 1px solid #f0f0f0;
-  color: #6c757d;
-  font-size: 0.9rem;
-}
-
 .combo-preview-products {
   padding: 1rem;
   display: flex;

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, Badge, Button, Spinner, Alert, Container, Row, Col, Carousel, Toast } from 'react-bootstrap';
 import { FaShoppingCart, FaEye, FaChevronLeft, FaChevronRight, FaBoxOpen, FaGift, FaCheckCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { formatPrice } from '../utils/productHelpers';
+import { resolveComboProductImage } from '../utils/comboDisplay';
 import { useAddToCartMutation } from '../services/api';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../redux/slices/cartSlice';
@@ -22,6 +23,12 @@ const ComboSection = ({ combos = [], loading = false, title = "Combo Tiết Ki�
   const handleSelect = (selectedIndex) => {
     setIndex(selectedIndex);
   };
+
+  const visibleCombos = useMemo(() => {
+    return (combos || [])
+      .filter((c) => c && c.isActive !== false)
+      .slice(0, maxItems);
+  }, [combos, maxItems]);
   
   // Calculate combo price and savings
   const calculateComboDetails = (combo) => {
@@ -95,14 +102,16 @@ const ComboSection = ({ combos = [], loading = false, title = "Combo Tiết Ki�
   }
   
   // If no combos
-  if (!combos || combos.length === 0) {
+  if (!combos || combos.length === 0 || visibleCombos.length === 0) {
     return (
       <div className="combo-section">
         <div className="combo-header d-flex justify-content-between align-items-center">
           <h3 className="section-title">{title}</h3>
         </div>
         <Alert variant="info">
-          Hiện không có combo nào. Vui lòng quay lại sau.
+          {combos && combos.length > 0
+            ? 'Hiện không có combo đang mở bán. Vui lòng quay lại sau.'
+            : 'Hiện không có combo nào. Vui lòng quay lại sau.'}
         </Alert>
       </div>
     );
@@ -111,6 +120,7 @@ const ComboSection = ({ combos = [], loading = false, title = "Combo Tiết Ki�
   // Render a single combo card
   const renderCombo = (combo) => {
     const { originalPrice, discountedPrice, savedAmount } = calculateComboDetails(combo);
+    const desc = combo.description && String(combo.description).trim();
     
     return (
       <div className="combo-product-card">
@@ -118,11 +128,18 @@ const ComboSection = ({ combos = [], loading = false, title = "Combo Tiết Ki�
         
         <div className="combo-product-content">
           <div className="combo-products-grid">
-            {combo.products.slice(0, 4).map((product, idx) => (
+            {combo.products.slice(0, 4).map((product) => (
               <div key={product._id} className="combo-product-preview">
                 <div className="product-image">
-                  <img src={product.image} alt={product.name} />
-                  <div className="product-quantity">x{product.quantity}</div>
+                  <img
+                    src={resolveComboProductImage(product.image)}
+                    alt={product.name}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/images/placeholder.png';
+                    }}
+                  />
+                  <div className="product-quantity">x{product.quantity || 1}</div>
                 </div>
               </div>
             ))}
@@ -138,7 +155,13 @@ const ComboSection = ({ combos = [], loading = false, title = "Combo Tiết Ki�
               <FaGift className="me-1" /> Combo tiết kiệm
             </div>
             <h4 className="combo-title">{combo.name}</h4>
-            <p className="combo-description">{combo.description}</p>
+            {desc ? (
+              <p className="combo-description">{desc}</p>
+            ) : (
+              <p className="combo-description combo-description-fallback text-muted">
+                Gồm {combo.products.length} sản phẩm — giảm thêm {combo.discount}% khi mua combo.
+              </p>
+            )}
             
             <div className="product-count">
               <FaBoxOpen className="me-1" /> {combo.products.length} sản phẩm
@@ -225,8 +248,8 @@ const ComboSection = ({ combos = [], loading = false, title = "Combo Tiết Ki�
           prevIcon={<div className="carousel-control-icon"><FaChevronLeft /></div>}
           nextIcon={<div className="carousel-control-icon"><FaChevronRight /></div>}
         >
-          {combos.slice(0, maxItems).map((combo, idx) => (
-            <Carousel.Item key={combo._id || idx}>
+          {visibleCombos.map((combo, idx) => (
+            <Carousel.Item key={combo._id || combo.id || `home-combo-${idx}`}>
               {renderCombo(combo)}
             </Carousel.Item>
           ))}

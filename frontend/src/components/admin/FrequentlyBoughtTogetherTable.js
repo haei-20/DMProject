@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Card, Badge, Spinner, Alert, Form, Row, Col, Tabs, Tab } from 'react-bootstrap';
-import { FaLink, FaShoppingCart, FaInfoCircle, FaExclamationTriangle, FaBoxOpen } from 'react-icons/fa';
+import { Table, Card, Badge, Spinner, Alert, Form, Row, Col, Button, Pagination } from 'react-bootstrap';
+import { FaLink, FaShoppingCart, FaInfoCircle, FaExclamationTriangle } from 'react-icons/fa';
 import { formatPrice } from '../../utils/productHelpers';
+import { productSetSignature } from '../../utils/comboProductSet';
 import './FrequentlyBoughtTogetherTable.css';
 
 const FrequentlyBoughtTogetherTable = ({
@@ -18,14 +19,18 @@ const FrequentlyBoughtTogetherTable = ({
   algorithm = 'fp-growth',
   showControls = true,
   showAlgorithmControl = true,
-  showStrongRules = true,
   onMinSupportChange,
   onMinItemsChange,
   onOrderLimitChange,
   onMinConfidenceChange,
   onMinLiftChange,
   onMinConvictionChange,
-  onAlgorithmChange
+  onAlgorithmChange,
+  /** Khi có hàm này, hiển thị cột nút tạo combo nhanh (vd. trang Quản lý combo) */
+  onQuickCreateCombo,
+  quickCreateLoading = false,
+  /** Danh sách combo hiện có (vd. từ GET /combos) để hiện cột khớp */
+  existingCombos = null
 }) => {
   const isControlledSupport = typeof onMinSupportChange === 'function';
   const isControlledOrder = typeof onOrderLimitChange === 'function';
@@ -83,6 +88,22 @@ const FrequentlyBoughtTogetherTable = ({
   useEffect(() => {
     setInternalAlgorithm(algorithm);
   }, [algorithm]);
+
+  const [listPage, setListPage] = useState(1);
+  const [listPageSize, setListPageSize] = useState(10);
+
+  useEffect(() => {
+    setListPage(1);
+  }, [
+    data,
+    committedMinSupport,
+    committedOrderLimit,
+    committedMinItems,
+    committedAlgorithm,
+    committedMinConfidence,
+    committedMinLift,
+    committedMinConviction
+  ]);
 
   const parsedDraftSupport = parseFloat(draftMinSupport);
   const effectiveMinSupport =
@@ -177,7 +198,11 @@ const FrequentlyBoughtTogetherTable = ({
 
   // Get filtered patterns from real data only
   const filteredPatterns = getFilteredPatterns();
-  const strongRules = Array.isArray(data?.strongRules) ? data.strongRules : [];
+
+  useEffect(() => {
+    const tp = Math.max(1, Math.ceil(filteredPatterns.length / listPageSize));
+    setListPage((p) => Math.min(p, tp));
+  }, [filteredPatterns.length, listPageSize]);
 
   const resolveImageSrc = (image) => {
     if (!image || typeof image !== 'string') return '/images/placeholder.png';
@@ -274,9 +299,25 @@ const FrequentlyBoughtTogetherTable = ({
   }
 
   // Extract the renderDataTable function to avoid code duplication
-  function renderDataTable(patterns) {
-    const hasRows = Array.isArray(patterns) && patterns.length > 0;
-    const hasRules = Array.isArray(strongRules) && strongRules.length > 0;
+  function renderDataTable(allPatterns) {
+    const allCount = Array.isArray(allPatterns) ? allPatterns.length : 0;
+    const hasRows = allCount > 0;
+    const totalPages = Math.max(1, Math.ceil(allCount / listPageSize));
+    const page = Math.min(listPage, totalPages);
+    const rowOffset = (page - 1) * listPageSize;
+    const patterns = hasRows ? allPatterns.slice(rowOffset, rowOffset + listPageSize) : [];
+    const showQuickCreate = typeof onQuickCreateCombo === 'function';
+    const showComboMatch = Array.isArray(existingCombos);
+    const comboByProductSig = new Map();
+    if (showComboMatch) {
+      for (const combo of existingCombos) {
+        if (!combo?.products?.length) continue;
+        const sig = productSetSignature(combo.products);
+        if (sig && !comboByProductSig.has(sig)) {
+          comboByProductSig.set(sig, combo);
+        }
+      }
+    }
     return (
       <Card className="frequently-bought-together-card">
         <Card.Header className="fbt-header">
@@ -481,9 +522,8 @@ const FrequentlyBoughtTogetherTable = ({
           )}
         </Card.Header>
         <Card.Body className="p-0">
-          <Tabs defaultActiveKey="itemsets" className="px-3 pt-3">
-            <Tab eventKey="itemsets" title={`Frequent itemsets${hasRows ? ` (${patterns.length})` : ''}`}>
-              {!hasRows ? (
+          <div className="px-3 pt-3">
+            {!hasRows ? (
                 <Alert variant="info" className="m-3 mb-3 fbt-empty-alert">
                   <div className="d-flex align-items-center">
                     <FaInfoCircle className="me-2" />
@@ -508,11 +548,22 @@ const FrequentlyBoughtTogetherTable = ({
                         <th>Tần suất mua kèm</th>
                         <th>Tỉ lệ xuất hiện</th>
                         <th>Tổng giá trị</th>
+                        {showComboMatch ? (
+                          <th className="fbt-match-col">Khớp combo</th>
+                        ) : null}
+                        {showQuickCreate ? (
+                          <th className="fbt-quick-create-col text-end">Thao tác</th>
+                        ) : null}
                       </tr>
                     </thead>
                     <tbody>
-                      {patterns.map((pattern, idx) => (
-                        <tr key={idx}>
+                      {patterns.map((pattern, idx) => {
+                        const rowKey = rowOffset + idx;
+                        const patternSig = productSetSignature(pattern?.products);
+                        const matchedCombo =
+                          showComboMatch && patternSig ? comboByProductSig.get(patternSig) : null;
+                        return (
+                        <tr key={patternSig ? `${patternSig}-${rowKey}` : rowKey}>
                           <td>
                             <div className="product-combination">
                               {pattern.products.map((product, productIdx) => (
@@ -568,63 +619,96 @@ const FrequentlyBoughtTogetherTable = ({
                           <td>
                             {formatPrice(pattern.products.reduce((total, product) => total + product.price, 0))}
                           </td>
+                          {showComboMatch ? (
+                            <td className="fbt-match-col">
+                              {matchedCombo ? (
+                                <div className="fbt-match-wrap">
+                                  <Badge bg="success" className="mb-1">
+                                    Đã khớp
+                                  </Badge>
+                                  <div className="small text-break" title={matchedCombo.name}>
+                                    {matchedCombo.name}
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="text-muted small">Chưa có combo trùng nhóm SP</span>
+                              )}
+                            </td>
+                          ) : null}
+                          {showQuickCreate ? (
+                            <td className="fbt-quick-create-col text-end">
+                              <Button
+                                variant="primary"
+                                size="sm"
+                                className="fbt-btn-create-combo"
+                                disabled={
+                                  quickCreateLoading ||
+                                  !pattern.products ||
+                                  pattern.products.length < 2 ||
+                                  !!matchedCombo
+                                }
+                                onClick={() => onQuickCreateCombo(pattern)}
+                              >
+                                {matchedCombo ? 'Đã có combo' : 'Tạo combo'}
+                              </Button>
+                            </td>
+                          ) : null}
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </Table>
                 </div>
               )}
-            </Tab>
-
-            {showStrongRules && (
-              <Tab eventKey="rules" title={`Luật mạnh A→B${hasRules ? ` (${strongRules.length})` : ''}`}>
-                {!hasRules ? (
-                  <Alert variant="info" className="m-3 mb-3 fbt-empty-alert">
-                    <div className="d-flex align-items-center">
-                      <FaInfoCircle className="me-2" />
-                      <strong>Không có luật kết hợp thỏa ngưỡng</strong>
-                    </div>
-                    <p className="mb-0 mt-2 small">
-                      Hãy thử giảm minConfidence hoặc minLift/minConviction để thấy nhiều luật hơn.
-                    </p>
-                  </Alert>
-                ) : (
-                  <div className="table-responsive">
-                    <Table className="align-middle mb-0">
-                      <thead>
-                        <tr>
-                          <th>Vế trái (A)</th>
-                          <th>Vế phải (B)</th>
-                          <th>Support</th>
-                          <th>Confidence</th>
-                          <th>Lift</th>
-                          <th>Conviction</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {strongRules.map((r, idx) => (
-                          <tr key={idx}>
-                            <td>{(r.antecedentProducts || r.antecedent || []).map((p) => p.name || p).join(', ')}</td>
-                            <td>{(r.consequentProducts || r.consequent || []).map((p) => p.name || p).join(', ')}</td>
-                            <td>{r.supportPercent || formatSupport(r.support)}</td>
-                            <td>{r.confidencePercent || `${((r.confidence || 0) * 100).toFixed(2)}%`}</td>
-                            <td>{Number.isFinite(r.lift) ? r.lift.toFixed(3) : String(r.lift)}</td>
-                            <td>{r.conviction === Infinity ? '∞' : (Number.isFinite(r.conviction) ? r.conviction.toFixed(3) : String(r.conviction))}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </Table>
-                  </div>
-                )}
-              </Tab>
-            )}
-          </Tabs>
+              {hasRows ? (
+                <div className="fbt-pagination-bar px-3 pb-3 pt-2 d-flex flex-wrap align-items-center justify-content-between gap-2 border-top">
+                  <small className="text-muted">
+                    <strong>
+                      {rowOffset + 1}–{Math.min(rowOffset + patterns.length, allCount)}
+                    </strong>{' '}
+                    / {allCount} · Trang <strong>{page}</strong> / {totalPages}
+                  </small>
+                  <Pagination size="sm" className="mb-0 flex-wrap">
+                    <Pagination.Prev
+                      disabled={page <= 1}
+                      onClick={() => setListPage((p) => Math.max(1, p - 1))}
+                    />
+                    <Pagination.Next
+                      disabled={page >= totalPages}
+                      onClick={() => setListPage((p) => Math.min(totalPages, p + 1))}
+                    />
+                  </Pagination>
+                  <Form.Select
+                    size="sm"
+                    className="fbt-page-size-select"
+                    value={listPageSize}
+                    onChange={(e) => {
+                      setListPageSize(Number(e.target.value) || 10);
+                      setListPage(1);
+                    }}
+                  >
+                    <option value={5}>5 dòng / trang</option>
+                    <option value={10}>10 dòng / trang</option>
+                    <option value={20}>20 dòng / trang</option>
+                    <option value={50}>50 dòng / trang</option>
+                  </Form.Select>
+                </div>
+              ) : null}
+          </div>
         </Card.Body>
         {hasRows && (
           <Card.Footer className="text-muted">
             <small>
               <FaShoppingCart className="me-1" />
-              Dữ liệu thực từ cơ sở dữ liệu. Các sản phẩm này thường được khách hàng mua cùng nhau. 
+              Dữ liệu thực từ cơ sở dữ liệu. Các sản phẩm này thường được khách hàng mua cùng nhau.
+              {showComboMatch ? (
+                <>
+                  {' '}
+                  Cột <strong>Khớp combo</strong>: trùng khi <strong>tập sản phẩm</strong> (theo{' '}
+                  <code>_id</code>) giống hệt một combo đang lưu, không phân biệt thứ tự (mỗi SP trong combo chỉ
+                  tính một lần).
+                </>
+              ) : null}
             </small>
           </Card.Footer>
         )}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { productSetSignature, buildSignatureSetFromFrequentItemsets } from '../../utils/comboProductSet';
 import { 
   Container, Row, Col, Card, Button, Form, 
   Table, Badge, Alert, InputGroup, Spinner,
-  Modal, Tabs, Tab, ListGroup, Toast
+  Modal, Tabs, Tab, ListGroup, Toast, Pagination
 } from 'react-bootstrap';
 import { 
   FaPlus, FaTrash, FaSave, FaSearch, 
@@ -27,7 +28,6 @@ const ComboManagement = () => {
   // State for combo properties
   const [currentCombo, setCurrentCombo] = useState({
     name: '',
-    description: '',
     products: [],
     discount: 10,
     isActive: true,
@@ -69,8 +69,8 @@ const ComboManagement = () => {
     isLoading: isLoadingFrequently,
     error: frequentlyError
   } = useGetFrequentlyBoughtTogetherQuery(fbtFilters, {
-    // Chỉ chạy truy vấn nặng khi người dùng thật sự mở tab Gợi ý Combo.
-    skip: activeTab !== 'suggestions'
+    // Tab Tạo Combo không cần FBT; Danh sách + Gợi ý cần dữ liệu để đánh dấu khớp gợi ý.
+    skip: activeTab === 'builder'
   });
   
   // Get existing combos
@@ -81,16 +81,61 @@ const ComboManagement = () => {
   } = useGetCombosQuery();
   
   // Mutations for CRUD operations
-  const [createCombo, { isLoading: isCreating }] = useCreateComboMutation();
+  const [createCombo] = useCreateComboMutation();
   const [updateCombo, { isLoading: isUpdating }] = useUpdateComboMutation();
   const [deleteCombo, { isLoading: isDeleting }] = useDeleteComboMutation();
-  
+
+  const suggestedProductSignatures = useMemo(
+    () => buildSignatureSetFromFrequentItemsets(frequentlyBoughtData),
+    [frequentlyBoughtData]
+  );
+
+  const [comboListPage, setComboListPage] = useState(1);
+  const [comboPageSize, setComboPageSize] = useState(10);
+
+  const comboTotalPages = Math.max(1, Math.ceil(combos.length / comboPageSize));
+  const comboPageSafe = Math.min(comboListPage, comboTotalPages);
+  const comboRowOffset = (comboPageSafe - 1) * comboPageSize;
+  const paginatedCombos = combos.slice(comboRowOffset, comboRowOffset + comboPageSize);
+
+  useEffect(() => {
+    setComboListPage((p) => Math.min(p, comboTotalPages));
+  }, [comboTotalPages]);
+
   // Show toast message
   const showMessage = (message, variant = 'success') => {
     setToastMessage(message);
     setToastVariant(variant);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
+  };
+
+  /** Mở tab Tạo Combo với dữ liệu từ gợi ý — người dùng chỉnh sửa rồi bấm Lưu */
+  const handleQuickCreateComboFromPattern = (pattern) => {
+    const raw = pattern?.products || [];
+    if (raw.length < 2) {
+      showMessage('Cần ít nhất 2 sản phẩm để tạo combo.', 'danger');
+      return;
+    }
+    const products = raw.map((p) => ({
+      _id: p._id,
+      name: p.name,
+      image: p.image,
+      price: typeof p.price === 'number' ? p.price : 0,
+      quantity: 1
+    }));
+    const name = `Combo: ${products.map((p) => p.name).join(' + ')}`.slice(0, 180);
+    setEditMode(false);
+    setCurrentCombo({
+      name,
+      products,
+      discount: 10,
+      isActive: true,
+      startDate: '',
+      endDate: ''
+    });
+    setActiveTab('builder');
+    showMessage('Đã điền sẵn thông tin — chỉnh sửa nếu cần rồi bấm Lưu Combo.');
   };
   
   // Hàm chuẩn hóa text tiếng Việt (bỏ dấu) để tìm kiếm dễ dàng hơn
@@ -204,25 +249,31 @@ const ComboManagement = () => {
   const handleSaveCombo = async () => {
     if (currentCombo.name && currentCombo.products.length > 0) {
       try {
-        console.log('Saving combo:', currentCombo); // Debug log
+        const comboPayload = {
+          name: currentCombo.name,
+          products: currentCombo.products,
+          discount: currentCombo.discount,
+          isActive: currentCombo.isActive
+        };
+        if (currentCombo.startDate) comboPayload.startDate = currentCombo.startDate;
+        if (currentCombo.endDate) comboPayload.endDate = currentCombo.endDate;
+
+        console.log('Saving combo:', comboPayload);
         if (editMode) {
-          // Update existing combo - use _id instead of id
-          console.log('Updating combo with ID:', currentCombo._id); // Debug log
+          console.log('Updating combo with ID:', currentCombo._id);
           await updateCombo({
             id: currentCombo._id,
-            comboData: currentCombo
+            comboData: comboPayload
           }).unwrap();
           showMessage('Combo đã được cập nhật thành công');
         } else {
-          // Add new combo
-          await createCombo(currentCombo).unwrap();
+          await createCombo(comboPayload).unwrap();
           showMessage('Combo mới đã được thêm thành công');
         }
         
         // Reset current combo and exit edit mode
         setCurrentCombo({
           name: '',
-          description: '',
           products: [],
           discount: 10,
           isActive: true,
@@ -240,8 +291,9 @@ const ComboManagement = () => {
   
   // Edit an existing combo
   const handleEditCombo = (combo) => {
-    console.log('Editing combo:', combo); // Debug log
-    setCurrentCombo(combo);
+    console.log('Editing combo:', combo);
+    const { description: _omitDesc, ...comboForAdmin } = combo;
+    setCurrentCombo(comboForAdmin);
     setEditMode(true);
     setActiveTab('builder');
   };
@@ -306,14 +358,20 @@ const ComboManagement = () => {
         >
           <Tab eventKey="combos" title="Danh sách Combo">
             <Card className="combo-list-card">
-              <Card.Header className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Danh sách Combo hiện có</h5>
+              <Card.Header className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h5 className="mb-0">Danh sách Combo hiện có</h5>
+                  <small className="text-muted">
+                    Cột <strong>Gợi ý</strong>: trùng tập sản phẩm với một mẫu FBT hiện tại (
+                    {fbtFilters.algorithm === 'apriori' ? 'Apriori' : 'FP-Growth'}
+                    {isLoadingFrequently ? ', đang tải…' : ''}).
+                  </small>
+                </div>
                 <Button 
                   variant="primary" 
                   onClick={() => {
                     setCurrentCombo({
                       name: '',
-                      description: '',
                       products: [],
                       discount: 10,
                       isActive: true,
@@ -342,12 +400,16 @@ const ComboManagement = () => {
                         <th>Giá combo</th>
                         <th>Tiết kiệm</th>
                         <th>Trạng thái</th>
+                        <th>Gợi ý</th>
                         <th>Thao tác</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {combos.map(combo => {
+                      {paginatedCombos.map((combo) => {
                         const details = calculateComboDetails(combo.products);
+                        const comboSig = productSetSignature(combo.products);
+                        const matchesSuggestion =
+                          comboSig.length > 0 && suggestedProductSignatures.has(comboSig);
                         return (
                           <tr key={combo._id || combo.id}>
                             <td>
@@ -373,6 +435,17 @@ const ComboManagement = () => {
                               </Badge>
                             </td>
                             <td>
+                              {isLoadingFrequently && !frequentlyBoughtData ? (
+                                <span className="text-muted small">…</span>
+                              ) : matchesSuggestion ? (
+                                <Badge bg="info" text="dark">
+                                  Khớp gợi ý
+                                </Badge>
+                              ) : (
+                                <span className="text-muted small">—</span>
+                              )}
+                            </td>
+                            <td>
                               <Button 
                                 variant="outline-primary" 
                                 size="sm" 
@@ -395,6 +468,41 @@ const ComboManagement = () => {
                     </tbody>
                   </Table>
                 )}
+                {combos.length > 0 ? (
+                  <div className="combo-list-pagination px-3 pb-3 pt-2 d-flex flex-wrap align-items-center justify-content-between gap-2 border-top">
+                    <small className="text-muted">
+                      <strong>
+                        {comboRowOffset + 1}–{Math.min(comboRowOffset + paginatedCombos.length, combos.length)}
+                      </strong>{' '}
+                      / {combos.length} · Trang <strong>{comboPageSafe}</strong> / {comboTotalPages}
+                    </small>
+                    <Pagination size="sm" className="mb-0 flex-wrap">
+                      <Pagination.Prev
+                        disabled={comboPageSafe <= 1}
+                        onClick={() => setComboListPage((p) => Math.max(1, p - 1))}
+                      />
+                      <Pagination.Next
+                        disabled={comboPageSafe >= comboTotalPages}
+                        onClick={() => setComboListPage((p) => Math.min(comboTotalPages, p + 1))}
+                      />
+                    </Pagination>
+                    <Form.Select
+                      size="sm"
+                      className="combo-page-size-select"
+                      style={{ width: 'auto', minWidth: 130, maxWidth: 160 }}
+                      value={comboPageSize}
+                      onChange={(e) => {
+                        setComboPageSize(Number(e.target.value) || 10);
+                        setComboListPage(1);
+                      }}
+                    >
+                      <option value={5}>5 dòng / trang</option>
+                      <option value={10}>10 dòng / trang</option>
+                      <option value={20}>20 dòng / trang</option>
+                      <option value={50}>50 dòng / trang</option>
+                    </Form.Select>
+                  </div>
+                ) : null}
               </Card.Body>
             </Card>
           </Tab>
@@ -440,17 +548,6 @@ const ComboManagement = () => {
                           </Form.Group>
                         </Col>
                       </Row>
-                      
-                      <Form.Group className="mb-3">
-                        <Form.Label>Mô tả Combo</Form.Label>
-                        <Form.Control 
-                          as="textarea" 
-                          rows={2}
-                          placeholder="Nhập mô tả về combo này"
-                          value={currentCombo.description}
-                          onChange={(e) => setCurrentCombo({...currentCombo, description: e.target.value})}
-                        />
-                      </Form.Group>
                       
                       <Row className="mb-3">
                         <Col md={6}>
@@ -570,7 +667,6 @@ const ComboManagement = () => {
                         onClick={() => {
                           setCurrentCombo({
                             name: '',
-                            description: '',
                             products: [],
                             discount: 10,
                             isActive: true,
@@ -647,10 +743,6 @@ const ComboManagement = () => {
                           )}
                         </div>
                         
-                        <div className="combo-preview-description">
-                          {currentCombo.description || 'Mô tả về combo sẽ hiển thị ở đây.'}
-                        </div>
-                        
                         <div className="combo-preview-products">
                           {currentCombo.products.map((product, index) => (
                             <div key={product._id} className="combo-preview-product">
@@ -704,6 +796,8 @@ const ComboManagement = () => {
                   onMinLiftChange={(value) => setFbtFilters((prev) => ({ ...prev, minLift: value }))}
                   onMinConvictionChange={(value) => setFbtFilters((prev) => ({ ...prev, minConviction: value }))}
                   onAlgorithmChange={(value) => setFbtFilters((prev) => ({ ...prev, algorithm: value }))}
+                  onQuickCreateCombo={handleQuickCreateComboFromPattern}
+                  existingCombos={combos}
                   error={frequentlyError}
                 />
               </Card.Body>

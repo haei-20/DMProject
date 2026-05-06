@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Container, Row, Col, Card, Badge, 
-  Button, Alert, Spinner, Toast, Carousel
+  Button, Alert, Spinner, Toast
 } from 'react-bootstrap';
 import { 
-  FaShoppingCart, FaPercent, FaBoxOpen, FaAngleRight, 
-  FaCheckCircle, FaFire, FaClock, FaStar, FaTags
+  FaShoppingCart, FaPercent, FaBoxOpen, 
+  FaCheckCircle, FaFire, FaClock, FaTags
 } from 'react-icons/fa';
 import { formatPrice } from '../utils/productHelpers';
 import { useAddToCartMutation, useGetCombosQuery } from '../services/api';
@@ -13,19 +13,12 @@ import Layout from '../components/Layout';
 import './ComboPage.css';
 import { useDispatch } from 'react-redux';
 import { addToCart as addToCartAction } from '../redux/slices/cartSlice';
+import { resolveComboProductImage } from '../utils/comboDisplay';
 
 const ComboPage = () => {
   // Toast state
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  
-  // Countdown state for featured combos
-  const [timeLeft, setTimeLeft] = useState({
-    days: 2,
-    hours: 12,
-    minutes: 30,
-    seconds: 0
-  });
   
   // Fetch combos from API using the RTK Query hook
   const {
@@ -33,9 +26,21 @@ const ComboPage = () => {
     isLoading,
     error
   } = useGetCombosQuery();
+
+  const activeCombos = useMemo(() => {
+    return combos
+      .filter((c) => c && c.isActive !== false)
+      .sort((a, b) => {
+        const ta = new Date(a.updatedAt || a.createdAt || 0).getTime();
+        const tb = new Date(b.updatedAt || b.createdAt || 0).getTime();
+        return tb - ta;
+      });
+  }, [combos]);
   
-  const [addToCart, { isLoading: isAddingToCart }] = useAddToCartMutation();
+  const [addToCart] = useAddToCartMutation();
   const dispatch = useDispatch();
+  /** Chỉ combo đang gọi API mới disabled — RTK isLoading của mutation là chung cho mọi lần gọi */
+  const [addingComboKey, setAddingComboKey] = useState(null);
   
   // Calculate combo price and savings
   const calculateComboDetails = (combo) => {
@@ -47,10 +52,75 @@ const ComboPage = () => {
     
     return { originalPrice, discountedPrice, savedAmount };
   };
+
+  const renderComboCard = (combo, idx) => {
+    const { originalPrice, discountedPrice, savedAmount } = calculateComboDetails(combo);
+    const desc = combo.description && String(combo.description).trim();
+    const cardKey = combo._id || combo.id || `combo-card-${idx}`;
+    const isThisComboAdding = addingComboKey === cardKey;
+
+    return (
+      <Col key={cardKey} xs={12} md={6} xl={4}>
+        <Card className="combo-grid-card h-100 shadow-sm">
+          <div className="combo-grid-card-discount">-{combo.discount}%</div>
+          <Card.Body className="d-flex flex-column">
+            <div className="combo-grid-thumbs">
+              {combo.products.map((product) => (
+                <div key={product._id} className="combo-grid-thumb" title={product.name}>
+                  <img
+                    src={resolveComboProductImage(product.image)}
+                    alt=""
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/images/placeholder.png';
+                    }}
+                  />
+                  <span className="combo-grid-thumb-qty">×{product.quantity || 1}</span>
+                </div>
+              ))}
+            </div>
+            <Card.Title as="h3" className="combo-grid-title h5 mt-3 mb-2">
+              {combo.name}
+            </Card.Title>
+            {desc ? (
+              <Card.Text className="combo-grid-desc small text-muted flex-grow-1">{desc}</Card.Text>
+            ) : (
+              <Card.Text className="combo-grid-desc small text-muted flex-grow-1">
+                Gồm <strong>{combo.products.length}</strong> sản phẩm — giảm{' '}
+                <strong>{combo.discount}%</strong> so với mua lẻ.
+              </Card.Text>
+            )}
+            <div className="combo-grid-prices mb-3">
+              <div className="combo-grid-price-old text-muted text-decoration-line-through small">
+                {formatPrice(originalPrice)}
+              </div>
+              <div className="combo-grid-price-new fw-bold text-danger fs-5">
+                {formatPrice(discountedPrice)}
+              </div>
+              <div className="mt-1 d-flex flex-wrap gap-1">
+                <Badge bg="success">Tiết kiệm {formatPrice(savedAmount)}</Badge>
+                <Badge bg="secondary">{combo.products.length} sản phẩm</Badge>
+              </div>
+            </div>
+            <Button
+              variant="primary"
+              className="mt-auto combo-grid-add-btn"
+              onClick={() => handleAddComboToCart(combo, cardKey)}
+              disabled={isThisComboAdding}
+            >
+              <FaShoppingCart className="me-2" />
+              {isThisComboAdding ? 'Đang thêm...' : 'Thêm cả combo vào giỏ'}
+            </Button>
+          </Card.Body>
+        </Card>
+      </Col>
+    );
+  };
   
   // Handle adding the entire combo to cart
-  const handleAddComboToCart = async (combo) => {
+  const handleAddComboToCart = async (combo, cardKey) => {
     try {
+      setAddingComboKey(cardKey);
       console.log("Adding combo to cart:", combo);
       
       // Add each product in the combo to cart with its quantity
@@ -59,7 +129,7 @@ const ComboPage = () => {
         const cartItem = {
           _id: product._id,
           name: product.name,
-          image: product.image || "/logo192.png",
+          image: resolveComboProductImage(product.image),
           price: product.salePrice || product.price,
           originalPrice: product.price,
           countInStock: product.countInStock || 10,
@@ -87,43 +157,10 @@ const ComboPage = () => {
       // Show error message
       setToastMessage('Có lỗi xảy ra khi thêm vào giỏ hàng.');
       setShowToast(true);
+    } finally {
+      setAddingComboKey(null);
     }
   };
-  
-  // Update countdown timer
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prevTime => {
-        let { days, hours, minutes, seconds } = prevTime;
-        
-        if (seconds > 0) {
-          seconds -= 1;
-        } else {
-          seconds = 59;
-          if (minutes > 0) {
-            minutes -= 1;
-          } else {
-            minutes = 59;
-            if (hours > 0) {
-              hours -= 1;
-            } else {
-              hours = 23;
-              if (days > 0) {
-                days -= 1;
-              } else {
-                // Reset to 3 days when countdown ends
-                days = 3;
-              }
-            }
-          }
-        }
-        
-        return { days, hours, minutes, seconds };
-      });
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, []);
   
   if (isLoading) {
     return (
@@ -154,117 +191,40 @@ const ComboPage = () => {
         <Container>
           <div className="banner-content">
             <h1><FaFire className="me-2" />Combo Tiết Kiệm</h1>
-            <p>Mua combo để tiết kiệm đến 20% so với mua lẻ từng sản phẩm.</p>
-            <div className="combo-countdown">
-              <div className="countdown-title">
-                <FaClock className="me-2" /> Combo đặc biệt sẽ kết thúc sau:
-              </div>
-              <div className="countdown-timer">
-                <div className="countdown-box">
-                  <div className="countdown-value">{timeLeft.days}</div>
-                  <div className="countdown-label">Ngày</div>
-                </div>
-                <div className="countdown-separator">:</div>
-                <div className="countdown-box">
-                  <div className="countdown-value">{timeLeft.hours}</div>
-                  <div className="countdown-label">Giờ</div>
-                </div>
-                <div className="countdown-separator">:</div>
-                <div className="countdown-box">
-                  <div className="countdown-value">{timeLeft.minutes}</div>
-                  <div className="countdown-label">Phút</div>
-                </div>
-                <div className="countdown-separator">:</div>
-                <div className="countdown-box">
-                  <div className="countdown-value">{timeLeft.seconds}</div>
-                  <div className="countdown-label">Giây</div>
-                </div>
-              </div>
-            </div>
+            <p>Mua combo để giảm giá so với mua lẻ từng sản phẩm — gói được cập nhật thường xuyên.</p>
+            <p className="combo-banner-note mb-0">
+              <FaClock className="me-2" aria-hidden />
+              Giá và danh sách combo theo thời điểm hiển thị trên trang.
+            </p>
           </div>
         </Container>
       </div>
       
-      {/* Featured Combos Carousel */}
-      {combos.length > 0 ? (
-        <div className="featured-combos-section">
+      {/* Danh sách combo: mỗi combo một thẻ — không dùng slider */}
+      {activeCombos.length > 0 ? (
+        <div className="combo-list-section">
           <Container>
-            <div className="section-header featured">
-              <div className="section-title-wrapper">
-                <FaStar className="section-icon" />
-                <h2>Combo Nổi Bật</h2>
+            <div className="combo-list-header d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+              <div className="d-flex align-items-center gap-2">
+                <FaTags className="text-danger" aria-hidden />
+                <h2 className="combo-list-heading h4 mb-0">Combo đang mở bán</h2>
               </div>
-              <Badge bg="danger" className="featured-badge">
-                <FaFire className="me-1" /> Hot
+              <Badge bg="danger" className="align-self-center">
+                <FaFire className="me-1" aria-hidden />
+                {activeCombos.length} gói
               </Badge>
             </div>
-            
-            <Carousel className="featured-combos-carousel">
-              {combos.map((combo) => {
-                const { originalPrice, discountedPrice, savedAmount } = calculateComboDetails(combo);
-                
-                return (
-                  <Carousel.Item key={combo.id}>
-                    <div className="featured-combo-slide">
-                      <Row>
-                        <Col md={6} className="featured-combo-products">
-                          <div className="featured-products-grid">
-                            {combo.products.map((product, index) => (
-                              <div key={product._id} className="featured-product-item">
-                                <div className="product-image">
-                                  <img src={product.image} alt={product.name} />
-                                  <div className="product-quantity">x{product.quantity}</div>
-                                </div>
-                                <div className="product-name">{product.name}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </Col>
-                        <Col md={6} className="featured-combo-details">
-                          <div className="combo-badge">
-                            <FaTags className="me-1" /> Super Combo
-                          </div>
-                          <h3 className="featured-combo-name">{combo.name}</h3>
-                          <p className="featured-combo-description">{combo.description}</p>
-                          
-                          <div className="featured-combo-pricing">
-                            <div className="price-details">
-                              <div className="original-price">
-                                {formatPrice(originalPrice)}
-                              </div>
-                              <div className="discounted-price">
-                                {formatPrice(discountedPrice)}
-                              </div>
-                            </div>
-                            <div className="savings">
-                              <Badge bg="success" className="savings-badge">
-                                Tiết kiệm {formatPrice(savedAmount)}
-                              </Badge>
-                              <Badge bg="danger" className="discount-badge">
-                                -{combo.discount}%
-                              </Badge>
-                            </div>
-                          </div>
-                          
-                          <Button 
-                            variant="primary" 
-                            size="lg"
-                            className="add-featured-combo-btn"
-                            onClick={() => handleAddComboToCart(combo)}
-                            disabled={isAddingToCart}
-                          >
-                            <FaShoppingCart className="me-2" />
-                            {isAddingToCart ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
-                          </Button>
-                        </Col>
-                      </Row>
-                    </div>
-                  </Carousel.Item>
-                );
-              })}
-            </Carousel>
+            <Row className="g-4">
+              {activeCombos.map((combo, idx) => renderComboCard(combo, idx))}
+            </Row>
           </Container>
         </div>
+      ) : combos.length > 0 ? (
+        <Container className="py-5">
+          <Alert variant="info" className="text-center mb-0">
+            Hiện không có combo nào đang mở bán. Vui lòng quay lại sau.
+          </Alert>
+        </Container>
       ) : (
         <Container className="py-5">
           <div className="text-center py-5">

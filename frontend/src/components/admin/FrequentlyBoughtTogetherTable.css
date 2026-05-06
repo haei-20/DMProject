@@ -201,6 +201,32 @@
   font-size: 0.85em;
 }
 
+.fbt-quick-create-col {
+  width: 1%;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.fbt-match-col {
+  max-width: 140px;
+  vertical-align: middle;
+}
+
+.fbt-match-wrap .badge {
+  font-size: 0.7rem;
+}
+
+.fbt-btn-create-combo {
+  font-size: 12px;
+  padding: 0.25rem 0.5rem;
+}
+
+.fbt-page-size-select {
+  width: auto;
+  min-width: 130px;
+  max-width: 160px;
+}
+
 @media (max-width: 768px) {
   .filter-controls {
     width: 100%;
