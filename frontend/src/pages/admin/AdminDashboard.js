@@ -35,12 +35,18 @@ const AdminDashboard = () => {
   const [fbtFilters, setFbtFilters] = useState({
     minSupport: 0.01,
     minItems: 2,
-    orderLimit: 500
+    orderLimit: 500,
+    minConfidence: 0.1,
+    minLift: 1,
+    minConviction: 1
   });
   const [debouncedFbtFilters, setDebouncedFbtFilters] = useState({
     minSupport: 0.01,
     minItems: 2,
-    orderLimit: 500
+    orderLimit: 500,
+    minConfidence: 0.1,
+    minLift: 1,
+    minConviction: 1
   });
   const { data: dashboardStats, isLoading: statsLoading, error: statsError } = useGetDashboardStatsQuery();
   const { data: topProducts = [], isLoading: topProductsLoading, error: topProductsError } = useGetTopProductsQuery({
@@ -55,15 +61,33 @@ const AdminDashboard = () => {
   });
   const { data: dealHotData, isLoading: dealHotLoading } = useGetDealHotQuery({ limit: 3 });
   const {
-    data: frequentlyBoughtTogetherData,
-    isLoading: frequentlyBoughtTogetherLoading,
-    isFetching: frequentlyBoughtTogetherFetching
+    data: frequentlyBoughtFpData,
+    isLoading: frequentlyBoughtFpLoading,
+    isFetching: frequentlyBoughtFpFetching
   } = useGetFrequentlyBoughtTogetherQuery({
     // Refetch backend khi đổi các bộ lọc FBT
     minSupport: debouncedFbtFilters.minSupport,
     minItems: debouncedFbtFilters.minItems,
     limit: 20,
-    orderLimit: debouncedFbtFilters.orderLimit
+    orderLimit: debouncedFbtFilters.orderLimit,
+    algorithm: 'fp-growth',
+    minConfidence: debouncedFbtFilters.minConfidence,
+    minLift: debouncedFbtFilters.minLift,
+    minConviction: debouncedFbtFilters.minConviction
+  });
+  const {
+    data: frequentlyBoughtAprioriData,
+    isLoading: frequentlyBoughtAprioriLoading,
+    isFetching: frequentlyBoughtAprioriFetching
+  } = useGetFrequentlyBoughtTogetherQuery({
+    minSupport: debouncedFbtFilters.minSupport,
+    minItems: debouncedFbtFilters.minItems,
+    limit: 20,
+    orderLimit: debouncedFbtFilters.orderLimit,
+    algorithm: 'apriori',
+    minConfidence: debouncedFbtFilters.minConfidence,
+    minLift: debouncedFbtFilters.minLift,
+    minConviction: debouncedFbtFilters.minConviction
   });
   
   // Debug user authentication
@@ -105,8 +129,12 @@ const AdminDashboard = () => {
   const isFbtFilterDebouncing =
     fbtFilters.minSupport !== debouncedFbtFilters.minSupport ||
     fbtFilters.minItems !== debouncedFbtFilters.minItems ||
-    fbtFilters.orderLimit !== debouncedFbtFilters.orderLimit;
-  const isFbtRecomputing = isFbtFilterDebouncing || frequentlyBoughtTogetherFetching;
+    fbtFilters.orderLimit !== debouncedFbtFilters.orderLimit ||
+    fbtFilters.minConfidence !== debouncedFbtFilters.minConfidence ||
+    fbtFilters.minLift !== debouncedFbtFilters.minLift ||
+    fbtFilters.minConviction !== debouncedFbtFilters.minConviction;
+  const isFbtFpRecomputing = isFbtFilterDebouncing || frequentlyBoughtFpFetching;
+  const isFbtAprioriRecomputing = isFbtFilterDebouncing || frequentlyBoughtAprioriFetching;
   
   // Modern, elegant color palette
   const THEME_COLORS = {
@@ -570,23 +598,60 @@ const AdminDashboard = () => {
         
         {/* Frequently Bought Together Table */}
         <Row className="g-4 mt-1 mb-4">
-          <Col>
+          <Col lg={6}>
             <Card className="modern-table-card">
               <Card.Header className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Sản phẩm thường mua cùng nhau</h5>
+                <h5 className="mb-0">Sản phẩm thường mua cùng nhau (FP-Growth)</h5>
               </Card.Header>
               <Card.Body className="p-0">
                 <FrequentlyBoughtTogetherTable 
-                  data={frequentlyBoughtTogetherData}
-                  loading={frequentlyBoughtTogetherLoading}
-                  isRecomputing={isFbtRecomputing}
+                  data={frequentlyBoughtFpData}
+                  loading={frequentlyBoughtFpLoading}
+                  isRecomputing={isFbtFpRecomputing}
                   minSupport={fbtFilters.minSupport}
                   minItems={fbtFilters.minItems}
                   orderLimit={fbtFilters.orderLimit}
+                  minConfidence={fbtFilters.minConfidence}
+                  minLift={fbtFilters.minLift}
+                  minConviction={fbtFilters.minConviction}
                   onMinSupportChange={(value) => setFbtFilters((prev) => ({ ...prev, minSupport: value }))}
                   onMinItemsChange={(value) => setFbtFilters((prev) => ({ ...prev, minItems: value }))}
                   onOrderLimitChange={(value) => setFbtFilters((prev) => ({ ...prev, orderLimit: value }))}
-                  error={frequentlyBoughtTogetherData === undefined && !frequentlyBoughtTogetherLoading ? { message: 'Không thể tải dữ liệu sản phẩm thường mua cùng nhau' } : null}
+                  onMinConfidenceChange={(value) => setFbtFilters((prev) => ({ ...prev, minConfidence: value }))}
+                  onMinLiftChange={(value) => setFbtFilters((prev) => ({ ...prev, minLift: value }))}
+                  onMinConvictionChange={(value) => setFbtFilters((prev) => ({ ...prev, minConviction: value }))}
+                  showAlgorithmControl={false}
+                  algorithm="fp-growth"
+                  error={frequentlyBoughtFpData === undefined && !frequentlyBoughtFpLoading ? { message: 'Không thể tải dữ liệu FP-Growth' } : null}
+                />
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col lg={6}>
+            <Card className="modern-table-card">
+              <Card.Header className="d-flex justify-content-between align-items-center">
+                <h5 className="mb-0">Sản phẩm thường mua cùng nhau (Apriori)</h5>
+              </Card.Header>
+              <Card.Body className="p-0">
+                <FrequentlyBoughtTogetherTable
+                  data={frequentlyBoughtAprioriData}
+                  loading={frequentlyBoughtAprioriLoading}
+                  isRecomputing={isFbtAprioriRecomputing}
+                  minSupport={fbtFilters.minSupport}
+                  minItems={fbtFilters.minItems}
+                  orderLimit={fbtFilters.orderLimit}
+                  minConfidence={fbtFilters.minConfidence}
+                  minLift={fbtFilters.minLift}
+                  minConviction={fbtFilters.minConviction}
+                  algorithm="apriori"
+                  onMinSupportChange={(value) => setFbtFilters((prev) => ({ ...prev, minSupport: value }))}
+                  onMinItemsChange={(value) => setFbtFilters((prev) => ({ ...prev, minItems: value }))}
+                  onOrderLimitChange={(value) => setFbtFilters((prev) => ({ ...prev, orderLimit: value }))}
+                  onMinConfidenceChange={(value) => setFbtFilters((prev) => ({ ...prev, minConfidence: value }))}
+                  onMinLiftChange={(value) => setFbtFilters((prev) => ({ ...prev, minLift: value }))}
+                  onMinConvictionChange={(value) => setFbtFilters((prev) => ({ ...prev, minConviction: value }))}
+                  showAlgorithmControl={false}
+                  error={frequentlyBoughtAprioriData === undefined && !frequentlyBoughtAprioriLoading ? { message: 'Không thể tải dữ liệu Apriori' } : null}
                 />
               </Card.Body>
             </Card>

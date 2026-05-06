@@ -1113,7 +1113,11 @@ export const api = createApi({
             minSupport: params.minSupport || 0.01,
             limit: params.limit || 50,
             orderLimit: params.orderLimit || 1000,
-            minItems: params.minItems || 2
+            minItems: params.minItems || 2,
+            algorithm: params.algorithm || 'fp-growth',
+            minConfidence: params.minConfidence || 0.1,
+            minLift: params.minLift || 1,
+            minConviction: params.minConviction || 1
           },
         };
       },

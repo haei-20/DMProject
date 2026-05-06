@@ -1,6 +1,7 @@
 const FPGrowth = require("node-fpgrowth");
 const AprioriLib = require("apriori");
 const NodeCache = require("node-cache");
+const mongoose = require("mongoose");
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 
@@ -184,6 +185,184 @@ const getDynamicMinSupport = (numTransactions) => {
   if (numTransactions < 50) return 0.05; // Dữ liệu ít -> giảm minSupport
   if (numTransactions < 500) return 0.1;
   return 0.2; // Dữ liệu nhiều -> tăng minSupport để giảm noise
+};
+
+// Chạy Apriori để lấy frequent itemsets (dùng cho admin FBT)
+const runAprioriFrequentItemsets = (validTransactions, minSupport, minItems) => {
+  const safeMinSupport = Math.max(1 / validTransactions.length, minSupport);
+  const minConfidence = 0.1;
+  const aprioriAlgorithm = new AprioriLib.Algorithm(safeMinSupport, minConfidence, false);
+  const aprioriResults = aprioriAlgorithm.analyze(validTransactions);
+
+  // `apriori` package trả frequentItemSets dạng object theo size (ví dụ: { "1": [...], "2": [...] })
+  // thay vì luôn là mảng phẳng, nên cần normalize trước.
+  const frequentItemSetsRaw = aprioriResults?.frequentItemSets ?? aprioriResults?.frequentItemsets ?? null;
+
+  let normalizedItemsets = [];
+  if (Array.isArray(frequentItemSetsRaw)) {
+    normalizedItemsets = frequentItemSetsRaw;
+  } else if (frequentItemSetsRaw && typeof frequentItemSetsRaw === "object") {
+    normalizedItemsets = Object.values(frequentItemSetsRaw)
+      .flatMap((bucket) => (Array.isArray(bucket) ? bucket : []));
+  }
+
+  if (!Array.isArray(normalizedItemsets)) {
+    throw new Error("Apriori không trả về frequentItemSets hợp lệ");
+  }
+
+  return normalizedItemsets
+    .filter(itemset => Array.isArray(itemset?.items) && itemset.items.length >= minItems)
+    .map(itemset => ({
+      items: itemset.items.map(String),
+      support: Number(itemset.support || 0)
+    }));
+};
+
+// Apriori tối giản CHỈ chạy cho cặp sản phẩm (2-itemsets)
+// - Tự đếm co-occurrence của từng cặp item trong transaction
+// - Trả về support tỉ lệ (0-1) để downstream tính frequency chính xác
+const runAprioriPairsOnlyFrequentItemsets = (validTransactions, minSupport, minItems = 2) => {
+  const txCount = validTransactions.length;
+  if (!txCount || txCount < 2) return [];
+  if (minItems > 2) return [];
+
+  const pairCount = new Map(); // key: "a|b" => count
+
+  for (const tx of validTransactions) {
+    // tx đã là unique item trong 1 đơn (ở tầng getTransactions/getFrequentlyBoughtTogether)
+    for (let i = 0; i < tx.length; i++) {
+      const a = String(tx[i]);
+      for (let j = i + 1; j < tx.length; j++) {
+        const b = String(tx[j]);
+        const key = a < b ? `${a}|${b}` : `${b}|${a}`;
+        pairCount.set(key, (pairCount.get(key) || 0) + 1);
+      }
+    }
+  }
+
+  const results = [];
+  const normalizedMinSupport = Math.max(0, minSupport);
+  for (const [pairKey, bothCount] of pairCount.entries()) {
+    const supportAB = bothCount / txCount; // (0-1)
+    if (supportAB < normalizedMinSupport) continue;
+
+    const [a, b] = pairKey.split("|");
+    results.push({
+      items: [a, b],
+      support: supportAB
+    });
+  }
+
+  results.sort((x, y) => y.support - x.support);
+  return results;
+};
+
+// Sinh luật kết hợp mạnh A -> B theo đúng thước đo support/confidence/lift/conviction
+const buildStrongAssociationRules = (
+  validTransactions,
+  minSupport,
+  minConfidence,
+  minLift,
+  minConviction
+) => {
+  const txCount = validTransactions.length;
+  if (txCount < 2) return [];
+
+  const itemCount = new Map();
+  const pairCount = new Map();
+
+  for (const tx of validTransactions) {
+    for (let i = 0; i < tx.length; i++) {
+      const a = tx[i];
+      itemCount.set(a, (itemCount.get(a) || 0) + 1);
+      for (let j = i + 1; j < tx.length; j++) {
+        const b = tx[j];
+        const key = a < b ? `${a}|${b}` : `${b}|${a}`;
+        pairCount.set(key, (pairCount.get(key) || 0) + 1);
+      }
+    }
+  }
+
+  const rules = [];
+  for (const [pairKey, bothCount] of pairCount.entries()) {
+    const [a, b] = pairKey.split("|");
+    const supportAB = bothCount / txCount;
+    if (supportAB < minSupport) continue;
+
+    const supportA = (itemCount.get(a) || 0) / txCount;
+    const supportB = (itemCount.get(b) || 0) / txCount;
+    if (supportA <= 0 || supportB <= 0) continue;
+
+    const confidenceAB = supportAB / supportA;
+    const confidenceBA = supportAB / supportB;
+    const liftAB = confidenceAB / supportB;
+    const liftBA = confidenceBA / supportA;
+
+    const convictionAB = (1 - confidenceAB) <= 0 ? Number.POSITIVE_INFINITY : (1 - supportB) / (1 - confidenceAB);
+    const convictionBA = (1 - confidenceBA) <= 0 ? Number.POSITIVE_INFINITY : (1 - supportA) / (1 - confidenceBA);
+
+    if (confidenceAB >= minConfidence && liftAB >= minLift && convictionAB >= minConviction) {
+      rules.push({
+        antecedent: [a],
+        consequent: [b],
+        support: supportAB,
+        confidence: confidenceAB,
+        lift: liftAB,
+        conviction: convictionAB,
+        supportPercent: `${(supportAB * 100).toFixed(2)}%`,
+        confidencePercent: `${(confidenceAB * 100).toFixed(2)}%`
+      });
+    }
+
+    if (confidenceBA >= minConfidence && liftBA >= minLift && convictionBA >= minConviction) {
+      rules.push({
+        antecedent: [b],
+        consequent: [a],
+        support: supportAB,
+        confidence: confidenceBA,
+        lift: liftBA,
+        conviction: convictionBA,
+        supportPercent: `${(supportAB * 100).toFixed(2)}%`,
+        confidencePercent: `${(confidenceBA * 100).toFixed(2)}%`
+      });
+    }
+  }
+
+  rules.sort((x, y) => {
+    if (y.lift !== x.lift) return y.lift - x.lift;
+    if (y.confidence !== x.confidence) return y.confidence - x.confidence;
+    return y.support - x.support;
+  });
+
+  return rules;
+};
+
+const enrichStrongRulesWithProducts = async (strongRules) => {
+  if (!Array.isArray(strongRules) || strongRules.length === 0) return [];
+
+  const ids = new Set();
+  for (const rule of strongRules) {
+    for (const a of (rule?.antecedent || [])) ids.add(String(a));
+    for (const b of (rule?.consequent || [])) ids.add(String(b));
+  }
+
+  const objectIds = [...ids]
+    .filter((id) => mongoose.Types.ObjectId.isValid(id))
+    .map((id) => new mongoose.Types.ObjectId(id));
+
+  if (objectIds.length === 0) return strongRules;
+
+  const products = await Product.find({ _id: { $in: objectIds } })
+    .select('_id name price image category')
+    .lean();
+
+  const map = new Map(products.map((p) => [String(p._id), p]));
+
+  return strongRules.map((rule) => {
+    const antecedentProducts = (rule?.antecedent || []).map((id) => map.get(String(id)) || { _id: id, name: String(id) });
+    const consequentProducts = (rule?.consequent || []).map((id) => map.get(String(id)) || { _id: id, name: String(id) });
+    return { ...rule, antecedentProducts, consequentProducts };
+  });
 };
 
 // Thuật toán Apriori đơn giản hóa để tìm cặp sản phẩm thường mua cùng nhau
@@ -478,10 +657,23 @@ const getHomepageRecommendations = async (userId = null, limit = 8) => {
 };
 
 // Lấy đề xuất sản phẩm thường được mua cùng nhau cho admin (để tạo combo)
-const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderLimit = 1000, minItems = 2) => {
+const getFrequentlyBoughtTogether = async (
+  minSupport = 0.01,
+  limit = 50,
+  orderLimit = 1000,
+  minItems = 2,
+  algorithm = "fp-growth",
+  minConfidence = 0.1,
+  minLift = 1,
+  minConviction = 1
+) => {
   try {
+    const requestedAlgorithm = String(algorithm || "fp-growth").toLowerCase();
+    const useAprioriOnly = requestedAlgorithm === "apriori";
+    const algorithmLabel = useAprioriOnly ? "AprioriPairs" : "FP-Growth";
+
     // Tạo key cho cache dựa vào tham số đầu vào
-    const cacheKey = `frequently-bought-together-${minSupport}-${limit}-${orderLimit}-${minItems}`;
+    const cacheKey = `frequently-bought-together-${minSupport}-${limit}-${orderLimit}-${minItems}-${algorithmLabel}-${minConfidence}-${minLift}-${minConviction}`;
     
     // Kiểm tra cache trước khi tính toán
     const cachedResult = cache.get(cacheKey);
@@ -490,7 +682,9 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
       return cachedResult;
     }
     
-    console.log(`Phân tích dữ liệu với minSupport=${minSupport}, limit=${limit}, orderLimit=${orderLimit}, minItems=${minItems}`);
+    console.log(
+      `Phân tích dữ liệu với minSupport=${minSupport}, minConfidence=${minConfidence}, minLift=${minLift}, minConviction=${minConviction}, limit=${limit}, orderLimit=${orderLimit}, minItems=${minItems}, algorithm=${algorithmLabel}`
+    );
     
     // Lấy đủ orderLimit giao dịch FBT hợp lệ (≥2 SP, ≤20 SP), quét đơn mới nhất trước
     const { transactions, meta: transactionsSourceMeta } = await getTransactions(orderLimit);
@@ -543,70 +737,65 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
 
       console.log(`Using minSupport: ${usedMinSupport}`);
 
-      // Sử dụng FP-Growth với minSupport đã quyết định
-      const fpgrowth = new FPGrowth.FPGrowth(usedMinSupport);
-      
       const startTime = Date.now();
-      
-      console.log("Bắt đầu chạy thuật toán FP-Growth...");
-      
+      let results;
       // Timeout tăng theo số giao dịch: 30s cố định thường khiến tập ~6k+ bị cắt giữa chừng rồi rơi vào Apriori (rất nặng).
       const TIMEOUT_MS = Math.min(240000, Math.max(45000, 35000 + validTransactions.length * 22));
-      
-      let results;
-      try {
-        // Wrap FP-Growth execution in a promise with timeout
-        const fpGrowthPromise = new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            reject(new Error(`FP-Growth execution timed out after ${TIMEOUT_MS}ms`));
-          }, TIMEOUT_MS);
-          
-          fpgrowth.exec(validTransactions)
-            .then(results => {
-              clearTimeout(timeout);
-              resolve(results);
-            })
-            .catch(err => {
-              clearTimeout(timeout);
-              reject(err);
-            });
-        });
-        
-        results = await fpGrowthPromise;
-      } catch (fpError) {
-        console.error("Lỗi khi chạy thuật toán FP-Growth:", fpError.message);
-        console.log("Chuyển sang sử dụng thuật toán Apriori làm phương án dự phòng...");
-        
-        // FALLBACK: Sử dụng thuật toán Apriori khi FP-Growth thất bại
-        const minSupport = Math.max(1 / validTransactions.length, usedMinSupport);
-        const minConfidence = 0.1;
-        
+
+      if (useAprioriOnly) {
+        console.log("Bắt đầu chạy thuật toán Apriori (pairs-only tự cài)...");
         try {
-          // Chạy Apriori với tập dữ liệu
-          const aprioriAlgorithm = new AprioriLib.Algorithm(minSupport, minConfidence, false);
-          const aprioriResults = aprioriAlgorithm.analyze(validTransactions);
-          
-          if (!aprioriResults || !Array.isArray(aprioriResults.frequentItemSets)) {
-            throw new Error("Apriori không trả về kết quả hợp lệ");
-          }
-          
-          // Biến đổi kết quả từ Apriori sang cùng định dạng với FP-Growth
-          results = aprioriResults.frequentItemSets
-            .filter(itemset => Array.isArray(itemset.items) && itemset.items.length >= minItems)
-            .map(itemset => ({
-              items: itemset.items,
-              support: itemset.support
-            }));
-          
+          results = runAprioriPairsOnlyFrequentItemsets(validTransactions, usedMinSupport, minItems);
           console.log(`Apriori thành công, tìm thấy ${results.length} mẫu.`);
         } catch (aprioriError) {
-          console.error("Cả hai thuật toán FP-Growth và Apriori đều thất bại:", aprioriError);
+          console.error("Lỗi khi chạy thuật toán Apriori:", aprioriError);
           return {
             frequentItemsets: [],
             message: "Lỗi phân tích dữ liệu, vui lòng thử lại với tham số khác.",
             success: false,
-            error: fpError.message + "; " + aprioriError.message
+            error: aprioriError.message
           };
+        }
+      } else {
+        // Sử dụng FP-Growth với minSupport đã quyết định
+        const fpgrowth = new FPGrowth.FPGrowth(usedMinSupport);
+        console.log("Bắt đầu chạy thuật toán FP-Growth...");
+
+        try {
+          // Wrap FP-Growth execution in a promise với timeout
+          const fpGrowthPromise = new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new Error(`FP-Growth execution timed out after ${TIMEOUT_MS}ms`));
+            }, TIMEOUT_MS);
+
+            fpgrowth.exec(validTransactions)
+              .then(results => {
+                clearTimeout(timeout);
+                resolve(results);
+              })
+              .catch(err => {
+                clearTimeout(timeout);
+                reject(err);
+              });
+          });
+
+          results = await fpGrowthPromise;
+        } catch (fpError) {
+          console.error("Lỗi khi chạy thuật toán FP-Growth:", fpError.message);
+          console.log("Chuyển sang sử dụng thuật toán Apriori làm phương án dự phòng...");
+
+          try {
+            results = runAprioriPairsOnlyFrequentItemsets(validTransactions, usedMinSupport, minItems);
+            console.log(`Apriori thành công, tìm thấy ${results.length} mẫu.`);
+          } catch (aprioriError) {
+            console.error("Cả hai thuật toán FP-Growth và Apriori đều thất bại:", aprioriError);
+            return {
+              frequentItemsets: [],
+              message: "Lỗi phân tích dữ liệu, vui lòng thử lại với tham số khác.",
+              success: false,
+              error: fpError.message + "; " + aprioriError.message
+            };
+          }
         }
       }
       
@@ -709,14 +898,28 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
         console.log(`DEBUG: Tỷ lệ xuất hiện: ${validPatterns[0].support}, Tần suất: ${validPatterns[0].frequency} đơn hàng`);
       }
       
+      const strongRules = buildStrongAssociationRules(
+        validTransactions,
+        usedMinSupport,
+        minConfidence,
+        minLift,
+        minConviction
+      ).slice(0, limit * 5);
+      const strongRulesWithProducts = await enrichStrongRulesWithProducts(strongRules);
+
       const result = {
         frequentItemsets: validPatterns,
+        strongRules: strongRulesWithProducts,
         message: `Danh sách sản phẩm thường được mua cùng nhau (từ ${validTransactions.length} giao dịch hợp lệ)`,
         success: true,
         info: {
           totalTransactions: validTransactions.length,
           totalOrders: totalOrders,
+          algorithm: algorithmLabel,
           minSupport: usedMinSupport,
+          minConfidence,
+          minLift,
+          minConviction,
           processTime: (endTime-startTime)/1000,
           fpGrowthTimeoutMs: TIMEOUT_MS,
           ordersScanned: transactionsSourceMeta?.ordersScanned,
@@ -779,12 +982,18 @@ const getFrequentlyBoughtTogether = async (minSupport = 0.01, limit = 50, orderL
         
         return {
           frequentItemsets: limitedItemsets,
+          strongRules: [],
           message: `Danh sách sản phẩm thường được mua cùng nhau (từ Apriori)`,
           success: true,
           info: {
               totalTransactions: validTransactions.length,
               algorithm: "Apriori (FP-Growth failed)",
-              minSupport: usedMinSupport,
+              minSupport: (typeof minSupport === 'number' && minSupport > 0)
+                ? minSupport
+                : getDynamicMinSupport(validTransactions.length),
+              minConfidence,
+              minLift,
+              minConviction,
               ordersScanned: transactionsSourceMeta?.ordersScanned,
               requestedValidTransactions: transactionsSourceMeta?.requestedValidTransactions ?? orderLimit,
               collectedValidTransactions: transactionsSourceMeta?.collectedValidTransactions ?? validTransactions.length

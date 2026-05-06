@@ -502,6 +502,11 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
     const limit = parseInt(req.query.limit) || 50;
     let orderLimit = parseInt(req.query.orderLimit) || 1000;
     let minItems = parseInt(req.query.minItems) || 2;
+    let minConfidence = parseFloat(req.query.minConfidence);
+    let minLift = parseFloat(req.query.minLift);
+    let minConviction = parseFloat(req.query.minConviction);
+    const rawAlgorithm = String(req.query.algorithm || "fp-growth").toLowerCase();
+    const algorithm = rawAlgorithm === "apriori" ? "apriori" : "fp-growth";
     
     // Đảm bảo minSupport là số hợp lệ
     if (isNaN(minSupport) || minSupport <= 0) {
@@ -521,11 +526,30 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
     if (isNaN(minItems) || minItems < 2) {
       minItems = 2;
     }
+
+    if (!Number.isFinite(minConfidence) || minConfidence <= 0 || minConfidence > 1) {
+      minConfidence = 0.1;
+    }
+    if (!Number.isFinite(minLift) || minLift <= 0) {
+      minLift = 1;
+    }
+    if (!Number.isFinite(minConviction) || minConviction <= 0) {
+      minConviction = 1;
+    }
     
-    console.log(`Processing frequently-bought-together request with: minSupport=${minSupport}, limit=${limit}, orderLimit=${orderLimit}, minItems=${minItems}`);
+    console.log(`Processing frequently-bought-together request with: minSupport=${minSupport}, minConfidence=${minConfidence}, minLift=${minLift}, minConviction=${minConviction}, limit=${limit}, orderLimit=${orderLimit}, minItems=${minItems}, algorithm=${algorithm}`);
     
     // Gọi service function
-    const result = await getFrequentlyBoughtTogether(minSupport, limit, orderLimit, minItems);
+    const result = await getFrequentlyBoughtTogether(
+      minSupport,
+      limit,
+      orderLimit,
+      minItems,
+      algorithm,
+      minConfidence,
+      minLift,
+      minConviction
+    );
     
     // Ensure we have a properly formed frequentItemsets array
     let frequentItemsets = [];
@@ -553,7 +577,7 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
           limit,
           orderLimit,
           minItems,
-          algorithm: result?.info?.algorithm || "FP-Growth"
+          algorithm: result?.info?.algorithm || (algorithm === "apriori" ? "Apriori" : "FP-Growth")
         }
       });
     }
@@ -573,13 +597,19 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
         frequencyDisplay: `${frequency}/${totalTransactions}` // Hiển thị dạng phân số
       };
     });
+
+    const strongRules = Array.isArray(result?.strongRules) ? result.strongRules : [];
     
     res.status(200).json({
       frequentItemsets: normalizedItemsets,
+      strongRules,
       message: result?.message || "Danh sách sản phẩm thường được mua cùng nhau",
       success: true,
       info: result?.info || {
         minSupport,
+        minConfidence,
+        minLift,
+        minConviction,
         limit, 
         orderLimit,
         minItems,

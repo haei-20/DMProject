@@ -19,16 +19,24 @@ const ProductAnalytics = () => {
   // Use high limits to capture as much data as possible
   const [limit, setLimit] = useState(100);
   const [orderLimit, setOrderLimit] = useState(3000);
+  const [algorithm, setAlgorithm] = useState('fp-growth');
+  const [minConfidence, setMinConfidence] = useState(0.1);
+  const [minLift, setMinLift] = useState(1);
+  const [minConviction, setMinConviction] = useState(1);
   
   // Log parameters being used for debugging
-  console.log(`Fetching frequently bought data with: minSupport=${minSupport}, limit=${limit}, orderLimit=${orderLimit}`);
+  console.log(`Fetching frequently bought data with: minSupport=${minSupport}, minConfidence=${minConfidence}, minLift=${minLift}, minConviction=${minConviction}, limit=${limit}, orderLimit=${orderLimit}, algorithm=${algorithm}`);
   
   const { data: productAnalytics, isLoading: productLoading } = useGetProductAnalyticsQuery();
   const { data: frequentlyBoughtData, isLoading: frequentlyBoughtLoading, refetch } = useGetFrequentlyBoughtTogetherQuery(
     {
       minSupport,
       limit,
-      orderLimit
+      orderLimit,
+      algorithm,
+      minConfidence,
+      minLift,
+      minConviction
     },
     {
       // Chỉ tải dữ liệu FBT khi mở đúng tab để tránh làm chậm trang analytics.
@@ -54,12 +62,20 @@ const ProductAnalytics = () => {
     const formMinSupport = parseFloat(e.target.minSupport.value);
     const formLimit = parseInt(e.target.limit.value);
     const formOrderLimit = parseInt(e.target.orderLimit?.value) || 10000;
+    const formAlgorithm = e.target.algorithm?.value === 'apriori' ? 'apriori' : 'fp-growth';
+    const formMinConfidence = parseFloat(e.target.minConfidence?.value) || 0.1;
+    const formMinLift = parseFloat(e.target.minLift?.value) || 1;
+    const formMinConviction = parseFloat(e.target.minConviction?.value) || 1;
     
-    console.log(`Applying new filters: minSupport=${formMinSupport}, limit=${formLimit}, orderLimit=${formOrderLimit}`);
+    console.log(`Applying new filters: minSupport=${formMinSupport}, minConfidence=${formMinConfidence}, minLift=${formMinLift}, minConviction=${formMinConviction}, limit=${formLimit}, orderLimit=${formOrderLimit}, algorithm=${formAlgorithm}`);
     
     setMinSupport(formMinSupport);
     setLimit(formLimit);
     setOrderLimit(formOrderLimit);
+    setAlgorithm(formAlgorithm);
+    setMinConfidence(formMinConfidence);
+    setMinLift(formMinLift);
+    setMinConviction(formMinConviction);
     
     // Force refetch data with new parameters
     setTimeout(() => {
@@ -162,6 +178,33 @@ const ProductAnalytics = () => {
                         />
                       </Form.Group>
                     </Col>
+                    <Col md={3}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Thuật toán</Form.Label>
+                        <Form.Select name="algorithm" defaultValue={algorithm}>
+                          <option value="fp-growth">FP-Growth</option>
+                          <option value="apriori">Apriori</option>
+                        </Form.Select>
+                      </Form.Group>
+                    </Col>
+                    <Col md={3}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Min Confidence</Form.Label>
+                        <Form.Control type="number" name="minConfidence" step="0.01" min="0.00001" max="1" defaultValue={minConfidence} />
+                      </Form.Group>
+                    </Col>
+                    <Col md={3}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Min Lift</Form.Label>
+                        <Form.Control type="number" name="minLift" step="0.01" min="0.00001" defaultValue={minLift} />
+                      </Form.Group>
+                    </Col>
+                    <Col md={3}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Min Conviction</Form.Label>
+                        <Form.Control type="number" name="minConviction" step="0.01" min="0.00001" defaultValue={minConviction} />
+                      </Form.Group>
+                    </Col>
                     <Col md={3} className="d-flex align-items-end">
                       <Button type="submit" variant="primary" className="mb-3">
                         Áp dụng & Tải lại
@@ -176,6 +219,14 @@ const ProductAnalytics = () => {
               <FrequentlyBoughtTogetherTable 
                 data={frequentlyBoughtData} 
                 loading={frequentlyBoughtLoading}
+                minConfidence={minConfidence}
+                minLift={minLift}
+                minConviction={minConviction}
+                algorithm={algorithm}
+                onMinConfidenceChange={setMinConfidence}
+                onMinLiftChange={setMinLift}
+                onMinConvictionChange={setMinConviction}
+                onAlgorithmChange={setAlgorithm}
                 error={frequentlyBoughtData?.error}
               />
             </div>

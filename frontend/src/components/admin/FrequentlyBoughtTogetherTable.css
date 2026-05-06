@@ -6,51 +6,73 @@
 }
 
 .filter-controls {
-  width: auto;
+  width: 100%;
   margin-left: auto;
-  justify-content: flex-end;
-  text-align: right;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .fbt-header {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .fbt-header-info {
-  min-width: 220px;
+  width: 100%;
+  font-size: 12px;
+  line-height: 1.35;
+  margin-bottom: 2px;
+}
+
+.fbt-controls-grid .form-label {
+  font-size: 11px;
+  margin-bottom: 4px !important;
+}
+
+.fbt-controls-grid .form-control,
+.fbt-controls-grid .form-select {
+  height: 32px;
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.fbt-controls-grid .col-lg-3,
+.fbt-controls-grid .col-md-4 {
+  min-width: 0;
 }
 
 .fbt-recomputing {
-  min-height: 24px;
+  min-height: 18px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  margin-top: 2px;
+  justify-content: flex-start;
+  margin-top: 0;
 }
 
 .product-combination {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  max-width: 280px;
 }
 
 .product-item-combo {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 8px;
+  gap: 8px;
+  padding: 5px;
   border-radius: 5px;
   background-color: #f9f9f9;
   position: relative;
 }
 
 .product-image {
-  width: 50px;
-  height: 50px;
+  width: 34px;
+  height: 34px;
   border-radius: 5px;
   overflow: hidden;
   flex-shrink: 0;
@@ -96,9 +118,9 @@
 }
 
 .product-name {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 500;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -107,9 +129,9 @@
 .product-meta {
   display: flex;
   align-items: center;
-  font-size: 12px;
+  font-size: 10px;
   color: #6c757d;
-  gap: 8px;
+  gap: 6px;
 }
 
 .product-category {
@@ -117,7 +139,7 @@
   background: rgba(74, 108, 247, 0.1);
   padding: 2px 6px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 500;
 }
 
@@ -126,8 +148,8 @@
   bottom: -12px;
   left: 50%;
   transform: translateX(-50%);
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -141,6 +163,12 @@
 
 .support-column {
   width: 180px;
+}
+
+.frequently-bought-together-card table th:first-child,
+.frequently-bought-together-card table td:first-child {
+  width: 32%;
+  max-width: 320px;
 }
 
 .support-value {
@@ -177,6 +205,10 @@
   .filter-controls {
     width: 100%;
     margin-left: 0;
-    justify-content: flex-end;
+    justify-content: flex-start;
+  }
+
+  .fbt-header-info {
+    font-size: 11px;
   }
 }

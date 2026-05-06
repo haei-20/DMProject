@@ -554,8 +554,22 @@ exports.getFrequentlyBoughtTogether = async (req, res) => {
     const minSupport = parseFloat(req.query.minSupport) || 0.05;
     const limit = parseInt(req.query.limit) || 20;
     const orderLimit = parseInt(req.query.orderLimit) || 1000;
+    const minConfidence = parseFloat(req.query.minConfidence) || 0.1;
+    const minLift = parseFloat(req.query.minLift) || 1;
+    const minConviction = parseFloat(req.query.minConviction) || 1;
+    const rawAlgorithm = String(req.query.algorithm || "fp-growth").toLowerCase();
+    const algorithm = rawAlgorithm === "apriori" ? "apriori" : "fp-growth";
 
-    const result = await getFrequentlyBoughtTogether(minSupport, limit, orderLimit);
+    const result = await getFrequentlyBoughtTogether(
+      minSupport,
+      limit,
+      orderLimit,
+      2,
+      algorithm,
+      minConfidence,
+      minLift,
+      minConviction
+    );
 
     // Forward the service result directly to the client (includes frequentItemsets, message, success, info)
     res.status(200).json(result);

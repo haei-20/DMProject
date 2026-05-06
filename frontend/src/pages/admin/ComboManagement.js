@@ -41,6 +41,15 @@ const ComboManagement = () => {
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [activeTab, setActiveTab] = useState('builder');
+  const [fbtFilters, setFbtFilters] = useState({
+    minSupport: 0.01,
+    minItems: 2,
+    orderLimit: 300,
+    minConfidence: 0.1,
+    minLift: 1,
+    minConviction: 1,
+    algorithm: 'fp-growth'
+  });
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastVariant, setToastVariant] = useState('success');
@@ -59,7 +68,10 @@ const ComboManagement = () => {
     data: frequentlyBoughtData,
     isLoading: isLoadingFrequently,
     error: frequentlyError
-  } = useGetFrequentlyBoughtTogetherQuery({ minSupport: 0.001 });
+  } = useGetFrequentlyBoughtTogetherQuery(fbtFilters, {
+    // Chỉ chạy truy vấn nặng khi người dùng thật sự mở tab Gợi ý Combo.
+    skip: activeTab !== 'suggestions'
+  });
   
   // Get existing combos
   const {
@@ -678,6 +690,20 @@ const ComboManagement = () => {
                 <FrequentlyBoughtTogetherTable 
                   data={frequentlyBoughtData}
                   loading={isLoadingFrequently}
+                  minSupport={fbtFilters.minSupport}
+                  minItems={fbtFilters.minItems}
+                  orderLimit={fbtFilters.orderLimit}
+                  minConfidence={fbtFilters.minConfidence}
+                  minLift={fbtFilters.minLift}
+                  minConviction={fbtFilters.minConviction}
+                  algorithm={fbtFilters.algorithm}
+                  onMinSupportChange={(value) => setFbtFilters((prev) => ({ ...prev, minSupport: value }))}
+                  onMinItemsChange={(value) => setFbtFilters((prev) => ({ ...prev, minItems: value }))}
+                  onOrderLimitChange={(value) => setFbtFilters((prev) => ({ ...prev, orderLimit: value }))}
+                  onMinConfidenceChange={(value) => setFbtFilters((prev) => ({ ...prev, minConfidence: value }))}
+                  onMinLiftChange={(value) => setFbtFilters((prev) => ({ ...prev, minLift: value }))}
+                  onMinConvictionChange={(value) => setFbtFilters((prev) => ({ ...prev, minConviction: value }))}
+                  onAlgorithmChange={(value) => setFbtFilters((prev) => ({ ...prev, algorithm: value }))}
                   error={frequentlyError}
                 />
               </Card.Body>

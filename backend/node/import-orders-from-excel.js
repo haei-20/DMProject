@@ -8,6 +8,7 @@ const Product = require('./models/Product');
 dotenv.config();
 
 const excelPath = path.join(__dirname, 'online_retail.xlsx');
+const MONGO_URI = (process.env.MONGO_URI || process.env.MONGO_URL || '').trim();
 
 function normalizeText(value) {
   return String(value || '')
@@ -57,7 +58,13 @@ async function importOrdersFromExcel() {
   let connected = false;
 
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/retail');
+    if (!MONGO_URI) {
+      throw new Error('Thiếu MONGO_URI/MONGO_URL. Vui lòng cấu hình MongoDB Atlas trong file .env');
+    }
+    if (MONGO_URI.includes('127.0.0.1') || MONGO_URI.includes('localhost')) {
+      throw new Error('Script này chỉ dùng MongoDB Atlas. Vui lòng đổi MONGO_URI sang chuỗi Atlas');
+    }
+    await mongoose.connect(MONGO_URI);
     connected = true;
     console.log('✅ Connected to MongoDB');
 

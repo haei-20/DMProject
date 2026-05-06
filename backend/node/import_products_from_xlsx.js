@@ -7,9 +7,16 @@ const xlsx = require('xlsx');
 const Category = require('./models/Category');
 const Product = require('./models/Product');
 
-const MONGO_URI = process.env.MONGO_URI || process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/tmdt';
+const MONGO_URI = (process.env.MONGO_URI || process.env.MONGO_URL || '').trim();
+const DEFAULT_IMAGE = '/uploads/Ảnh chụp màn hình 2026-05-05 201316.png';
 
 async function connectDb() {
+  if (!MONGO_URI) {
+    throw new Error('Thiếu MONGO_URI/MONGO_URL. Vui lòng cấu hình MongoDB Atlas trong file .env');
+  }
+  if (MONGO_URI.includes('127.0.0.1') || MONGO_URI.includes('localhost')) {
+    throw new Error('Script này chỉ dùng MongoDB Atlas. Vui lòng đổi MONGO_URI sang chuỗi Atlas');
+  }
   await mongoose.connect(MONGO_URI);
 }
 
@@ -22,19 +29,29 @@ function parseNumber(v) {
   }
 }
 
-function parseIntSafe(v) {
-  const n = parseInt(parseNumber(v));
-  return Number.isFinite(n) ? n : 0;
-}
-
-function parseDateSafe(v) {
-  if (!v) return null;
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? null : d;
-}
-
 function normalizeStockCode(v) {
   return String(v || '').trim();
+}
+
+function randomIntInclusive(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function inferCategory(name) {
+  const upperName = String(name || '').toUpperCase();
+  if (['MUG', 'CUP', 'TEA'].some((x) => upperName.includes(x))) {
+    return 'Kitchen';
+  }
+  if (['CANDLE', 'LANTERN', 'HEART'].some((x) => upperName.includes(x))) {
+    return 'Decoration';
+  }
+  if (['DOLL', 'TOY'].some((x) => upperName.includes(x))) {
+    return 'Toys';
+  }
+  if (['BOX', 'BAG'].some((x) => upperName.includes(x))) {
+    return 'Accessories';
+  }
+  return 'Others';
 }
 
 async function ensureCategory(name) {
@@ -65,27 +82,32 @@ async function run() {
   } else {
     console.log('CLEAR_PRODUCTS=false — existing products will be preserved.');
   }
-  const csvPath = path.join(__dirname, 'data', 'products_final.csv');
-  if (!fs.existsSync(csvPath)) {
-    console.error('File not found:', csvPath);
+  const inputPath = path.join(__dirname, 'data', 'products_final.xlsx');
+  if (!fs.existsSync(inputPath)) {
+    console.error('File not found:', inputPath);
     process.exit(1);
   }
 
-  const wb = xlsx.readFile(csvPath, { raw: false });
+  const wb = xlsx.readFile(inputPath, { raw: false });
   const sheet = wb.Sheets[wb.SheetNames[0]];
   const rows = xlsx.utils.sheet_to_json(sheet, { defval: '' });
 
-  console.log(`Loaded ${rows.length} rows from products_final.csv`);
+  console.log(`Loaded ${rows.length} rows from products_final.xlsx`);
 
-  // Pre-create categories map
+  // Pre-create categories inferred from product name
   const categoriesMap = {};
   for (const r of rows) {
-    const catCandidates = ['Category', 'category', 'Category Name', 'category_name'];
-    let catName = '';
-    for (const k of catCandidates) {
-      if (r[k]) { catName = r[k]; break; }
+    const nameCandidates = ['Product Name', 'Name', 'name', 'Product', 'title'];
+    let name = '';
+    for (const k of nameCandidates) {
+      if (r[k]) {
+        name = r[k];
+        break;
+      }
     }
-    catName = String(catName || '').trim();
+    name = String(name || '').trim();
+    if (!name) continue;
+    const catName = inferCategory(name);
     if (catName && !categoriesMap[catName]) {
       const c = await ensureCategory(catName);
       if (c) categoriesMap[catName] = c;
@@ -96,7 +118,7 @@ async function run() {
   let updated = 0;
 
   for (const r of rows) {
-    const nameCandidates = ['Name', 'name', 'Product', 'Product Name', 'title'];
+    const nameCandidates = ['Product Name', 'Name', 'name', 'Product', 'title'];
     let name = '';
     for (const k of nameCandidates) { if (r[k]) { name = r[k]; break; } }
     name = String(name || '').trim();
@@ -104,23 +126,21 @@ async function run() {
 
     const sku = normalizeStockCode(r['StockCode'] || r['stock_code'] || r['SKU'] || r['sku']);
 
-    const priceCandidates = ['Price', 'price', 'List Price', 'list_price'];
+    const priceCandidates = ['Price', 'price', 'UnitPrice', 'unit_price', 'List Price', 'list_price'];
     let priceRaw = 0;
     for (const k of priceCandidates) { if (r[k] !== undefined && r[k] !== '') { priceRaw = r[k]; break; } }
     const price = parseNumber(priceRaw);
+    if (price <= 0) continue;
 
-    const description = (r['Description'] || r['description'] || '').toString();
-    const stock = parseIntSafe(r['Stock'] || r['Qty'] || r['Quantity'] || 0);
-    const image = (r['Image'] || r['image'] || r['ImageUrl'] || r['image_url'] || '').toString();
-    const tagsRaw = (r['Tags'] || r['tags'] || '').toString();
-    const tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
-    const discount = parseNumber(r['Discount'] || r['discount'] || 0) || 0;
-    const salePrice = parseNumber(r['SalePrice'] || r['Sale Price'] || r['sale_price'] || 0) || 0;
-    const dealStartDate = parseDateSafe(r['DealStartDate'] || r['Deal Start Date'] || r['deal_start'] || null);
-    const dealEndDate = parseDateSafe(r['DealEndDate'] || r['Deal End Date'] || r['deal_end'] || null);
-    const featured = String(r['Featured'] || r['featured'] || '').toLowerCase() === 'true';
+    const description = name;
+    const stock = randomIntInclusive(5, 41);
+    const image = DEFAULT_IMAGE;
+    const tags = [];
+    const discount = 0;
+    const salePrice = 0;
+    const featured = false;
 
-    const catName = String(r['Category'] || r['category'] || '').trim();
+    const catName = inferCategory(name);
     const catObj = categoriesMap[catName];
     const categoryValue = catObj ? catObj.name : catName;
 
@@ -138,9 +158,7 @@ async function run() {
       discount,
       featured,
       tags,
-      salePrice: salePrice || 0,
-      dealStartDate: dealStartDate || undefined,
-      dealEndDate: dealEndDate || undefined
+      salePrice
     };
 
     const existing = sku
