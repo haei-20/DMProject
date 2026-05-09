@@ -17,6 +17,7 @@ import {
 } from 'react-icons/fa';
 import { useGetOrdersQuery } from '../services/api';
 import { formatPrice, formatDate } from '../utils/productHelpers';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../constants/defaultProductImageUrl';
 import Layout from '../components/Layout';
 import EmptyOrderPage from './EmptyOrderPage';
 import './OrdersPage.css';
@@ -305,7 +306,7 @@ const OrdersPage = () => {
                         <div className="order-items-preview">
                           {(order.orderItems || []).slice(0, 3).map((item, index) => (
                             <div key={index} className="order-item-image">
-                              <img src={item.image || '/images/product-placeholder.png'} alt={item.name || 'Product'} />
+                              <img src={item.image || DEFAULT_PRODUCT_IMAGE_URL} alt={item.name || 'Product'} />
                             </div>
                           ))}
                           {(order.orderItems || []).length > 3 && (

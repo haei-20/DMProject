@@ -5,6 +5,7 @@ import { Row, Col, Card, Button, Badge } from 'react-bootstrap';
 import { FaClock, FaShoppingCart } from 'react-icons/fa';
 import { useGetProductByIdQuery } from '../services/api';
 import { addToCart } from '../redux/slices/cartSlice';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../constants/defaultProductImageUrl';
 
 const DealOfTheDay = ({ products = [] }) => {
   // bây giờ nếu không truyền products thì products mặc định là mảng rỗng, tránh lỗi
@@ -22,7 +23,7 @@ const DealOfTheDay = ({ products = [] }) => {
     description: 'Sữa tươi tiệt trùng Nutimilk có đường cung cấp protein, calcium, vitamin và nhiều chất dinh dưỡng, giúp tăng sức đề kháng, phát triển chiều cao và trí tuệ.',
     price: 25.50,
     originalPrice: 32.00,
-    image: 'https://images.unsplash.com/photo-1568901839119-631418679758?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    image: DEFAULT_PRODUCT_IMAGE_URL,
     countInStock: 10,
     sku: '10405274',
     category: 'Đồ uống',
@@ -42,7 +43,7 @@ const DealOfTheDay = ({ products = [] }) => {
     price: 129.99,
     originalPrice: 199.99,
     discount: 35,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop',
+    image: DEFAULT_PRODUCT_IMAGE_URL,
     expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     countInStock: 5,
   };
@@ -140,7 +141,7 @@ const DealOfTheDay = ({ products = [] }) => {
                 className="deal-image"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = '/images/deal-placeholder.png';
+                  e.target.src = DEFAULT_PRODUCT_IMAGE_URL;
                 }}
               />
               <Badge bg="danger" className="deal-discount-badge">

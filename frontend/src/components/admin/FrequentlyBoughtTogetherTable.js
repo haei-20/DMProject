@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Card, Badge, Spinner, Alert, Form, Row, Col, Button, Pagination } from 'react-bootstrap';
 import { FaLink, FaShoppingCart, FaInfoCircle, FaExclamationTriangle } from 'react-icons/fa';
 import { formatPrice } from '../../utils/productHelpers';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../../constants/defaultProductImageUrl';
 import { productSetSignature } from '../../utils/comboProductSet';
 import './FrequentlyBoughtTogetherTable.css';
 
@@ -205,9 +206,9 @@ const FrequentlyBoughtTogetherTable = ({
   }, [filteredPatterns.length, listPageSize]);
 
   const resolveImageSrc = (image) => {
-    if (!image || typeof image !== 'string') return '/images/placeholder.png';
+    if (!image || typeof image !== 'string') return DEFAULT_PRODUCT_IMAGE_URL;
     const trimmed = image.trim();
-    if (!trimmed) return '/images/placeholder.png';
+    if (!trimmed) return DEFAULT_PRODUCT_IMAGE_URL;
 
     // Hỗ trợ trực tiếp link online http/https
     if (/^https?:\/\//i.test(trimmed)) return trimmed;
@@ -574,10 +575,10 @@ const FrequentlyBoughtTogetherTable = ({
                                         src={resolveImageSrc(product.image)}
                                         alt={product.name}
                                         onError={(e) => {
-                                          if (e.target.src.endsWith('/images/placeholder.png')) return;
+                                          if (e.target.src === DEFAULT_PRODUCT_IMAGE_URL) return;
                                           console.log("Debug - Image failed to load:", product.image);
                                           e.target.onerror = null;
-                                          e.target.src = '/images/placeholder.png';
+                                          e.target.src = DEFAULT_PRODUCT_IMAGE_URL;
                                         }}
                                       />
                                     ) : (

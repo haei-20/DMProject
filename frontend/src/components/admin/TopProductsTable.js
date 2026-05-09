@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { FaExclamationTriangle, FaBoxOpen } from 'react-icons/fa';
 import './TopProductsTable.css';
 import { formatPrice } from '../../utils/productHelpers';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../../constants/defaultProductImageUrl';
 
 const TopProductsTable = ({ products = [], loading = false, error = null }) => {
   const getCategoryLabel = (category) => {
@@ -84,11 +85,11 @@ const TopProductsTable = ({ products = [], loading = false, error = null }) => {
                   <div className="product-info">
                     <div className="product-image">
                       <img 
-                        src={product.image || "https://via.placeholder.com/50"}
+                        src={product.image || DEFAULT_PRODUCT_IMAGE_URL}
                         alt={product.name}
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = "https://via.placeholder.com/50";
+                          e.target.src = DEFAULT_PRODUCT_IMAGE_URL;
                         }}
                       />
                     </div>

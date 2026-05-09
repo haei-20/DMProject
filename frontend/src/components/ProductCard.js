@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useAddToCartMutation, useAddToWishlistMutation, useRemoveFromWishlistMutation, useGetWishlistQuery } from '../services/api';
 import { FaHeart, FaRegHeart, FaShoppingCart, FaStar, FaStarHalfAlt, FaRegStar, FaCheck } from 'react-icons/fa';
 import { formatPrice } from '../utils/productHelpers';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../constants/defaultProductImageUrl';
 import { addToCart } from '../redux/slices/cartSlice';
 import './ProductCard.css';
 
@@ -23,7 +24,7 @@ const ProductCard = ({ product, inWishlist = false }) => {
   const [removeFromWishlist, { isLoading: isRemovingFromWishlist }] = useRemoveFromWishlistMutation();
   
   const isWishlistLoading = isAddingToWishlist || isRemovingFromWishlist;
-  const productImage = product?.image?.trim() ? product.image : '/images/placeholder.png';
+  const productImage = product?.image?.trim() ? product.image : DEFAULT_PRODUCT_IMAGE_URL;
   const priceValue = Number(product?.price ?? 0);
   const discountValue = Number(product?.discount ?? 0);
   const ratingValue = Number(product?.rating ?? 0);
@@ -166,7 +167,7 @@ const ProductCard = ({ product, inWishlist = false }) => {
             className="product-image"
             onError={(e) => {
               e.target.onerror = null; 
-              e.target.src = '/images/placeholder.png';
+              e.target.src = DEFAULT_PRODUCT_IMAGE_URL;
             }}
             style={{ width: '100%', height: '100%', objectFit: 'contain' }}
           />

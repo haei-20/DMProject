@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const DEFAULT_PRODUCT_IMAGE_URL = require("../constants/defaultProductImageUrl");
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -17,7 +18,7 @@ const productSchema = new mongoose.Schema({
   description: { type: String },
   category: { type: String, default: "General" },
   stock: { type: Number, default: 0 },
-  image: { type: String, default: "https://via.placeholder.com/300x300?text=Product" },
+  image: { type: String, default: DEFAULT_PRODUCT_IMAGE_URL },
   reviews: [reviewSchema],
   rating: { type: Number, default: 0 },
   numReviews: { type: Number, default: 0 },

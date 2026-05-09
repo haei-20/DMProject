@@ -14,6 +14,7 @@ import './ComboPage.css';
 import { useDispatch } from 'react-redux';
 import { addToCart as addToCartAction } from '../redux/slices/cartSlice';
 import { resolveComboProductImage } from '../utils/comboDisplay';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../constants/defaultProductImageUrl';
 
 const ComboPage = () => {
   // Toast state
@@ -72,7 +73,7 @@ const ComboPage = () => {
                     alt=""
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = '/images/placeholder.png';
+                      e.target.src = DEFAULT_PRODUCT_IMAGE_URL;
                     }}
                   />
                   <span className="combo-grid-thumb-qty">×{product.quantity || 1}</span>

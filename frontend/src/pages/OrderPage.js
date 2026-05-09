@@ -21,7 +21,7 @@ import {
 import { useCreateOrderMutation } from '../services/api';
 import { clearCart } from '../redux/slices/cartSlice';
 import Layout from '../components/Layout';
-import { formatPrice } from '../utils/productHelpers';
+import { formatPrice, formatImageUrl } from '../utils/productHelpers';
 import './OrderPage.css';
 
 // Import cho thông báo mới
@@ -423,7 +423,7 @@ const OrderPage = () => {
                   <div key={item._id} className="order-item">
                           <div className="order-item-image">
                     <img 
-                      src={item.image} 
+                      src={formatImageUrl(item.image)} 
                       alt={item.name} 
                     />
                           </div>

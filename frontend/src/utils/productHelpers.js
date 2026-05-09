@@ -1,4 +1,5 @@
 import store from '../redux/store';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../constants/defaultProductImageUrl';
 
 const defaultMoneyFormat = {
   currencySymbol: '£',
@@ -73,7 +74,7 @@ export const isInStock = (product) => {
  * @returns {String} Formatted image URL
  */
 export const formatImageUrl = (image) => {
-  if (!image) return '/images/product-placeholder.png';
+  if (!image) return DEFAULT_PRODUCT_IMAGE_URL;
   
   // If it's already a full URL, return as is
   if (image.startsWith('http')) {

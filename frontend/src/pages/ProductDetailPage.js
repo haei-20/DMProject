@@ -6,6 +6,7 @@ import { FaStar, FaRegStar, FaMinus, FaPlus, FaArrowLeft, FaIceCream, FaFire, Fa
 import { useGetProductByIdQuery, useAddProductReviewMutation, useGetRelatedProductsQuery, useGetFeaturedProductsQuery } from '../services/api';
 import { addToCart } from '../redux/slices/cartSlice';
 import { formatPrice, formatImageUrl } from '../utils/productHelpers';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../constants/defaultProductImageUrl';
 import { formatError } from '../utils/errorHandler';
 import Layout from '../components/Layout';
 import LoadingPage from '../components/LoadingPage';
@@ -292,13 +293,13 @@ const ProductDetailPage = () => {
           <div className="product-card-modern">
             <div className="product-image-section">
               <img 
-                src={productData.image || "/logo192.png"} 
+                src={productData.image || DEFAULT_PRODUCT_IMAGE_URL} 
                 alt={productData.name} 
                 className="product-img" 
                 onError={(e) => {
                   console.log("Error loading main product image:", productData.image);
                   e.target.onerror = null;
-                  e.target.src = "/logo192.png";
+                  e.target.src = DEFAULT_PRODUCT_IMAGE_URL;
                 }}
               />
             </div>
@@ -528,11 +529,11 @@ const ProductDetailPage = () => {
                     <Link to={`/product/${product._id}`}>
                       <div className="related-product-image">
                         <img
-                          src={product.image || "/logo192.png"}
+                          src={product.image || DEFAULT_PRODUCT_IMAGE_URL}
                           alt={product.name}
                           onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = "/logo192.png";
+                            e.target.src = DEFAULT_PRODUCT_IMAGE_URL;
                           }}
                         />
                       </div>

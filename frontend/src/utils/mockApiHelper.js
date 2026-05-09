@@ -1,5 +1,6 @@
 // Utility for generating mock data and simulating API responses
 import { v4 as uuidv4 } from 'uuid';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../constants/defaultProductImageUrl';
 
 // Local storage keys
 const MOCK_PRODUCTS_KEY = 'mock_products';
@@ -64,7 +65,7 @@ export const generateMockProducts = (count = 10) => {
     name: `Sản phẩm mẫu ${i + 1}`,
     description: `Mô tả sản phẩm mẫu ${i + 1}`,
     price: Math.floor(Math.random() * 10000000) + 500000,
-    image: `https://via.placeholder.com/300x300?text=Product${i+1}`,
+    image: DEFAULT_PRODUCT_IMAGE_URL,
     category: categories[Math.floor(Math.random() * categories.length)],
     tags: ['sample', 'mock'],
     stock: Math.floor(Math.random() * 100) + 1,

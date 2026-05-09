@@ -8,6 +8,7 @@ import Loader from '../components/Loader';
 import Message from '../components/Message';
 import './WishlistPage.css';
 import { formatPrice } from '../utils/productHelpers';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../constants/defaultProductImageUrl';
 
 const WishlistPage = () => {
   const navigate = useNavigate();
@@ -74,7 +75,7 @@ const WishlistPage = () => {
                   <div className="product-image22-container">
                     <Card.Img 
                       variant="top" 
-                      src={item.image || '/images/product-placeholder.png'} 
+                      src={item.image || DEFAULT_PRODUCT_IMAGE_URL} 
                       alt={item.name}
                       className="product-image22 cursor-pointer"
                       onClick={() => navigate(`/product/${item._id}`)}

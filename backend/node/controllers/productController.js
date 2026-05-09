@@ -1,5 +1,6 @@
 const Product = require("../models/Product");
 const { getHomepageRecommendations, getRelatedProductRecommendations } = require("../services/recommendationService");
+const DEFAULT_PRODUCT_IMAGE_URL = require("../constants/defaultProductImageUrl");
 
 // Lấy danh sách sản phẩm
 exports.getProducts = async (req, res) => {
@@ -381,7 +382,7 @@ exports.createProduct = async (req, res) => {
       description: description || "",
       category: category || "Uncategorized",
       stock: stock || 0,
-      image: image || ""
+      image: (image && String(image).trim()) || DEFAULT_PRODUCT_IMAGE_URL
     });
 
     const savedProduct = await newProduct.save();

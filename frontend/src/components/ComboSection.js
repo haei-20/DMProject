@@ -4,6 +4,7 @@ import { FaShoppingCart, FaEye, FaChevronLeft, FaChevronRight, FaBoxOpen, FaGift
 import { Link } from 'react-router-dom';
 import { formatPrice } from '../utils/productHelpers';
 import { resolveComboProductImage } from '../utils/comboDisplay';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../constants/defaultProductImageUrl';
 import { useAddToCartMutation } from '../services/api';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../redux/slices/cartSlice';
@@ -136,7 +137,7 @@ const ComboSection = ({ combos = [], loading = false, title = "Combo Tiáº¿t Kiá»
                     alt={product.name}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = '/images/placeholder.png';
+                      e.target.src = DEFAULT_PRODUCT_IMAGE_URL;
                     }}
                   />
                   <div className="product-quantity">x{product.quantity || 1}</div>

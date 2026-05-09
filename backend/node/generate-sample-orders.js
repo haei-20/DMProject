@@ -9,6 +9,7 @@ const MONGODB_URI = "mongodb+srv://dangthiha20012004_db_user:hRlbDYM2GnuC9NMd@ha
 const Order = require('./models/Order');
 const Product = require('./models/Product');
 const User = require('./models/User');
+const DEFAULT_PRODUCT_IMAGE_URL = require('./constants/defaultProductImageUrl');
 
 async function generateSampleOrders() {
   try {
@@ -141,7 +142,7 @@ async function generateSampleOrders() {
           name: product.name,
           qty: Math.floor(Math.random() * 2) + 1, // 1-2 sản phẩm
           price: product.price || Math.floor(Math.random() * 500000) + 50000,
-          image: product.image || 'default-image.jpg'
+          image: product.image || DEFAULT_PRODUCT_IMAGE_URL
         }));
 
         // Tính tổng tiền
@@ -202,14 +203,14 @@ async function generateSampleOrders() {
             name: product1.name,
             qty: Math.floor(Math.random() * 2) + 1,
             price: product1.price || Math.floor(Math.random() * 500000) + 50000,
-            image: product1.image || 'default-image.jpg'
+            image: product1.image || DEFAULT_PRODUCT_IMAGE_URL
           },
           {
             product: product2._id,
             name: product2.name,
             qty: Math.floor(Math.random() * 2) + 1,
             price: product2.price || Math.floor(Math.random() * 500000) + 50000,
-            image: product2.image || 'default-image.jpg'
+            image: product2.image || DEFAULT_PRODUCT_IMAGE_URL
           }
         ];
 
@@ -271,7 +272,7 @@ async function generateSampleOrders() {
         name: product.name,
         qty: Math.floor(Math.random() * 3) + 1,
         price: product.price || Math.floor(Math.random() * 500000) + 50000,
-        image: product.image || 'default-image.jpg'
+        image: product.image || DEFAULT_PRODUCT_IMAGE_URL
       }));
 
       // Tính tổng tiền

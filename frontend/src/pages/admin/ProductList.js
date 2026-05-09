@@ -13,6 +13,7 @@ import {
   useGetCategoriesQuery,
   useDeleteProductMutation
 } from '../../services/api';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../../constants/defaultProductImageUrl';
 import AdminLayout from './AdminLayout';
 import ProductForm from '../../components/admin/ProductForm';
 import { formatCurrency } from '../../utils/formatters';
@@ -306,7 +307,7 @@ const ProductList = () => {
             alt={product.name}
             className="product-thumbnail"
             onError={(e) => {
-              e.target.src = 'https://placehold.co/100x100?text=No+Image';
+              e.target.src = DEFAULT_PRODUCT_IMAGE_URL;
             }}
           />
         ) : (

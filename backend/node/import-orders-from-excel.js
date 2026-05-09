@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const xlsx = require('xlsx');
 const Order = require('./models/Order');
 const Product = require('./models/Product');
+const DEFAULT_PRODUCT_IMAGE_URL = require('./constants/defaultProductImageUrl');
 
 dotenv.config();
 
@@ -198,7 +199,7 @@ async function importOrdersFromExcel() {
         bucket.items.set(itemKey, {
           productId: product._id,
           name: product.name,
-          image: product.image || `https://via.placeholder.com/300x300?text=${encodeURIComponent(product.name)}`,
+          image: product.image || DEFAULT_PRODUCT_IMAGE_URL,
           price: unitPrice,
           qty: quantity,
         });

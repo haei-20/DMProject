@@ -3,6 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const xlsx = require('xlsx');
 const Product = require('./models/Product');
+const DEFAULT_PRODUCT_IMAGE_URL = require('./constants/defaultProductImageUrl');
 
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/tmdt';
 const CSV_PATH = path.join(__dirname, 'data', 'products_final.csv');
@@ -57,7 +58,7 @@ async function main() {
     const description = String(firstValue(row, ['Description', 'description'])).trim();
     const category = String(firstValue(row, ['Category', 'category', 'Category Name', 'category_name'])).trim() || 'General';
     const stock = parseIntSafe(firstValue(row, ['Stock', 'Qty', 'Quantity', 'stock']));
-    const image = String(firstValue(row, ['Image', 'image', 'ImageUrl', 'image_url'])).trim() || 'https://via.placeholder.com/300x300?text=Product';
+    const image = DEFAULT_PRODUCT_IMAGE_URL;
     const tagsRaw = String(firstValue(row, ['Tags', 'tags'])).trim();
     const tags = tagsRaw ? tagsRaw.split(',').map(tag => tag.trim()).filter(Boolean) : [];
     const discount = parseNumber(firstValue(row, ['Discount', 'discount'])) || 0;

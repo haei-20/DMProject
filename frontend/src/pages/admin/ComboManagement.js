@@ -20,6 +20,7 @@ import {
   useDeleteComboMutation
 } from '../../services/api';
 import { formatPrice } from '../../utils/productHelpers';
+import { DEFAULT_PRODUCT_IMAGE_URL } from '../../constants/defaultProductImageUrl';
 import AdminLayout from '../../components/admin/AdminLayout';
 import FrequentlyBoughtTogetherTable from '../../components/admin/FrequentlyBoughtTogetherTable';
 import './ComboManagement.css';
@@ -873,7 +874,7 @@ const ComboManagement = () => {
                                 alt={product.name}
                                 onError={(e) => {
                                   e.target.onerror = null;
-                                  e.target.src = 'https://via.placeholder.com/100x100?text=Không+có+ảnh';
+                                  e.target.src = DEFAULT_PRODUCT_IMAGE_URL;
                                 }} 
                               />
                             ) : (

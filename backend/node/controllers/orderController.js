@@ -3,6 +3,7 @@ const Product = require("../models/Product");
 const Cart = require("../models/Cart");
 const GuestCart = require("../models/GuestCart");
 const mongoose = require('mongoose');
+const DEFAULT_PRODUCT_IMAGE_URL = require("../constants/defaultProductImageUrl");
 
 // Tạo đơn hàng (hỗ trợ cả khách và người dùng đã đăng nhập)
 exports.createOrder = async (req, res) => {
@@ -45,7 +46,7 @@ exports.createOrder = async (req, res) => {
           orderItems.push({
             product: product._id,
             name: product.name,
-            image: product.image || 'default-image.jpg',
+            image: product.image || DEFAULT_PRODUCT_IMAGE_URL,
             price: product.price,
             qty: item.quantity
           });
@@ -78,7 +79,7 @@ exports.createOrder = async (req, res) => {
           orderItems.push({
             product: item.product._id,
             name: item.product.name,
-            image: item.product.image || 'default-image.jpg',
+            image: item.product.image || DEFAULT_PRODUCT_IMAGE_URL,
             price: item.product.price,
             qty: item.quantity
           });
@@ -120,7 +121,7 @@ exports.createOrder = async (req, res) => {
             orderItems.push({
               product: item.product._id,
               name: item.product.name,
-              image: item.product.image || 'default-image.jpg',
+              image: item.product.image || DEFAULT_PRODUCT_IMAGE_URL,
               price: item.product.price,
               qty: item.quantity
             });
@@ -159,7 +160,7 @@ exports.createOrder = async (req, res) => {
           orderItems.push({
             product: product._id,
             name: product.name,
-            image: product.image || 'default-image.jpg',
+            image: product.image || DEFAULT_PRODUCT_IMAGE_URL,
             price: product.price,
             qty: item.quantity
           });
