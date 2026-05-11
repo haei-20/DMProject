@@ -106,9 +106,10 @@
 .mock-bar-chart {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: stretch;
+  gap: 4px;
   width: 100%;
-  height: 200px;
+  height: 220px;
   margin-top: 20px;
 }
 
@@ -116,21 +117,37 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   height: 100%;
 }
 
+/* Vùng cố định chiều cao: cột mọc từ đáy, nhãn luôn dưới cùng */
+.mock-bar-track {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
 .mock-bar {
-  width: 40px;
+  width: 100%;
+  max-width: 40px;
+  min-height: 2px;
   background-color: #3498db;
   border-radius: 4px 4px 0 0;
-  transition: height 0.5s ease;
+  transition: height 0.35s ease;
 }
 
 .mock-bar-label {
+  flex-shrink: 0;
   margin-top: 8px;
-  font-size: 12px;
+  font-size: 11px;
   color: #7f8c8d;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .pie-chart-placeholder {

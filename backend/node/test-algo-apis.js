@@ -53,7 +53,7 @@ const printSummary = () => {
     pushResult("POST /users/login", false, "ERR", err.message);
   }
 
-  // 2) Apriori recommendations
+  // 2) Gợi ý người dùng (luật cặp)
   try {
     const { res, json } = await requestJson("/recommend/user");
     const count = Array.isArray(json?.recommendations) ? json.recommendations.length : -1;

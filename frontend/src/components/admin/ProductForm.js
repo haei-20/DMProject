@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Row, Col, Card, Alert, Nav } from 'react-bootstrap';
+import { Form, Button, Row, Col, Alert, Nav } from 'react-bootstrap';
 import { useCreateProductMutation, useUpdateProductMutation } from '../../services/api';
+import {
+  CATEGORY_FORM_OPTIONS,
+  tagsForCategory,
+  toCanonicalCategory,
+} from '../../constants/productCategoryTagMap';
 import './ProductForm.css';
 
 const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
@@ -13,7 +18,8 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
     featured: false,
     discount: '',
     image: '',
-    status: 'active'
+    status: 'active',
+    tagSelection: [],
   });
   
   const [imagePreview, setImagePreview] = useState(null);
@@ -25,28 +31,28 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
   // Get API hooks
   const [createProduct, { isLoading: isCreating, isSuccess: isCreateSuccess }] = useCreateProductMutation();
   const [updateProduct, { isLoading: isUpdating, isSuccess: isUpdateSuccess }] = useUpdateProductMutation();
-  
-  // Mock categories since the API endpoint is not available
-  const categories = [
-    { _id: 'milk', name: 'Sữa các loại' },
-    { _id: 'produce', name: 'Rau - Củ - Trái Cây' },
-    { _id: 'cleaning', name: 'Hóa Phẩm - Tẩy rửa' },
-    { _id: 'personal-care', name: 'Chăm Sóc Cá Nhân' },
-    { _id: 'office-toys', name: 'Văn phòng phẩm - Đồ chơi' },
-    { _id: 'candy', name: 'Bánh Kẹo' },
-    { _id: 'beverages', name: 'Đồ uống - Giải khát' },
-    { _id: 'instant-food', name: 'Mì - Thực Phẩm Ăn Liền' }
-  ];
-  
+
   // Set initial form data if editing
   useEffect(() => {
     if (product && mode === 'edit') {
-      const productData = { ...product };
+      const { tags: tagArr, ...rest } = product;
+      const productData = { ...rest };
       // Convert numeric values to string for form inputs
       productData.price = productData.price?.toString() || '';
       productData.stock = productData.stock?.toString() || '';
       productData.discount = productData.discount?.toString() || '';
-      
+      const canonical = toCanonicalCategory(product.category);
+      productData.category = canonical;
+      const allowed = new Set(tagsForCategory(canonical));
+      const fromDb = Array.isArray(tagArr) ? tagArr : [];
+      productData.tagSelection = [
+        ...new Set(
+          fromDb
+            .map((t) => String(t).trim().toUpperCase())
+            .filter((t) => allowed.has(t))
+        ),
+      ];
+
       setFormData(productData);
       setImagePreview(product.image);
       
@@ -65,7 +71,8 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
         featured: false,
         discount: '',
         image: '',
-        status: 'active'
+        status: 'active',
+        tagSelection: [],
       });
     }
   }, [product, mode]);
@@ -89,7 +96,8 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
         featured: false,
         discount: '',
         image: '',
-        status: 'active'
+        status: 'active',
+        tagSelection: [],
       });
       setImagePreview(null);
       setImageFile(null);
@@ -128,9 +136,30 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
   
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    if (name === 'category') {
+      const allowed = new Set(tagsForCategory(value));
+      setFormData((prev) => ({
+        ...prev,
+        category: value,
+        tagSelection: (prev.tagSelection || []).filter((t) => allowed.has(t)),
+      }));
+      return;
+    }
     setFormData({
       ...formData,
       [name]: type === 'checkbox' ? checked : value
+    });
+  };
+
+  const toggleProductTag = (tag) => {
+    const upper = String(tag).toUpperCase();
+    setFormData((prev) => {
+      const sel = prev.tagSelection || [];
+      const has = sel.includes(upper);
+      return {
+        ...prev,
+        tagSelection: has ? sel.filter((t) => t !== upper) : [...sel, upper],
+      };
     });
   };
   
@@ -222,7 +251,8 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
         featured: formData.featured,
         discount: formData.discount ? Number(formData.discount) : 0,
         image: imageUrl,
-        status: formData.status
+        status: formData.status,
+        tags: [...new Set(formData.tagSelection || [])],
       };
       
       console.log("Sending product data:", productData);
@@ -317,7 +347,7 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Danh mục*</Form.Label>
+                  <Form.Label>Category *</Form.Label>
                   <Form.Select
                     name="category"
                     value={formData.category}
@@ -325,10 +355,10 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
                     isInvalid={!!errors.category}
                     required
                   >
-                    <option value="">Chọn danh mục</option>
-                    {categories.map((category) => (
-                      <option key={category._id} value={category._id}>
-                        {category.name}
+                    <option value="">Select category</option>
+                    {CATEGORY_FORM_OPTIONS.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
                       </option>
                     ))}
                   </Form.Select>
@@ -349,7 +379,31 @@ const ProductForm = ({ product, onSuccess, mode = 'create' }) => {
                 onChange={handleChange}
               />
             </Form.Group>
-            
+
+            {formData.category ? (
+              <Form.Group className="mb-3">
+                <Form.Label>Tags (for this category)</Form.Label>
+                <Form.Text className="text-muted d-block mb-2">
+                  Select one or more tag keywords. Changing category removes tags that are not valid for the new category.
+                </Form.Text>
+                <div className="product-form-tag-grid">
+                  {tagsForCategory(formData.category).map((tag) => (
+                    <Form.Check
+                      key={tag}
+                      type="checkbox"
+                      id={`product-tag-${formData.category}-${tag}`}
+                      className="product-form-tag-item"
+                      label={tag}
+                      checked={(formData.tagSelection || []).includes(tag)}
+                      onChange={() => toggleProductTag(tag)}
+                    />
+                  ))}
+                </div>
+              </Form.Group>
+            ) : (
+              <p className="text-muted small mb-3">Select a category to see available tags.</p>
+            )}
+
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">

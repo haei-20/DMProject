@@ -8,6 +8,10 @@ import {
   useAddOrderNoteMutation
 } from '../../services/api';
 import { formatDate } from '../../utils/formatters';
+import {
+  coerceShippingAddressForDisplay,
+  isMeaningfulShippingField,
+} from '../../utils/shippingAddressDisplay';
 import './OrderDetail.css';
 
 const OrderDetail = ({ order, onClose }) => {
@@ -100,7 +104,20 @@ const OrderDetail = ({ order, onClose }) => {
   };
   
   if (!order) return null;
-  
+
+  const ship = coerceShippingAddressForDisplay(order.shippingAddress);
+  const shipCountry = isMeaningfulShippingField(ship.country)
+    ? ship.country
+    : null;
+  const shipCity =
+    isMeaningfulShippingField(ship.city) &&
+    (!shipCountry || ship.city.toLowerCase() !== shipCountry.toLowerCase())
+      ? ship.city
+      : null;
+  const shipPostal = isMeaningfulShippingField(ship.postalCode)
+    ? ship.postalCode
+    : null;
+
   return (
     <div className="order-detail-component">
       {error && <Alert variant="danger" className="mb-3">{error}</Alert>}
@@ -249,9 +266,34 @@ const OrderDetail = ({ order, onClose }) => {
               
               <h6>Shipping Address</h6>
               <p className="mb-0">
-                {order.shippingAddress?.address}, <br />
-                {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.postalCode}, <br />
-                {order.shippingAddress?.country}
+                {!isMeaningfulShippingField(ship.address) &&
+                !shipCity &&
+                !shipCountry &&
+                !shipPostal ? (
+                  'N/A'
+                ) : (
+                  <>
+                    {isMeaningfulShippingField(ship.address) ? (
+                      <>
+                        {ship.address}
+                        <br />
+                      </>
+                    ) : null}
+                    {shipCity ? (
+                      <>
+                        {shipCity}
+                        <br />
+                      </>
+                    ) : null}
+                    {shipCountry ? (
+                      <>
+                        {shipCountry}
+                        <br />
+                      </>
+                    ) : null}
+                    {shipPostal ? <>{shipPostal}</> : null}
+                  </>
+                )}
               </p>
               
               <hr className="my-3" />

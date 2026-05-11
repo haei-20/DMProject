@@ -9,7 +9,7 @@ import {
   FaPlus, FaTrash, FaSave, FaSearch, 
   FaBoxOpen, FaShoppingCart, FaTags, 
   FaPercentage, FaEdit, FaEye, FaLink,
-  FaCheckCircle, FaExclamationCircle, FaInfoCircle
+  FaCheckCircle, FaExclamationCircle, FaInfoCircle, FaSyncAlt
 } from 'react-icons/fa';
 import { 
   useGetProductsQuery, 
@@ -44,17 +44,21 @@ const ComboManagement = () => {
   const [activeTab, setActiveTab] = useState('builder');
   const [fbtFilters, setFbtFilters] = useState({
     minSupport: 0.01,
-    minItems: 2,
     orderLimit: 300,
     minConfidence: 0.1,
     minLift: 1,
-    minConviction: 1,
-    algorithm: 'fp-growth'
+    minConviction: 1
   });
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastVariant, setToastVariant] = useState('success');
   
+  const [pendingFbtForce, setPendingFbtForce] = useState(false);
+  const fbtQueryParams = useMemo(
+    () => ({ ...fbtFilters, ...(pendingFbtForce ? { force: true } : {}) }),
+    [fbtFilters, pendingFbtForce]
+  );
+
   // Get product data from API
   const { 
     data: productsData, 
@@ -68,11 +72,17 @@ const ComboManagement = () => {
   const {
     data: frequentlyBoughtData,
     isLoading: isLoadingFrequently,
+    isFetching: isFetchingFrequently,
     error: frequentlyError
-  } = useGetFrequentlyBoughtTogetherQuery(fbtFilters, {
+  } = useGetFrequentlyBoughtTogetherQuery(fbtQueryParams, {
     // Tab Tạo Combo không cần FBT; Danh sách + Gợi ý cần dữ liệu để đánh dấu khớp gợi ý.
     skip: activeTab === 'builder'
   });
+
+  useEffect(() => {
+    if (!pendingFbtForce || isFetchingFrequently) return;
+    setPendingFbtForce(false);
+  }, [pendingFbtForce, isFetchingFrequently]);
   
   // Get existing combos
   const {
@@ -118,13 +128,19 @@ const ComboManagement = () => {
       showMessage('Cần ít nhất 2 sản phẩm để tạo combo.', 'danger');
       return;
     }
-    const products = raw.map((p) => ({
-      _id: p._id,
-      name: p.name,
-      image: p.image,
-      price: typeof p.price === 'number' ? p.price : 0,
-      quantity: 1
-    }));
+    const products = raw
+      .map((p) => ({
+        _id: p._id ?? p.id,
+        name: p.name,
+        image: p.image,
+        price: typeof p.price === 'number' ? p.price : 0,
+        quantity: 1
+      }))
+      .filter((p) => p._id != null);
+    if (products.length < 2) {
+      showMessage('Thiếu _id sản phẩm hợp lệ trong mẫu (cần ít nhất 2).', 'danger');
+      return;
+    }
     const name = `Combo: ${products.map((p) => p.name).join(' + ')}`.slice(0, 180);
     setEditMode(false);
     setCurrentCombo({
@@ -363,9 +379,8 @@ const ComboManagement = () => {
                 <div>
                   <h5 className="mb-0">Danh sách Combo hiện có</h5>
                   <small className="text-muted">
-                    Cột <strong>Gợi ý</strong>: trùng tập sản phẩm với một mẫu FBT hiện tại (
-                    {fbtFilters.algorithm === 'apriori' ? 'Apriori' : 'FP-Growth'}
-                    {isLoadingFrequently ? ', đang tải…' : ''}).
+                    Cột <strong>Gợi ý</strong>: trùng tập sản phẩm với một mẫu FBT (FP-Growth)
+                    {isLoadingFrequently ? ', đang tải…' : ''}.
                   </small>
                 </div>
                 <Button 
@@ -776,27 +791,34 @@ const ComboManagement = () => {
           
           <Tab eventKey="suggestions" title="Gợi ý Combo">
             <Card className="mb-4">
-              <Card.Header>
+              <Card.Header className="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <h5 className="mb-0">Gợi ý Combo dựa trên dữ liệu mua hàng</h5>
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  type="button"
+                  disabled={isFetchingFrequently}
+                  onClick={() => setPendingFbtForce(true)}
+                >
+                  <FaSyncAlt className="me-1" />
+                  Chạy lại thuật toán
+                </Button>
               </Card.Header>
               <Card.Body>
                 <FrequentlyBoughtTogetherTable 
                   data={frequentlyBoughtData}
                   loading={isLoadingFrequently}
+                  isRecomputing={isFetchingFrequently && !isLoadingFrequently}
                   minSupport={fbtFilters.minSupport}
-                  minItems={fbtFilters.minItems}
                   orderLimit={fbtFilters.orderLimit}
                   minConfidence={fbtFilters.minConfidence}
                   minLift={fbtFilters.minLift}
                   minConviction={fbtFilters.minConviction}
-                  algorithm={fbtFilters.algorithm}
                   onMinSupportChange={(value) => setFbtFilters((prev) => ({ ...prev, minSupport: value }))}
-                  onMinItemsChange={(value) => setFbtFilters((prev) => ({ ...prev, minItems: value }))}
                   onOrderLimitChange={(value) => setFbtFilters((prev) => ({ ...prev, orderLimit: value }))}
                   onMinConfidenceChange={(value) => setFbtFilters((prev) => ({ ...prev, minConfidence: value }))}
                   onMinLiftChange={(value) => setFbtFilters((prev) => ({ ...prev, minLift: value }))}
                   onMinConvictionChange={(value) => setFbtFilters((prev) => ({ ...prev, minConviction: value }))}
-                  onAlgorithmChange={(value) => setFbtFilters((prev) => ({ ...prev, algorithm: value }))}
                   onQuickCreateCombo={handleQuickCreateComboFromPattern}
                   existingCombos={combos}
                   error={frequentlyError}

@@ -19,6 +19,7 @@ import {
 import '../../styles/AdminTheme.css';
 import './OrderManagement.css';
 import { formatPrice } from '../../utils/productHelpers';
+import { formatShippingSummaryOneLine } from '../../utils/shippingAddressDisplay';
 
 const OrderManagement = () => {
   // State for filters and pagination
@@ -710,7 +711,7 @@ const OrderManagement = () => {
                     <div className="admin-order-detail-row">
                       <div className="admin-order-detail-label">Địa chỉ:</div>
                       <div className="admin-order-detail-value">
-                        {selectedOrder.shippingAddress?.address}, {selectedOrder.shippingAddress?.city}
+                        {formatShippingSummaryOneLine(selectedOrder.shippingAddress)}
                       </div>
                     </div>
                     <div className="admin-order-detail-row">

@@ -4,16 +4,23 @@ const Cart = require("../models/Cart");
 const GuestCart = require("../models/GuestCart");
 const mongoose = require('mongoose');
 const DEFAULT_PRODUCT_IMAGE_URL = require("../constants/defaultProductImageUrl");
+const {
+  normalizeOrderShippingAddress,
+} = require("../utils/normalizeOrderShippingAddress");
 
 // Tạo đơn hàng (hỗ trợ cả khách và người dùng đã đăng nhập)
 exports.createOrder = async (req, res) => {
   try {
     const { shippingAddress, guestInfo, sessionId, cartItems } = req.body;
     
-    // Kiểm tra thông tin giao hàng
-    if (!shippingAddress || !shippingAddress.address || !shippingAddress.city) {
+    // Kiểm tra thông tin giao hàng (theo payload gốc; city có thể là tên quốc gia — sẽ chuẩn hóa sau)
+    const addrIn = String(shippingAddress?.address ?? "").trim();
+    const cityIn = String(shippingAddress?.city ?? "").trim();
+    if (!shippingAddress || !addrIn || !cityIn) {
       return res.status(400).json({ message: "Vui lòng cung cấp đủ thông tin giao hàng" });
     }
+
+    const normalizedShipping = normalizeOrderShippingAddress(shippingAddress);
 
     let orderItems = [];
     let totalPrice = 0;
@@ -184,7 +191,7 @@ exports.createOrder = async (req, res) => {
     // Tạo đơn hàng mới
     const orderData = {
       orderItems,
-      shippingAddress,
+      shippingAddress: normalizedShipping,
       totalPrice
     };
     

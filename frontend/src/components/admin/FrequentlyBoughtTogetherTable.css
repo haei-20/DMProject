@@ -1,8 +1,10 @@
 .frequently-bought-together-card {
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   margin-bottom: 30px;
+  font-family: inherit;
+  color: var(--admin-text-primary, #212529);
 }
 
 .filter-controls {
@@ -22,22 +24,26 @@
 
 .fbt-header-info {
   width: 100%;
-  font-size: 12px;
-  line-height: 1.35;
+  font-size: 0.875rem;
+  line-height: 1.4;
   margin-bottom: 2px;
+  color: var(--admin-text-secondary, #6c757d);
 }
 
 .fbt-controls-grid .form-label {
-  font-size: 11px;
-  margin-bottom: 4px !important;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--admin-text-secondary, #6c757d);
+  margin-bottom: 0.25rem !important;
 }
 
 .fbt-controls-grid .form-control,
 .fbt-controls-grid .form-select {
-  height: 32px;
-  font-size: 12px;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  height: auto;
+  min-height: calc(1.5em + 0.75rem + 2px);
+  font-size: 1rem;
+  padding: 0.375rem 0.75rem;
+  color: var(--admin-text-primary, #212529);
 }
 
 .fbt-controls-grid .col-lg-3,
@@ -57,17 +63,20 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-width: 280px;
+  width: 100%;
+  max-width: none;
 }
 
 .product-item-combo {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
-  padding: 5px;
-  border-radius: 5px;
-  background-color: #f9f9f9;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background-color: #f8f9fa;
   position: relative;
+  border: 1px solid var(--admin-border-color, #e9ecef);
+  isolation: isolate;
 }
 
 .product-image {
@@ -93,13 +102,13 @@
 .placeholder-image {
   width: 100%;
   height: 100%;
-  background-color: #4a6cf7;
+  background-color: var(--admin-primary, #4361ee);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  font-size: 16px;
+  font-weight: 600;
+  font-size: 0.875rem;
 }
 
 .no-image {
@@ -117,30 +126,36 @@
   min-width: 0;
 }
 
-.product-name {
-  font-size: 11px;
-  font-weight: 500;
+/* Đặt trong card để thắng mọi .product-name global (ellipsis) từ CSS trang khác */
+.frequently-bought-together-card .product-name {
+  font-size: 0.875rem;
+  font-weight: 600;
   margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: none !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+  color: var(--admin-text-primary, #212529);
 }
 
 .product-meta {
   display: flex;
   align-items: center;
-  font-size: 10px;
-  color: #6c757d;
+  font-size: 0.8125rem;
+  color: var(--admin-text-secondary, #6c757d);
   gap: 6px;
 }
 
 .product-category {
-  color: #4a6cf7;
-  background: rgba(74, 108, 247, 0.1);
-  padding: 2px 6px;
+  color: var(--admin-primary, #4361ee);
+  background: rgba(67, 97, 238, 0.12);
+  padding: 2px 8px;
   border-radius: 4px;
-  font-size: 9px;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .link-icon {
@@ -162,19 +177,47 @@
 }
 
 .support-column {
-  width: 180px;
+  width: auto;
+  max-width: 124px;
 }
 
-.frequently-bought-together-card table th:first-child,
-.frequently-bought-together-card table td:first-child {
-  width: 32%;
-  max-width: 320px;
+/* Chia độ rộng: cột SP co giãn theo nội dung (table-layout auto), không ép hẹp */
+.frequently-bought-together-card .fbt-order-like-table th:first-child,
+.frequently-bought-together-card .fbt-order-like-table td:first-child {
+  min-width: 260px;
+  width: auto;
+  max-width: none;
+  overflow: visible;
+  word-break: break-word;
+}
+
+.frequently-bought-together-card .fbt-order-like-table th:nth-child(2),
+.frequently-bought-together-card .fbt-order-like-table td:nth-child(2) {
+  width: 12%;
+  max-width: 118px;
+  white-space: nowrap;
+}
+
+.frequently-bought-together-card .fbt-order-like-table th:nth-child(3),
+.frequently-bought-together-card .fbt-order-like-table td:nth-child(3) {
+  width: 13%;
+  max-width: 124px;
+}
+
+.frequently-bought-together-card .fbt-order-like-table th:nth-child(4),
+.frequently-bought-together-card .fbt-order-like-table td:nth-child(4) {
+  width: 11%;
+  max-width: 96px;
+  white-space: nowrap;
+  text-align: right;
 }
 
 .support-value {
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 5px;
   white-space: nowrap;
+  font-size: 0.95rem;
+  color: var(--admin-text-primary, #212529);
 }
 
 .support-bar {
@@ -186,45 +229,96 @@
 
 .support-fill {
   height: 100%;
-  background-color: #4a6cf7;
+  background-color: var(--admin-primary, #4361ee);
   border-radius: 3px;
 }
 
-/* Fix badge display to prevent unwanted spaces */
-.badge {
+.frequently-bought-together-card .badge {
   white-space: nowrap;
   display: inline-block;
 }
 
 .frequency-badge {
   letter-spacing: -0.02em;
-  font-size: 0.85em;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Cùng phong cách bảng với OrderList (.order-table) */
+.fbt-table-wrap {
+  width: 100%;
+}
+
+.fbt-order-like-table {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+  table-layout: auto;
+  font-size: 1rem;
+  color: var(--admin-text-primary, #212529);
+}
+
+.fbt-order-like-table thead th {
+  background-color: #f8f9fa !important;
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.fbt-order-like-table tbody td {
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+
+.fbt-order-like-table tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.1);
 }
 
 .fbt-quick-create-col {
   width: 1%;
   white-space: nowrap;
   vertical-align: middle;
+  position: relative;
+  z-index: 2;
 }
 
 .fbt-match-col {
   max-width: 140px;
   vertical-align: middle;
+  position: relative;
+  z-index: 2;
 }
 
 .fbt-match-wrap .badge {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .fbt-btn-create-combo {
-  font-size: 12px;
-  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  padding: 0.375rem 0.65rem;
 }
 
 .fbt-page-size-select {
   width: auto;
   min-width: 130px;
   max-width: 160px;
+}
+
+.fbt-pagination-bar {
+  font-size: 0.875rem;
+  color: var(--admin-text-secondary, #6c757d);
+  background-color: #fff;
+}
+
+.frequently-bought-together-card .card-footer {
+  font-size: 0.875rem;
+  color: var(--admin-text-secondary, #6c757d) !important;
+  background-color: #f8f9fa;
+  border-top: 1px solid var(--admin-border-color, #e9ecef);
 }
 
 @media (max-width: 768px) {
@@ -235,6 +329,11 @@
   }
 
   .fbt-header-info {
-    font-size: 11px;
+    font-size: 0.8125rem;
+  }
+
+  .fbt-order-like-table thead th,
+  .fbt-order-like-table tbody td {
+    font-size: 0.875rem;
   }
 }

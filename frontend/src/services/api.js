@@ -9,7 +9,7 @@ const baseQuery = fetchBaseQuery({
     }
     return headers;
   },
-  timeout: 15000, // Timeout sau 15 giây
+  timeout: 120000, // Danh sách đơn / báo cáo có thể lớn
 });
 
 // Helper function for fetching related products fallbacks
@@ -333,6 +333,9 @@ export const api = createApi({
       }),
       providesTags: ['Product'],
     }),
+    getProductCountsByCategory: builder.query({
+      query: () => '/products/counts-by-category',
+    }),
     getProductById: builder.query({
       query: (id) => ({
         url: `/products/${id}`,
@@ -406,6 +409,17 @@ export const api = createApi({
     getCart: builder.query({
       query: () => '/cart',
       providesTags: ['Cart'],
+    }),
+    getCartSuggestions: builder.query({
+      query: ({ productIds = [], limit = 6 } = {}) => ({
+        url: '/analytics/cart-suggestions',
+        params: {
+          productIds: Array.isArray(productIds) ? productIds.join(',') : String(productIds || ''),
+          limit,
+        },
+      }),
+      providesTags: ['Product'],
+      keepUnusedDataFor: 120,
     }),
     addToCart: builder.mutation({
       query: (item) => ({
@@ -548,7 +562,7 @@ export const api = createApi({
       }),
       invalidatesTags: ['Category'],
     }),
-    
+
     // Admin Attribute endpoints
     getAttributes: builder.query({
       query: () => '/admin/attributes',
@@ -619,6 +633,14 @@ export const api = createApi({
         
         return queryString;
       },
+      transformResponse: (response) => {
+        if (!response) return { orders: [], pagination: null };
+        if (Array.isArray(response)) return { orders: response, pagination: null };
+        return {
+          orders: Array.isArray(response.orders) ? response.orders : [],
+          pagination: response.pagination || null,
+        };
+      },
       providesTags: ['Order'],
     }),
     updateOrderStatus: builder.mutation({
@@ -637,9 +659,10 @@ export const api = createApi({
           // 1. Update cache for getAdminOrders
           dispatch(
           api.util.updateQueryData('getAdminOrders', undefined, (draft) => {
-              if (!draft || !Array.isArray(draft)) return;
-              
-              const orderToUpdate = draft.find(order => 
+              const list = draft?.orders;
+              if (!list || !Array.isArray(list)) return;
+
+              const orderToUpdate = list.find(order => 
               (order._id === id || order.id === id)
             );
             if (orderToUpdate) {
@@ -999,25 +1022,59 @@ export const api = createApi({
       invalidatesTags: ['Product'],
     }),
     getDashboardStats: builder.query({
-      query: () => '/dashboard/stats',
+      query: (arg) => {
+        const params = {};
+        if (arg && typeof arg === 'object') {
+          if (arg.fromYear != null) params.fromYear = arg.fromYear;
+          if (arg.toYear != null) params.toYear = arg.toYear;
+          if (arg.year != null && arg.fromYear == null && arg.toYear == null) {
+            params.year = arg.year;
+          }
+        }
+        return {
+          url: '/dashboard/stats',
+          ...(Object.keys(params).length ? { params } : {}),
+        };
+      },
     }),
     getTopProducts: builder.query({
       query: (params = {}) => ({
         url: '/dashboard/top-products',
         params,
       }),
-      transformResponse: (response) => response?.products || [],
+      transformResponse: (response) => {
+        if (Array.isArray(response)) return response;
+        const p = response?.products ?? response?.topSellingProducts ?? response?.topProducts;
+        if (Array.isArray(p)) return p;
+        if (Array.isArray(response?.data)) return response.data;
+        return [];
+      },
     }),
     
     // Analytics endpoints
     getProductAnalytics: builder.query({
-      query: () => '/analytics/products',
+      query: (arg) => {
+        const params = {};
+        if (arg && typeof arg === 'object') {
+          if (arg.fromYear != null) params.fromYear = arg.fromYear;
+          if (arg.toYear != null) params.toYear = arg.toYear;
+          if (arg.year != null && arg.fromYear == null && arg.toYear == null) {
+            params.year = arg.year;
+          }
+        }
+        return {
+          url: '/analytics/products',
+          ...(Object.keys(params).length ? { params } : {}),
+        };
+      },
       transformResponse: (response) => {
         // If API returns no data, provide mock data to prevent dashboard errors
         if (!response) {
           console.log('No product analytics data received, using mock data');
           return {
             topProducts: [],
+            salesByCategory: [],
+            productViews: [],
             categoryDistribution: [],
             stockStatus: { inStock: 0, lowStock: 0, outOfStock: 0 },
             priceRanges: []
@@ -1111,13 +1168,11 @@ export const api = createApi({
           url: `/admin/reports/frequently-bought-together`,
           params: {
             minSupport: params.minSupport || 0.01,
-            limit: params.limit || 50,
             orderLimit: params.orderLimit || 1000,
-            minItems: params.minItems || 2,
-            algorithm: params.algorithm || 'fp-growth',
             minConfidence: params.minConfidence || 0.1,
             minLift: params.minLift || 1,
-            minConviction: params.minConviction || 1
+            minConviction: params.minConviction || 1,
+            ...(params.force ? { force: 'true' } : {}),
           },
         };
       },
@@ -1158,22 +1213,22 @@ export const api = createApi({
                 frequencyDisplay: itemset.frequencyDisplay || `${frequency}/${totalTransactions}`
               };
             }).filter(itemset => 
-              // Lọc các kết quả không hợp lệ
               itemset.products && 
               Array.isArray(itemset.products) &&
-              itemset.products.length >= 2 && 
+              itemset.products.length >= 1 && 
               itemset.support > 0
             )
           };
           
           return normalizedData;
         } else {
-          // Return empty data if API returns nothing
           console.log('Không nhận được dữ liệu từ API');
-          return { 
+          return {
             frequentItemsets: [],
-            message: response?.message || "Không có dữ liệu",
-            success: false
+            strongRules: Array.isArray(response?.strongRules) ? response.strongRules : [],
+            message: response?.message || 'Không có dữ liệu',
+            success: response?.success === true,
+            info: response?.info,
           };
         }
       },
@@ -1185,6 +1240,13 @@ export const api = createApi({
           console.error('Error in frequentlyBoughtTogether query:', err);
         }
       }
+    }),
+
+    clearRecommendationCache: builder.mutation({
+      query: () => ({
+        url: '/admin/reports/recommendations-cache/clear',
+        method: 'POST',
+      }),
     }),
     
     // Coupon endpoints
@@ -1351,6 +1413,7 @@ export const {
   useGetWishlistQuery,
   useTrackProductViewMutation,
   useGetProductsQuery,
+  useGetProductCountsByCategoryQuery,
   useGetProductByIdQuery,
   useGetFeaturedProductsQuery,
   useGetProductReviewsQuery,
@@ -1358,6 +1421,7 @@ export const {
   useAddProductReviewMutation,
   useDeleteProductReviewMutation,
   useGetCartQuery,
+  useGetCartSuggestionsQuery,
   useAddToCartMutation,
   useUpdateCartItemMutation,
   useRemoveCartItemMutation,
@@ -1382,6 +1446,7 @@ export const {
   useGetOrderAnalyticsQuery,
   useGetRecommendedProductsQuery,
   useGetFrequentlyBoughtTogetherQuery,
+  useClearRecommendationCacheMutation,
   useValidateCouponMutation,
   // New admin endpoints
   useGetCategoriesQuery,

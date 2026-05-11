@@ -9,7 +9,7 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/retail';
     await mongoose.connect(MONGO_URI);
     console.log('Connected to MongoDB');
 
-    const result = await getFrequentlyBoughtTogether(0.0001, 50, 5000);
+    const result = await getFrequentlyBoughtTogether(0.0001, 5000);
     console.log('Result:', JSON.stringify(result, null, 2));
 
     await mongoose.disconnect();

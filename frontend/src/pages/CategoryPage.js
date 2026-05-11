@@ -7,19 +7,13 @@ import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import Paginator from '../components/Paginator';
+import { getCategoryDisplayEn, resolveCategoryForQuery } from '../constants/productCategoryTagMap';
 
 const CategoryPage = () => {
   const { categoryName } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  
-  const categorySlugMap = {
-  'accessories': 'Accessories',
-  'decoration': 'Decoration',
-  'kitchen': 'Kitchen',
-  'others': 'Others',
-  'toys': 'Toys',
-  // thêm các danh mục khác tại đây
-};
+
+  const apiCategory = resolveCategoryForQuery(categoryName || '');
 
   // Get page from URL or default to 1
   const page = parseInt(searchParams.get('page') || '1');
@@ -34,11 +28,10 @@ const CategoryPage = () => {
   });
   const [rating, setRating] = useState(searchParams.get('rating') || '');
   
-  // Prepare the query params
-  const displayCategoryName = categorySlugMap[categoryName] || categoryName;
+  const categoryTitle = getCategoryDisplayEn(apiCategory);
 
 const queryParams = {
-  category: displayCategoryName,
+  category: apiCategory,
   page,
   sortBy: sortOption,
   limit: 12
@@ -119,12 +112,12 @@ const queryParams = {
             Trang chủ
           </Breadcrumb.Item>
           <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/categories' }}>
-            Danh mục
+            Categories
           </Breadcrumb.Item>
-          <Breadcrumb.Item active>{categoryName}</Breadcrumb.Item>
+          <Breadcrumb.Item active>{categoryTitle}</Breadcrumb.Item>
         </Breadcrumb>
         
-        <h1 className="mb-4 text-capitalize">{displayCategoryName}</h1>
+        <h1 className="mb-4">{categoryTitle}</h1>
         
         <Row>
           {/* Filters sidebar */}

@@ -6,6 +6,7 @@ import { useAddToCartMutation, useAddToWishlistMutation, useRemoveFromWishlistMu
 import { FaHeart, FaRegHeart, FaShoppingCart, FaStar, FaStarHalfAlt, FaRegStar, FaCheck } from 'react-icons/fa';
 import { formatPrice } from '../utils/productHelpers';
 import { DEFAULT_PRODUCT_IMAGE_URL } from '../constants/defaultProductImageUrl';
+import { getCategoryDisplayEn } from '../constants/productCategoryTagMap';
 import { addToCart } from '../redux/slices/cartSlice';
 import './ProductCard.css';
 
@@ -188,7 +189,24 @@ const ProductCard = ({ product, inWishlist = false }) => {
         <Link to={`/product/${product._id}`} className="product-link">
           <Card.Title className="product-title">{product.name}</Card.Title>
         </Link>
-        
+        <div className="product-meta-badges">
+          {product.category && (
+            <Badge bg="secondary" className="product-category-badge">
+              {getCategoryDisplayEn(product.category)}
+            </Badge>
+          )}
+          {Array.isArray(product.tags) &&
+            product.tags.slice(0, 3).map((tag) => (
+              <Badge key={tag} pill bg="light" text="dark" className="product-tag-badge border">
+                {tag}
+              </Badge>
+            ))}
+          {Array.isArray(product.tags) && product.tags.length > 3 && (
+            <Badge pill bg="light" className="product-tag-badge border text-muted">
+              +{product.tags.length - 3}
+            </Badge>
+          )}
+        </div>
         <div className="my-2 product-rating">
           {renderStars(ratingValue)}
           <span className="rating-count">({Number.isFinite(reviewsCount) ? reviewsCount : 0})</span>

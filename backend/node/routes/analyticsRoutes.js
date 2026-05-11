@@ -4,6 +4,7 @@ const {
   getRecommendations,
   getPopularProducts,
   getRelatedProducts,
+  getCartSuggestions,
   getProductAnalytics,
   getUserAnalytics,
   getOrderAnalytics
@@ -73,6 +74,11 @@ router.get("/popular", getPopularProducts);
 // @route   GET /api/analytics/related/:productId
 // @access  Public
 router.get("/related/:productId", getRelatedProducts);
+
+// @desc    Gợi ý sản phẩm theo id trong giỏ (pair rules + FP-Growth cache)
+// @route   GET /api/analytics/cart-suggestions
+// @access  Public
+router.get("/cart-suggestions", getCartSuggestions);
 
 // @desc    Lấy phân tích sản phẩm cho admin dashboard
 // @route   GET /api/analytics/products

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Navbar, Nav, Form, Button, NavDropdown, Badge, InputGroup } from 'react-bootstrap';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -9,6 +9,11 @@ import { useGetCartQuery, useGetNotificationsQuery } from '../services/api';
 import CartDrawer from './CartDrawer';
 import AccountDrawer from './AccountDrawer';
 import './Header.css';
+import {
+  CATEGORY_FORM_OPTIONS,
+  getCategoryDisplayEn,
+  categoryPathEncoded,
+} from '../constants/productCategoryTagMap';
 
 const Header = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,6 +25,16 @@ const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
+
+  const activeCategoryCanonical = useMemo(() => {
+    if (!location.pathname.startsWith('/category/')) return '';
+    const raw = location.pathname.slice('/category/'.length);
+    try {
+      return decodeURIComponent(raw);
+    } catch {
+      return raw;
+    }
+  }, [location.pathname]);
   
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const { items: cartItems } = useSelector((state) => state.cart);
@@ -278,12 +293,12 @@ const Header = () => {
 
              
             
-                  <NavDropdown title="Xem thêm" id="more-dropdown">
-                  <NavDropdown.Item as={Link} to="/category/accessories">Accessories</NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/category/decoration">Decoration</NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/category/kitchen">Kitchen</NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/category/others">Others</NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/category/toys">Toys</NavDropdown.Item>
+                  <NavDropdown title="Categories" id="more-dropdown">
+                    {CATEGORY_FORM_OPTIONS.map((key) => (
+                      <NavDropdown.Item key={key} as={Link} to={categoryPathEncoded(key)}>
+                        {getCategoryDisplayEn(key)}
+                      </NavDropdown.Item>
+                    ))}
                   </NavDropdown>
                 
             </Nav>
@@ -343,10 +358,22 @@ const Header = () => {
       <div className="mobile-category-menu d-lg-none">
         <Container>
           <Nav className="scrollable-nav">
-            <Nav.Link as={Link} to="/category/accessories" className={isActive('/category/accessories') ? 'active' : ''}>Accessories</Nav.Link>
-            <Nav.Link as={Link} to="/deal-hot" className={isActive('/deal-hot') ? 'active' : ''}>Deal Hot</Nav.Link>
-            <Nav.Link as={Link} to="/combo" className={isActive('/combo') ? 'active' : ''}>Combo</Nav.Link>
-            <Nav.Link as={Link} to="/category/decoration" className={isActive('/category/decoration') ? 'active' : ''}>Decoration</Nav.Link>
+            {CATEGORY_FORM_OPTIONS.slice(0, 6).map((key) => (
+              <Nav.Link
+                key={key}
+                as={Link}
+                to={categoryPathEncoded(key)}
+                className={activeCategoryCanonical === key ? 'active' : ''}
+              >
+                {getCategoryDisplayEn(key)}
+              </Nav.Link>
+            ))}
+            <Nav.Link as={Link} to="/deal-hot" className={isActive('/deal-hot') ? 'active' : ''}>
+              Deal Hot
+            </Nav.Link>
+            <Nav.Link as={Link} to="/combo" className={isActive('/combo') ? 'active' : ''}>
+              Combo
+            </Nav.Link>
           </Nav>
         </Container>
       </div>

@@ -10,7 +10,6 @@ import {
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   useGetProductsQuery, 
-  useGetCategoriesQuery,
   useDeleteProductMutation
 } from '../../services/api';
 import { DEFAULT_PRODUCT_IMAGE_URL } from '../../constants/defaultProductImageUrl';
@@ -18,6 +17,10 @@ import AdminLayout from './AdminLayout';
 import ProductForm from '../../components/admin/ProductForm';
 import { formatCurrency } from '../../utils/formatters';
 import './ProductList.css';
+import {
+  getAdminCategorySelectOptions,
+  getCategoryDisplayEn,
+} from '../../constants/productCategoryTagMap';
 
 const ProductList = () => {
   const location = useLocation();
@@ -48,8 +51,8 @@ const ProductList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   
-  const { data: categoriesData } = useGetCategoriesQuery();
-  
+  const adminCategoryOptions = useMemo(() => getAdminCategorySelectOptions(), []);
+
   // Query products with filters
   const {
     data: productsData,
@@ -75,23 +78,6 @@ const ProductList = () => {
   const products = productsData?.products || [];
   const totalProducts = productsData?.totalCount ?? productsData?.total ?? 0;
   const totalPages = Math.ceil(totalProducts / limit);
-  const categories = useMemo(() => {
-    const categoryNames = new Set();
-    const apiCategories = Array.isArray(categoriesData) ? categoriesData : [];
-    const localCategories = products
-      .filter((product) => product?.category)
-      .map((product) => product.category);
-
-    apiCategories.forEach((category) => {
-      if (category?.name) categoryNames.add(category.name);
-    });
-    localCategories.forEach((name) => categoryNames.add(name));
-
-    return [...categoryNames]
-      .sort((a, b) => a.localeCompare(b))
-      .map((name) => ({ _id: name, name }));
-  }, [categoriesData, products]);
-  
   // Update filters when URL query parameters change
   useEffect(() => {
     const search = queryParams.get('search') || '';
@@ -408,11 +394,11 @@ const ProductList = () => {
                       onChange={handleFilterChange}
                     >
                       <option value="">Tất cả danh mục</option>
-                        {categories.map((category) => (
-                        <option key={category._id} value={category.name}>
-                          {category.name}
-                        </option>
-                      ))}
+                        {adminCategoryOptions.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
                     </Form.Select>
                   </Form.Group>
                 </Col>
@@ -576,7 +562,7 @@ const ProductList = () => {
                         )}
                       </td>
                       <td>
-                              {product.category}
+                              {getCategoryDisplayEn(product.category)}
                             </td>
                             <td>
                           {renderStockBadge(product)}

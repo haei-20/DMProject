@@ -2065,6 +2065,22 @@ button {
   overflow: hidden;
 }
 
+.category-gradient-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.category-image-container--solid .category-gradient-placeholder {
+  transition: transform 0.5s ease;
+}
+
+.category-card:hover .category-image-container--solid .category-gradient-placeholder {
+  transform: scale(1.06);
+}
+
 .category-image {
   position: absolute;
   top: 0;
@@ -2131,6 +2147,64 @@ button {
     height: 40px;
     font-size: 20px;
   }
+}
+
+/* Trang chủ: 7 thẻ danh mục / hàng (chỉ trong .category-section) */
+.category-section .category-grid-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+.category-section .col-category-tile {
+  flex: 0 0 calc(100% / 7);
+  max-width: calc(100% / 7);
+  width: calc(100% / 7);
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 991.98px) {
+  .category-section .col-category-tile {
+    flex: 0 0 25%;
+    max-width: 25%;
+    width: 25%;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .category-section .col-category-tile {
+    flex: 0 0 33.333%;
+    max-width: 33.333%;
+    width: 33.333%;
+    padding-left: 6px;
+    padding-right: 6px;
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .category-section .col-category-tile {
+    flex: 0 0 50%;
+    max-width: 50%;
+    width: 50%;
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-bottom: 8px;
+  }
+}
+
+.category-section .col-category-tile .category-name {
+  font-size: 13px;
+}
+
+.category-section .col-category-tile .category-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
 }
 
 /* Custom 5-column grid */

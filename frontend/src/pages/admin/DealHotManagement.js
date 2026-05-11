@@ -427,6 +427,7 @@ const DealHotManagement = () => {
           onHide={() => setShowAddModal(false)}
           size="lg"
           centered
+          dialogClassName="deal-hot-management-modal"
         >
           <Modal.Header closeButton>
             <Modal.Title>Thêm Deal Hot mới</Modal.Title>
@@ -621,6 +622,7 @@ const DealHotManagement = () => {
           show={showEditModal}
           onHide={() => setShowEditModal(false)}
           centered
+          dialogClassName="deal-hot-management-modal"
         >
           <Modal.Header closeButton>
             <Modal.Title>Chỉnh sửa Deal Hot</Modal.Title>

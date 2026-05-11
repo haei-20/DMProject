@@ -9,6 +9,44 @@
   table-layout: fixed;
 }
 
+/* Độ rộng cột — tránh chữ tràn sang ô khách / mã đơn */
+.recent-orders-table .roc-th-id,
+.recent-orders-table .roc-td-id {
+  width: 12%;
+  min-width: 104px;
+}
+
+.recent-orders-table .roc-th-customer,
+.recent-orders-table .roc-td-customer {
+  width: 26%;
+  min-width: 180px;
+}
+
+.recent-orders-table .roc-th-date,
+.recent-orders-table .roc-td-date {
+  width: 14%;
+}
+
+.recent-orders-table .roc-th-total,
+.recent-orders-table .roc-td-total {
+  width: 11%;
+}
+
+.recent-orders-table .roc-th-status,
+.recent-orders-table .roc-td-status {
+  width: 11%;
+}
+
+.recent-orders-table .roc-th-pay,
+.recent-orders-table .roc-td-pay {
+  width: 11%;
+}
+
+.recent-orders-table .roc-th-action,
+.recent-orders-table .roc-td-action {
+  width: 14%;
+}
+
 .recent-orders-table th {
   font-weight: 600;
   color: #495057;
@@ -24,6 +62,7 @@
   vertical-align: middle;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #f0f0f0;
+  overflow: hidden;
 }
 
 .recent-orders-table tbody tr {
@@ -38,31 +77,50 @@
   font-weight: 600;
   font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace;
   color: #4361ee;
-  display: inline-block;
-  max-width: 120px;
+  display: block;
+  max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.recent-order-status-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.recent-order-status-stack .payment-badge {
+  font-weight: 600;
 }
 
 .customer-info {
   display: flex;
   flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .customer-name {
   font-weight: 600;
   color: #212529;
-  margin-bottom: 2px;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .customer-email {
   font-size: 0.8rem;
   color: #6c757d;
+  display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 170px;
+  max-width: 100%;
 }
 
 .recent-orders-table td:nth-child(3),

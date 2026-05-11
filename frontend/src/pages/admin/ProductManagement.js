@@ -18,6 +18,10 @@ import {
 import '../../styles/AdminTheme.css';
 import './ProductManagement.css';
 import { formatPrice } from '../../utils/productHelpers';
+import {
+  getAdminCategorySelectOptions,
+  getCategoryDisplayEn,
+} from '../../constants/productCategoryTagMap';
 
 const ProductManagement = () => {
   // State for filters and pagination
@@ -47,18 +51,8 @@ const ProductManagement = () => {
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
   const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
   
-  // Sample categories data (replace with actual API data)
-  const categories = [
-    { _id: 'milk', name: 'Sữa các loại' },
-    { _id: 'produce', name: 'Rau - Củ - Trái Cây' },
-    { _id: 'cleaning', name: 'Hóa Phẩm - Tẩy rửa' },
-    { _id: 'personal-care', name: 'Chăm Sóc Cá Nhân' },
-    { _id: 'office-toys', name: 'Văn phòng phẩm - Đồ chơi' },
-    { _id: 'candy', name: 'Bánh Kẹo' },
-    { _id: 'beverages', name: 'Đồ uống - Giải khát' },
-    { _id: 'instant-food', name: 'Mì - Thực Phẩm Ăn Liền' }
-  ];
-  
+  const categorySelectOptions = getAdminCategorySelectOptions();
+
   // Sample status options
   const statusOptions = [
     { value: 'active', label: 'Đang bán', variant: 'success' },
@@ -376,8 +370,10 @@ const ProductManagement = () => {
                       className="admin-form-control"
                     >
                       <option value="">Tất cả danh mục</option>
-                      {categories.map(cat => (
-                        <option key={cat._id} value={cat._id}>{cat.name}</option>
+                      {categorySelectOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
                       ))}
                     </Form.Select>
                   </Form.Group>
@@ -543,7 +539,7 @@ const ProductManagement = () => {
                           </div>
                         </td>
                         <td>
-                          {categories.find(c => c._id === product.category)?.name || 'Không phân loại'}
+                          {product.category ? getCategoryDisplayEn(product.category) : 'Uncategorized'}
                         </td>
                         <td className="admin-fw-medium">{formatCurrency(product.price || 0)}</td>
                         <td>
@@ -763,7 +759,7 @@ const ProductManagement = () => {
                 <div className="admin-product-detail-row">
                   <div className="admin-product-detail-label">Danh mục:</div>
                   <div className="admin-product-detail-value">
-                    {categories.find(c => c._id === selectedProduct.category)?.name || 'Không phân loại'}
+                    {selectedProduct.category ? getCategoryDisplayEn(selectedProduct.category) : 'Uncategorized'}
                   </div>
                 </div>
                 

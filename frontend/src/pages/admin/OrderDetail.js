@@ -4,6 +4,7 @@ import { Card, Row, Col, Table, Badge, Button, Spinner, Alert } from 'react-boot
 import { useGetOrderByIdQuery } from '../../services/api';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { formatCurrency } from '../../utils/formatters';
+import { getAdminShippingDisplayLines } from '../../utils/shippingAddressDisplay';
 import './OrderDetail.css';
 
 const OrderDetail = () => {
@@ -196,12 +197,18 @@ const OrderDetail = () => {
                 <h5>Địa chỉ giao hàng</h5>
               </Card.Header>
               <Card.Body>
-                <p><strong>Địa chỉ:</strong> {shippingAddress.address || 'N/A'}</p>
-                <p><strong>Thành phố:</strong> {shippingAddress.city || 'N/A'}</p>
-                <p><strong>Quận/Huyện:</strong> {shippingAddress.district || 'N/A'}</p>
-                <p><strong>Phường/Xã:</strong> {shippingAddress.ward || 'N/A'}</p>
-                <p><strong>Mã bưu điện:</strong> {shippingAddress.postalCode || 'N/A'}</p>
-                <p><strong>Ghi chú:</strong> {order.note || 'Không có'}</p>
+                {(() => {
+                  const shipLines = getAdminShippingDisplayLines(shippingAddress);
+                  if (shipLines.length === 0) {
+                    return <p className="text-muted mb-0">Không có địa chỉ giao hàng</p>;
+                  }
+                  return shipLines.map(({ label, value }) => (
+                    <p key={`${label}-${value}`}>
+                      <strong>{label}:</strong> {value}
+                    </p>
+                  ));
+                })()}
+                <p className="mb-0 mt-2"><strong>Ghi chú:</strong> {order.note || 'Không có'}</p>
               </Card.Body>
             </Card>
           </Col>

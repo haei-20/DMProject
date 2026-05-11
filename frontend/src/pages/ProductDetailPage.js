@@ -7,6 +7,11 @@ import { useGetProductByIdQuery, useAddProductReviewMutation, useGetRelatedProdu
 import { addToCart } from '../redux/slices/cartSlice';
 import { formatPrice, formatImageUrl } from '../utils/productHelpers';
 import { DEFAULT_PRODUCT_IMAGE_URL } from '../constants/defaultProductImageUrl';
+import {
+  getCategoryDisplayEn,
+  categoryPathEncoded,
+  toCanonicalCategory,
+} from '../constants/productCategoryTagMap';
 import { formatError } from '../utils/errorHandler';
 import Layout from '../components/Layout';
 import LoadingPage from '../components/LoadingPage';
@@ -283,7 +288,11 @@ const ProductDetailPage = () => {
         <Container className="py-3">
           <div className="product-breadcrumb">
             <Link to="/">Trang chủ</Link> / 
-            <Link to={`/category/${productData.category}`}> {productData.category}</Link> / 
+            <Link to={categoryPathEncoded(toCanonicalCategory(productData.category))}>
+              {' '}
+              {getCategoryDisplayEn(productData.category)}
+            </Link>{' '}
+            /{' '}
             <span> {productData.name}</span>
           </div>
         </Container>
@@ -306,7 +315,24 @@ const ProductDetailPage = () => {
             
             <div className="product-info-section">
               <h1 className="product-title">{productData.name}</h1>
-                
+              <div className="product-detail-meta mb-2">
+                <span className="text-muted small me-2">
+                  Category:{' '}
+                  <Link to={categoryPathEncoded(toCanonicalCategory(productData.category))}>
+                    {getCategoryDisplayEn(productData.category)}
+                  </Link>
+                </span>
+                {Array.isArray(productData.tags) && productData.tags.length > 0 && (
+                  <span className="product-detail-tags-wrap d-inline-flex flex-wrap align-items-center gap-1">
+                    <span className="text-muted small">Tags:</span>
+                    {productData.tags.map((tag) => (
+                      <Badge key={tag} pill bg="light" text="dark" className="fw-normal border">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </span>
+                )}
+              </div>
               <div className="price-tag">
                 <span className="price-amount">{formatPrice(productData.price)}</span>
                   </div>

@@ -56,6 +56,25 @@
   padding: 12px 14px;
 }
 
+.product-meta-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.product-meta-badges .product-category-badge,
+.product-meta-badges .product-tag-badge {
+  font-size: 0.65rem;
+  font-weight: 500;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .product-title {
   font-size: 1rem;
   font-weight: 500;

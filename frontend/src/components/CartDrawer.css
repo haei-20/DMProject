@@ -1,9 +1,25 @@
 /* CartDrawer.css */
 
-.cart-drawer-items {
-  max-height: calc(100vh - 220px);
+/* Cột: vùng cuộn (dòng hàng + gợi ý) | chân cố định (tổng + nút) */
+.cart-drawer-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.cart-drawer-scroll {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  margin-bottom: 1rem;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 0.5rem;
+  padding-right: 2px;
+}
+
+.cart-drawer-items {
+  margin-bottom: 0.5rem;
 }
 
 .cart-drawer-item {
@@ -105,13 +121,12 @@
   cursor: not-allowed;
 }
 
-/* Summary styles */
+/* Summary styles — luôn dính đáy panel, không đè lên gợi ý */
 .cart-drawer-summary {
+  flex-shrink: 0;
   border-top: 1px solid #f0f0f0;
   padding-top: 1rem;
-  position: sticky;
-  bottom: 0;
-  background-color: white;
+  background-color: #fff;
 }
 
 .summary-item {

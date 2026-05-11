@@ -102,8 +102,8 @@ router.get("/revenue", dashboardController.getRevenueData);
  *         name: timeRange
  *         schema:
  *           type: string
- *           enum: [week, month, year]
- *         description: Khoảng thời gian
+ *           enum: [week, month, year, all]
+ *         description: Khoảng thời gian; `all` = toàn bộ đơn (không lọc ngày)
  *     responses:
  *       200:
  *         description: Thành công

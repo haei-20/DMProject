@@ -2,6 +2,18 @@ const Product = require("../models/Product");
 const { getHomepageRecommendations, getRelatedProductRecommendations } = require("../services/recommendationService");
 const DEFAULT_PRODUCT_IMAGE_URL = require("../constants/defaultProductImageUrl");
 
+/** Chuẩn hóa tags từ mảng hoặc chuỗi "a, b; c" */
+function normalizeTags(tags) {
+  if (tags == null) return [];
+  if (Array.isArray(tags)) {
+    return [...new Set(tags.map((t) => String(t).trim()).filter(Boolean))];
+  }
+  if (typeof tags === "string") {
+    return [...new Set(tags.split(/[,;]/).map((t) => t.trim()).filter(Boolean))];
+  }
+  return [];
+}
+
 // Lấy danh sách sản phẩm
 exports.getProducts = async (req, res) => {
   try {
@@ -369,7 +381,7 @@ exports.getRelatedProducts = async (req, res) => {
 // Tạo sản phẩm mới (Admin)
 exports.createProduct = async (req, res) => {
   try {
-    const { name, price, description, category, stock, image } = req.body;
+    const { name, price, description, category, stock, image, tags } = req.body;
     
     if (!name || !price) {
       return res.status(400).json({ message: "Vui lòng cung cấp tên và giá sản phẩm" });
@@ -382,7 +394,8 @@ exports.createProduct = async (req, res) => {
       description: description || "",
       category: category || "Uncategorized",
       stock: stock || 0,
-      image: (image && String(image).trim()) || DEFAULT_PRODUCT_IMAGE_URL
+      image: (image && String(image).trim()) || DEFAULT_PRODUCT_IMAGE_URL,
+      tags: normalizeTags(tags),
     });
 
     const savedProduct = await newProduct.save();
@@ -414,6 +427,10 @@ exports.updateProduct = async (req, res) => {
     
     // Handle deal hot specific fields
     const updateData = { ...req.body };
+
+    if (Object.prototype.hasOwnProperty.call(updateData, "tags")) {
+      updateData.tags = normalizeTags(updateData.tags);
+    }
     
     // Convert salePrice to Number if it exists
     if (updateData.salePrice !== undefined) {

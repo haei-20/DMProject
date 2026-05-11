@@ -1,128 +1,114 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Table, Button, Modal, Form, InputGroup, Spinner, Alert } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import AdminLayout from '../../components/admin/AdminLayout';
 import ApiDebug from '../../components/ApiDebug';
 import './CategoryList.css';
-import { 
+import {
   useGetCategoriesQuery,
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
-  useDeleteCategoryMutation
+  useDeleteCategoryMutation,
 } from '../../services/api';
+import { CATEGORY_FORM_OPTIONS } from '../../constants/productCategoryTagMap';
 
-// Default categories to use if API doesn't return data
-const defaultCategories = [
-  { _id: 'milk', name: 'Sữa các loại', slug: 'sua-cac-loai' },
-  { _id: 'produce', name: 'Rau - Củ - Trái Cây', slug: 'rau-cu-trai-cay' },
-  { _id: 'cleaning', name: 'Hóa Phẩm - Tẩy rửa', slug: 'hoa-pham-tay-rua' },
-  { _id: 'personal-care', name: 'Chăm Sóc Cá Nhân', slug: 'cham-soc-ca-nhan' },
-  { _id: 'office-toys', name: 'Văn phòng phẩm - Đồ chơi', slug: 'van-phong-pham-do-choi' },
-  { _id: 'candy', name: 'Bánh Kẹo', slug: 'banh-keo' },
-  { _id: 'beverages', name: 'Đồ uống - Giải khát', slug: 'do-uong-giai-khat' },
-  { _id: 'instant-food', name: 'Mì - Thực Phẩm Ăn Liền', slug: 'mi-thuc-pham-an-lien' }
-];
+const ALLOWED_NAMES = new Set(CATEGORY_FORM_OPTIONS);
+
+function slugFromName(name) {
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+/** Luôn 14 dòng — trùng trang chủ / Product.category; ghép với Mongo nếu có name khớp. */
+function buildTaxonomyRows(apiCategories) {
+  const apiList = Array.isArray(apiCategories) ? apiCategories : [];
+  const byName = {};
+  apiList.forEach((c) => {
+    if (c?.name && ALLOWED_NAMES.has(c.name)) {
+      byName[c.name] = c;
+    }
+  });
+  return CATEGORY_FORM_OPTIONS.map((name, index) => {
+    const doc = byName[name];
+    if (doc) {
+      return { ...doc, __virtual: false };
+    }
+    return {
+      _id: `virtual__${index}`,
+      name,
+      slug: slugFromName(name),
+      description: '',
+      __virtual: true,
+    };
+  });
+}
 
 const CategoryList = () => {
   const { data: apiCategories, isLoading, error, refetch } = useGetCategoriesQuery();
   const [showModal, setShowModal] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(null);
   const [updateMessage, setUpdateMessage] = useState(null);
-  const [localCategories, setLocalCategories] = useState([]);
-  
-  // Use defaultCategories if API doesn't return data
-  const categories = apiCategories && (Array.isArray(apiCategories) && apiCategories.length > 0) 
-    ? apiCategories 
-    : localCategories.length > 0 ? localCategories : defaultCategories;
+
+  const categories = useMemo(() => buildTaxonomyRows(apiCategories), [apiCategories]);
+
+  const extraMongoCategories = useMemo(() => {
+    return (Array.isArray(apiCategories) ? apiCategories : []).filter(
+      (c) => c?.name && !ALLOWED_NAMES.has(c.name)
+    );
+  }, [apiCategories]);
 
   const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
   const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
   const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
 
-  // Debug logging
-  useEffect(() => {
-    console.log('API Categories data:', apiCategories);
-    console.log('Using categories:', categories);
-    console.log('Loading state:', isLoading);
-    console.log('Error state:', error);
-  }, [categories, apiCategories, isLoading, error]);
-
-  // Initialize local categories when API data is loaded
-  useEffect(() => {
-    if (apiCategories && Array.isArray(apiCategories) && apiCategories.length > 0) {
-      setLocalCategories(apiCategories);
-    } else {
-      // Only set default categories on initial load
-      const initialRun = localCategories.length === 0;
-      if (initialRun) {
-        setLocalCategories([...defaultCategories]);
-      }
-    }
-  }, [apiCategories]);  // eslint-disable-line react-hooks/exhaustive-deps
+  const isVirtualId = (row) =>
+    row?.__virtual === true || /^virtual__\d+$/.test(String(row?._id || ''));
 
   const handleEdit = (category) => {
-    setCurrentCategory(category);
+    setCurrentCategory({ ...category });
     setShowModal(true);
   };
 
-  const handleDelete = async (categoryId) => {
+  const handleDelete = async (category) => {
+    if (isVirtualId(category)) {
+      alert('Danh mục này chỉ có trên taxonomy (chưa có bản ghi MongoDB) — không cần xóa.');
+      return;
+    }
     if (window.confirm('Bạn có chắc chắn muốn xóa danh mục này không?')) {
       try {
-        // Try API call first
-        await deleteCategory(categoryId).unwrap();
+        await deleteCategory(category._id).unwrap();
         refetch();
       } catch (err) {
         console.error('Failed to delete category:', err);
-        
-        // If API call fails, update locally
-        const updatedCategories = localCategories.filter(cat => cat._id !== categoryId);
-        setLocalCategories(updatedCategories);
-        alert('Gọi API thất bại, nhưng danh mục đã được xóa trên giao diện.');
+        alert('Xóa thất bại. Kiểm tra xem còn sản phẩm dùng danh mục này không.');
       }
     }
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
+    const body = {
+      name: currentCategory.name,
+      slug: currentCategory.slug,
+      description: currentCategory.description || '',
+    };
     try {
-      if (currentCategory._id) {
-        // Update existing category
-        try {
-          await updateCategory({
-            id: currentCategory._id,
-            categoryData: {
-              name: currentCategory.name,
-              slug: currentCategory.slug,
-              description: currentCategory.description || ''
-            }
-          }).unwrap();
-          refetch();
-        } catch (err) {
-          // If API call fails, update locally
-          const updatedCategories = localCategories.map(cat => 
-            cat._id === currentCategory._id ? {...currentCategory} : cat
-          );
-          setLocalCategories(updatedCategories);
-          console.log('API call failed, but category was updated locally.');
-        }
+      if (isVirtualId(currentCategory)) {
+        await createCategory(body).unwrap();
+        refetch();
+      } else if (currentCategory._id) {
+        await updateCategory({
+          id: currentCategory._id,
+          categoryData: body,
+        }).unwrap();
+        refetch();
       } else {
-        // Create new category
-        try {
-          const result = await createCategory({
-            name: currentCategory.name,
-            slug: currentCategory.slug,
-            description: currentCategory.description || ''
-          }).unwrap();
-          refetch();
-        } catch (err) {
-          // If API call fails, add locally with temporary ID
-          const newCategory = {
-            ...currentCategory,
-            _id: 'local_' + Date.now()
-          };
-          setLocalCategories([...localCategories, newCategory]);
-          console.log('API call failed, but category was added locally.');
-        }
+        await createCategory(body).unwrap();
+        refetch();
       }
       setShowModal(false);
     } catch (err) {
@@ -136,28 +122,24 @@ const CategoryList = () => {
     setShowModal(true);
   };
 
-  // Generate slug from name
-  const generateSlug = (name) => {
-    return name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-  };
-
   const handleNameChange = (e) => {
     const name = e.target.value;
     setCurrentCategory({
       ...currentCategory,
       name,
-      slug: generateSlug(name)
+      slug: slugFromName(name),
     });
   };
 
+  /** Dòng virtual: khóa tên để luôn khớp 14 nhóm chuẩn */
+  const lockTaxonomyName =
+    currentCategory &&
+    isVirtualId(currentCategory) &&
+    ALLOWED_NAMES.has(currentCategory.name);
+
   return (
     <AdminLayout>
-      <ApiDebug 
-        isLoading={isLoading}
-        error={error}
-        data={apiCategories}
-        name="Danh mục API"
-      />
+      <ApiDebug isLoading={isLoading} error={error} data={apiCategories} name="Danh mục API" />
       <div className="category-list">
         <div className="category-list-header">
           <h1>Quản lý danh mục</h1>
@@ -168,15 +150,29 @@ const CategoryList = () => {
           </div>
         </div>
 
+        {extraMongoCategories.length > 0 && (
+          <Alert variant="warning" className="my-3">
+            Có <strong>{extraMongoCategories.length}</strong> danh mục trong MongoDB{' '}
+            <em>không</em> thuộc 14 nhóm chuẩn (không xuất hiện trên trang chủ):{' '}
+            {extraMongoCategories.map((c) => c.name).join(', ')}. Có thể xóa thủ công nếu không dùng.
+          </Alert>
+        )}
+
         {updateMessage && (
-          <Alert variant={updateMessage.type} className="my-3" dismissible onClose={() => setUpdateMessage(null)}>
+          <Alert
+            variant={updateMessage.type}
+            className="my-3"
+            dismissible
+            onClose={() => setUpdateMessage(null)}
+          >
             {updateMessage.text}
           </Alert>
         )}
 
         {error && (
           <Alert variant="danger" className="my-3">
-            Lỗi tải danh mục từ API: {error.message || 'Lỗi không xác định'}. Đang dùng danh mục mặc định.
+            Lỗi tải danh mục từ API: {error.message || 'Lỗi không xác định'}. Bảng vẫn hiện 14 nhóm
+            chuẩn (chưa ghép _id Mongo).
           </Alert>
         )}
 
@@ -190,32 +186,39 @@ const CategoryList = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Tên danh mục</th>
+                <th>Tên (Product.category)</th>
                 <th>Slug</th>
                 <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              {categories.map(category => (
+              {categories.map((category) => (
                 <tr key={category._id}>
-                  <td>{category._id}</td>
+                  <td>
+                    {category.__virtual ? (
+                      <span className="text-muted">{category._id}</span>
+                    ) : (
+                      category._id
+                    )}
+                  </td>
                   <td>{category.name}</td>
                   <td>{category.slug}</td>
                   <td>
-                    <Button 
-                      variant="info" 
-                      size="sm" 
-                      className="me-2" 
+                    <Button
+                      variant="info"
+                      size="sm"
+                      className="me-2"
                       onClick={() => handleEdit(category)}
                       disabled={isDeleting}
                     >
                       <FaEdit />
                     </Button>
-                    <Button 
-                      variant="danger" 
-                      size="sm" 
-                      onClick={() => handleDelete(category._id)}
-                      disabled={isDeleting}
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDelete(category)}
+                      disabled={isDeleting || category.__virtual}
+                      title={category.__virtual ? 'Chưa có trong DB' : 'Xóa'}
                     >
                       <FaTrash />
                     </Button>
@@ -228,41 +231,57 @@ const CategoryList = () => {
 
         <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
-            <Modal.Title>{currentCategory?._id ? 'Sửa danh mục' : 'Thêm danh mục mới'}</Modal.Title>
+            <Modal.Title>
+              {currentCategory?._id && !isVirtualId(currentCategory)
+                ? 'Sửa danh mục'
+                : currentCategory?.name && ALLOWED_NAMES.has(currentCategory.name)
+                  ? 'Tạo / cập nhật danh mục chuẩn'
+                  : 'Thêm danh mục mới'}
+            </Modal.Title>
           </Modal.Header>
           <Form onSubmit={handleSave}>
             <Modal.Body>
               <Form.Group className="mb-3">
                 <Form.Label>Tên danh mục</Form.Label>
-                <Form.Control 
-                  type="text" 
-                  value={currentCategory?.name || ''} 
+                <Form.Control
+                  type="text"
+                  value={currentCategory?.name || ''}
                   onChange={handleNameChange}
                   required
+                  disabled={!!lockTaxonomyName}
                 />
+                {lockTaxonomyName && (
+                  <Form.Text className="text-muted">
+                    Tên cố định theo 14 nhóm chuẩn (trùng trang chủ).
+                  </Form.Text>
+                )}
               </Form.Group>
               <Form.Group className="mb-3">
                 <Form.Label>Slug</Form.Label>
                 <InputGroup>
                   <InputGroup.Text>/</InputGroup.Text>
-                  <Form.Control 
-                    type="text" 
-                    value={currentCategory?.slug || ''} 
-                    onChange={(e) => setCurrentCategory({...currentCategory, slug: e.target.value})}
+                  <Form.Control
+                    type="text"
+                    value={currentCategory?.slug || ''}
+                    onChange={(e) =>
+                      setCurrentCategory({ ...currentCategory, slug: e.target.value })
+                    }
                     required
                   />
                 </InputGroup>
                 <Form.Text className="text-muted">
-                  Dùng cho URL. Tự động tạo từ tên, bạn có thể chỉnh thủ công.
+                  Dùng cho URL. Tự động tạo từ tên khi đổi tên (có thể chỉnh tay).
                 </Form.Text>
               </Form.Group>
               <Form.Group className="mb-3">
                 <Form.Label>Mô tả</Form.Label>
-                <Form.Control 
+                <Form.Control
                   as="textarea"
                   rows={3}
-                  value={currentCategory?.description || ''} 
-                  onChange={(e) => setCurrentCategory({...currentCategory, description: e.target.value})}
+                  value={currentCategory?.description || ''}
+                  onChange={(e) =>
+                    setCurrentCategory({ ...currentCategory, description: e.target.value })
+                  }
                 />
               </Form.Group>
             </Modal.Body>
@@ -270,12 +289,10 @@ const CategoryList = () => {
               <Button variant="secondary" onClick={() => setShowModal(false)}>
                 Hủy
               </Button>
-              <Button 
-                variant="primary" 
-                type="submit"
-                disabled={isCreating || isUpdating}
-              >
-                {(isCreating || isUpdating) && <Spinner animation="border" size="sm" className="me-2" />}
+              <Button variant="primary" type="submit" disabled={isCreating || isUpdating}>
+                {(isCreating || isUpdating) && (
+                  <Spinner animation="border" size="sm" className="me-2" />
+                )}
                 Lưu
               </Button>
             </Modal.Footer>
@@ -286,4 +303,4 @@ const CategoryList = () => {
   );
 };
 
-export default CategoryList; 
+export default CategoryList;

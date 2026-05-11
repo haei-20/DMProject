@@ -1,15 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FaMinus, FaPlus, FaTrash } from 'react-icons/fa';
 import { 
   removeFromCart, 
   updateCartQuantity, 
-  calculatePrices 
+  calculatePrices,
+  addToCart,
 } from '../redux/slices/cartSlice';
 import { formatPrice, formatImageUrl } from '../utils/productHelpers';
 import Layout from '../components/Layout';
 import EmptyOrderPage from './EmptyOrderPage';
+import CartSuggestionsRow from '../components/CartSuggestionsRow';
+import { useGetCartSuggestionsQuery, useAddToCartMutation } from '../services/api';
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -17,6 +20,42 @@ const CartPage = () => {
   
   const { items, itemsPrice, shippingPrice, totalPrice } = useSelector((state) => state.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
+
+  const productIds = useMemo(() => items.map((i) => i._id).filter(Boolean), [items]);
+  const { data: suggData } = useGetCartSuggestionsQuery(
+    { productIds, limit: 8 },
+    { skip: items.length === 0 }
+  );
+  const suggestionProducts = useMemo(() => {
+    const raw = suggData?.products ?? [];
+    const inCart = new Set(items.map((i) => String(i._id)));
+    return raw.filter((p) => p && p._id && !inCart.has(String(p._id)));
+  }, [suggData, items]);
+
+  const [addToCartApi] = useAddToCartMutation();
+
+  const handleSuggestAdd = useCallback(
+    async (product) => {
+      const cartItem = {
+        _id: product._id,
+        name: product.name,
+        image: product.image || (Array.isArray(product.images) && product.images[0]),
+        price: product.salePrice ?? product.price,
+        originalPrice: product.originalPrice,
+        countInStock: product.countInStock ?? product.stock ?? 99,
+        quantity: 1,
+      };
+      dispatch(addToCart(cartItem));
+      if (isAuthenticated) {
+        try {
+          await addToCartApi({ productId: product._id, quantity: 1 }).unwrap();
+        } catch (e) {
+          console.warn('Đồng bộ giỏ API:', e);
+        }
+      }
+    },
+    [dispatch, addToCartApi, isAuthenticated]
+  );
 
   // Calculate totals whenever cart items change
   useEffect(() => {
@@ -104,6 +143,11 @@ const CartPage = () => {
             </div>
           ))}
         </div>
+
+        <CartSuggestionsRow
+          products={suggestionProducts}
+          onAdd={handleSuggestAdd}
+        />
         
         <div className="cart-summary">
           <div className="summary-item">

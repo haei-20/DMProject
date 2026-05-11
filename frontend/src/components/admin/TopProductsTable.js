@@ -5,12 +5,13 @@ import { FaExclamationTriangle, FaBoxOpen } from 'react-icons/fa';
 import './TopProductsTable.css';
 import { formatPrice } from '../../utils/productHelpers';
 import { DEFAULT_PRODUCT_IMAGE_URL } from '../../constants/defaultProductImageUrl';
+import { getCategoryDisplayEn } from '../../constants/productCategoryTagMap';
 
 const TopProductsTable = ({ products = [], loading = false, error = null }) => {
-  const getCategoryLabel = (category) => {
-    if (!category) return 'Chưa phân loại';
-    if (typeof category === 'string') return category;
-    return category.name || 'Chưa phân loại';
+  const formatAdminCategory = (category) => {
+    const raw = typeof category === 'object' && category !== null ? category.name : category;
+    if (raw == null || String(raw).trim() === '') return 'Uncategorized';
+    return getCategoryDisplayEn(raw);
   };
 
   // Get stock status
@@ -81,7 +82,7 @@ const TopProductsTable = ({ products = [], loading = false, error = null }) => {
             
             return (
               <tr key={product._id}>
-                <td>
+                <td className="top-products-table-product-cell">
                   <div className="product-info">
                     <div className="product-image">
                       <img 
@@ -97,7 +98,7 @@ const TopProductsTable = ({ products = [], loading = false, error = null }) => {
                       <Link to={`/admin/products/${product._id}`} className="product-name">
                         {product.name}
                       </Link>
-                      <span className="product-category">{getCategoryLabel(product.category)}</span>
+                      <span className="product-category">{formatAdminCategory(product.category)}</span>
                     </div>
                   </div>
                 </td>

@@ -3,6 +3,15 @@ const User = require("../models/User");
 const Product = require("../models/Product");
 const Newsletter = require("../models/Newsletter");
 
+/** Cùng logic ngày phân tích đơn như analyticsController (để lọc theo năm thống nhất). */
+const orderAnalyticsDateExpr = {
+  $min: [
+    { $ifNull: ["$deliveredAt", new Date("9999-12-31T23:59:59.999Z")] },
+    { $ifNull: ["$paidAt", new Date("9999-12-31T23:59:59.999Z")] },
+    { $ifNull: ["$createdAt", new Date("9999-12-31T23:59:59.999Z")] }
+  ]
+};
+
 // Lấy số liệu tổng quan
 exports.getOverviewStats = async (req, res) => {
   try {
@@ -103,53 +112,112 @@ exports.getOverviewStats = async (req, res) => {
 // Lấy thống kê tổng quan cho dashboard
 exports.getStats = async (req, res) => {
   try {
-    // Tính tổng doanh thu
-    const revenueData = await Order.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$totalPrice" }
-        }
+    const currentYear = new Date().getFullYear();
+    const rawFromY = parseInt(req.query.fromYear, 10);
+    const rawToY = parseInt(req.query.toYear, 10);
+    const rawYear = parseInt(req.query.year, 10);
+
+    let filterFromYear = null;
+    let filterToYear = null;
+
+    if (Number.isFinite(rawFromY) && Number.isFinite(rawToY)) {
+      filterFromYear = Math.max(2000, Math.min(rawFromY, currentYear));
+      filterToYear = Math.max(2000, Math.min(rawToY, currentYear));
+      if (filterFromYear > filterToYear) {
+        [filterFromYear, filterToYear] = [filterToYear, filterFromYear];
       }
-    ]);
+    } else if (
+      Number.isFinite(rawYear) &&
+      rawYear >= 2000 &&
+      rawYear <= currentYear
+    ) {
+      filterFromYear = rawYear;
+      filterToYear = rawYear;
+    }
 
-    // Đếm tổng số đơn hàng
-    const totalOrders = await Order.countDocuments();
-    
-    // Đếm đơn hàng đang xử lý
-    const pendingOrders = await Order.countDocuments({
-      status: { $in: ['pending', 'processing'] }
-    });
+    const useYearFilter = filterFromYear != null && filterToYear != null;
 
-    // Đếm tổng số khách hàng
-    const totalCustomers = await User.countDocuments({ role: 'user' });
-    
-    // Đếm khách hàng mới trong tháng này
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    
-    const newCustomers = await User.countDocuments({ 
-      role: 'user',
-      createdAt: { $gte: startOfMonth }
-    });
+    let totalRevenue = 0;
+    let totalOrders = 0;
+    let newCustomers;
+    let pendingOrders;
 
-    // Đếm tổng số sản phẩm
+    if (useYearFilter) {
+      const yStart = new Date(filterFromYear, 0, 1);
+      const yEnd = new Date(filterToYear, 11, 31, 23, 59, 59, 999);
+
+      const revenueData = await Order.aggregate([
+        { $addFields: { analyticsDate: orderAnalyticsDateExpr } },
+        { $match: { analyticsDate: { $gte: yStart, $lte: yEnd } } },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: "$totalPrice" }
+          }
+        }
+      ]);
+      totalRevenue = revenueData.length > 0 ? revenueData[0].totalRevenue : 0;
+
+      const orderCountAgg = await Order.aggregate([
+        { $addFields: { analyticsDate: orderAnalyticsDateExpr } },
+        { $match: { analyticsDate: { $gte: yStart, $lte: yEnd } } },
+        { $count: "n" }
+      ]);
+      totalOrders = orderCountAgg[0]?.n ?? 0;
+
+      newCustomers = await User.countDocuments({
+        role: "user",
+        createdAt: { $gte: yStart, $lte: yEnd }
+      });
+
+      pendingOrders = await Order.countDocuments({
+        status: { $in: ["pending", "processing"] },
+        createdAt: { $gte: yStart, $lte: yEnd }
+      });
+    } else {
+      const revenueData = await Order.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: "$totalPrice" }
+          }
+        }
+      ]);
+      totalRevenue = revenueData.length > 0 ? revenueData[0].totalRevenue : 0;
+      totalOrders = await Order.countDocuments();
+
+      pendingOrders = await Order.countDocuments({
+        status: { $in: ["pending", "processing"] }
+      });
+
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      newCustomers = await User.countDocuments({
+        role: "user",
+        createdAt: { $gte: startOfMonth }
+      });
+    }
+
+    const totalCustomers = await User.countDocuments({ role: "user" });
+
     const totalProducts = await Product.countDocuments();
-    
-    // Đếm sản phẩm sắp hết hàng
+
     const lowStockProducts = await Product.countDocuments({
       stock: { $lte: 10, $gt: 0 }
     });
 
     res.json({
-      totalRevenue: revenueData.length > 0 ? revenueData[0].totalRevenue : 0,
+      totalRevenue,
       totalOrders,
       totalCustomers,
       newCustomers,
       totalProducts,
       lowStockProducts,
-      pendingOrders
+      pendingOrders,
+      statsFromYear: useYearFilter ? filterFromYear : null,
+      statsToYear: useYearFilter ? filterToYear : null
     });
   } catch (error) {
     console.error("Error fetching dashboard stats:", error);
@@ -257,39 +325,95 @@ exports.getRevenueData = async (req, res) => {
 // Lấy danh sách sản phẩm bán chạy
 exports.getTopSellingProducts = async (req, res) => {
   try {
-    const { limit = 10, timeRange = 'month' } = req.query;
-    let startDate;
-    const now = new Date();
-    
-    // Xác định khoảng thời gian
-    switch (timeRange) {
-      case 'week':
-        startDate = new Date(now.setDate(now.getDate() - 7));
-        break;
-      case 'month':
-        startDate = new Date(now.setMonth(now.getMonth() - 1));
-        break;
-      case 'year':
-        startDate = new Date(now.setFullYear(now.getFullYear() - 1));
-        break;
-      default:
-        startDate = new Date(now.setMonth(now.getMonth() - 1)); // Mặc định 1 tháng
+    const { limit = 10, timeRange = "month" } = req.query;
+    const timeRangeNorm = String(timeRange || "month").toLowerCase();
+    /** Không lọc theo ngày — gộp toàn bộ đơn hàng */
+    const allTime = timeRangeNorm === "all";
+    const rawYear = parseInt(req.query.year, 10);
+    const rawFromY = parseInt(req.query.fromYear, 10);
+    const rawToY = parseInt(req.query.toYear, 10);
+    const currentYear = new Date().getFullYear();
+    const filterYear = Number.isFinite(rawYear) ? rawYear : null;
+    const useCalendarYear =
+      filterYear != null && filterYear >= 2000 && filterYear <= currentYear;
+
+    let filterFromYear = null;
+    let filterToYear = null;
+    if (Number.isFinite(rawFromY) && Number.isFinite(rawToY)) {
+      filterFromYear = Math.max(2000, Math.min(rawFromY, currentYear));
+      filterToYear = Math.max(2000, Math.min(rawToY, currentYear));
+      if (filterFromYear > filterToYear) {
+        [filterFromYear, filterToYear] = [filterToYear, filterFromYear];
+      }
     }
 
-    // Tìm sản phẩm bán chạy
+    let rangeStart = null;
+    let rangeEnd = null;
+    if (Number.isFinite(rawFromY) && Number.isFinite(rawToY)) {
+      rangeStart = new Date(filterFromYear, 0, 1);
+      rangeEnd = new Date(filterToYear, 11, 31, 23, 59, 59, 999);
+    } else if (useCalendarYear) {
+      rangeStart = new Date(filterYear, 0, 1);
+      rangeEnd = new Date(filterYear, 11, 31, 23, 59, 59, 999);
+    }
+
+    const useAnalyticsDateWindow =
+      !allTime && rangeStart != null && rangeEnd != null;
+
+    let startDate;
+    const now = new Date();
+
+    if (!allTime && !useAnalyticsDateWindow) {
+      switch (timeRangeNorm) {
+        case "week":
+          startDate = new Date(now.setDate(now.getDate() - 7));
+          break;
+        case "month":
+          startDate = new Date(now.setMonth(now.getMonth() - 1));
+          break;
+        case "year":
+          startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+          break;
+        default:
+          startDate = new Date(now.setMonth(now.getMonth() - 1));
+      }
+    }
+
+    const limitN = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
+
     const topSellingProducts = await Order.aggregate([
-      { 
-        $match: { 
-          createdAt: { $gte: startDate }
-        } 
-      },
+      ...(allTime
+        ? []
+        : useAnalyticsDateWindow
+            ? [
+                { $addFields: { analyticsDate: orderAnalyticsDateExpr } },
+                {
+                  $match: {
+                    analyticsDate: { $gte: rangeStart, $lte: rangeEnd }
+                  }
+                }
+              ]
+            : [
+                {
+                  $match: {
+                    createdAt: { $gte: startDate }
+                  }
+                }
+              ]),
       { $unwind: "$orderItems" },
       {
         $group: {
           _id: "$orderItems.product",
           productName: { $first: "$orderItems.name" },
-          totalSold: { $sum: "$orderItems.qty" },
-          totalRevenue: { $sum: { $multiply: ["$orderItems.price", "$orderItems.qty"] } },
+          totalSold: { $sum: { $ifNull: ["$orderItems.qty", "$orderItems.quantity"] } },
+          totalRevenue: {
+            $sum: {
+              $multiply: [
+                "$orderItems.price",
+                { $ifNull: ["$orderItems.qty", "$orderItems.quantity"] }
+              ]
+            }
+          },
           image: { $first: "$orderItems.image" }
         }
       },
@@ -308,7 +432,7 @@ exports.getTopSellingProducts = async (req, res) => {
         }
       },
       { $sort: { totalSold: -1 } },
-      { $limit: Number(limit) },
+      { $limit: limitN },
       {
         $project: {
           _id: { $ifNull: ["$productDetails._id", "$_id"] },
@@ -325,9 +449,24 @@ exports.getTopSellingProducts = async (req, res) => {
       }
     ]);
 
+    const resFrom = useAnalyticsDateWindow
+      ? filterFromYear ?? filterYear
+      : undefined;
+    const resTo = useAnalyticsDateWindow
+      ? filterToYear ?? filterYear
+      : undefined;
+
     res.json({
       products: topSellingProducts,
-      timeRange
+      timeRange: allTime
+        ? "all"
+        : useAnalyticsDateWindow
+          ? resFrom != null && resTo != null && resFrom !== resTo
+            ? `years:${resFrom}-${resTo}`
+            : `year:${resFrom}`
+          : timeRangeNorm,
+      fromYear: resFrom,
+      toYear: resTo
     });
 
   } catch (error) {

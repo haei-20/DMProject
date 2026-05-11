@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAprioriRecommendations, getFPGrowthRecommendations } = require("../services/recommendationService");
+const { getCustomerPairAssociationRules, getFPGrowthRecommendations } = require("../services/recommendationService");
 const router = express.Router();
 
 /**
@@ -7,7 +7,7 @@ const router = express.Router();
  * /api/recommend/user:
  *   get:
  *     tags: [Recommendations]
- *     summary: Lấy gợi ý cho người dùng (Apriori)
+ *     summary: Lấy gợi ý cho người dùng (luật cặp trên đơn hàng)
  *     responses:
  *       200:
  *         description: Thành công
@@ -28,7 +28,7 @@ const router = express.Router();
 // API gợi ý sản phẩm cho người dùng
 router.get("/user", async (req, res) => {
   try {
-    const recommendations = await getAprioriRecommendations();
+    const recommendations = await getCustomerPairAssociationRules();
     res.json({ recommendations });
   } catch (error) {
     res.status(500).json({ message: "Lỗi gợi ý sản phẩm", error });

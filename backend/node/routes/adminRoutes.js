@@ -7,7 +7,10 @@ const { protect, isAdmin } = require("../middlewares/authMiddleware");
 
 // Import needed controller functions
 const adminController = require("../controllers/adminController");
-const { getFrequentlyBoughtTogether } = require("../services/recommendationService");
+const {
+  getFrequentlyBoughtTogether,
+  clearRecommendationCache,
+} = require("../services/recommendationService");
 
 /**
  * @swagger
@@ -217,6 +220,12 @@ const { getFrequentlyBoughtTogether } = require("../services/recommendationServi
  *           type: integer
  *           default: 1000
  *         description: Số đơn hàng tối đa dùng để phân tích
+ *       - in: query
+ *         name: force
+ *         schema:
+ *           type: string
+ *           enum: ['true', '1']
+ *         description: Bỏ qua cache FBT và chạy lại FP-Growth (vd. force=true)
  *     responses:
  *       200:
  *         description: Lấy báo cáo thành công
@@ -293,6 +302,8 @@ router.get("/users", protect, isAdmin, async (req, res) => {
 });
 
 // Product management route
+const productController = require("../controllers/productController");
+
 router.get("/products", protect, isAdmin, async (req, res) => {
   try {
     const Product = require("../models/Product");
@@ -302,6 +313,8 @@ router.get("/products", protect, isAdmin, async (req, res) => {
     res.status(500).json({ message: "Error fetching products", error: error.toString() });
   }
 });
+
+router.post("/products", protect, isAdmin, productController.createProduct);
 
 // Category management routes
 router.get("/categories", protect, isAdmin, adminController.getCategories);
@@ -364,10 +377,45 @@ router.delete("/marketing/coupons/:id", protect, isAdmin, adminController.delete
 router.get("/all-orders", protect, isAdmin, async (req, res) => {
   try {
     const Order = require("../models/Order");
-    const orders = await Order.find({}).sort({ createdAt: -1 });
-    res.status(200).json({ orders });
+    const rawLimit = parseInt(req.query.limit, 10);
+    const limit = Number.isFinite(rawLimit)
+      ? Math.min(20000, Math.max(1, rawLimit))
+      : 20000;
+    const rawPage = parseInt(req.query.page, 10);
+    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+    const skip = (page - 1) * limit;
+
+    const filter = {};
+    const status = req.query.status;
+    if (status && String(status).toLowerCase() !== "all") {
+      filter.status = status;
+    }
+
+    const [orders, totalCount] = await Promise.all([
+      Order.find(filter)
+        .populate("user", "name email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Order.countDocuments(filter),
+    ]);
+
+    res.status(200).json({
+      orders,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages: Math.max(1, Math.ceil(totalCount / limit)),
+      },
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching orders", error: error.toString() });
+    console.error("all-orders:", error);
+    res.status(500).json({
+      message: "Lỗi lấy danh sách đơn hàng",
+      error: String(error?.message || error),
+    });
   }
 });
 
@@ -499,14 +547,10 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
   try {
     // Lấy tham số từ query string và kiểm tra hợp lệ
     let minSupport = parseFloat(req.query.minSupport) || 0.01;
-    const limit = parseInt(req.query.limit) || 50;
     let orderLimit = parseInt(req.query.orderLimit) || 1000;
-    let minItems = parseInt(req.query.minItems) || 2;
     let minConfidence = parseFloat(req.query.minConfidence);
     let minLift = parseFloat(req.query.minLift);
     let minConviction = parseFloat(req.query.minConviction);
-    const rawAlgorithm = String(req.query.algorithm || "fp-growth").toLowerCase();
-    const algorithm = rawAlgorithm === "apriori" ? "apriori" : "fp-growth";
     
     // Đảm bảo minSupport là số hợp lệ
     if (isNaN(minSupport) || minSupport <= 0) {
@@ -523,10 +567,6 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
       orderLimit = 1000;
     }
 
-    if (isNaN(minItems) || minItems < 2) {
-      minItems = 2;
-    }
-
     if (!Number.isFinite(minConfidence) || minConfidence <= 0 || minConfidence > 1) {
       minConfidence = 0.1;
     }
@@ -537,18 +577,21 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
       minConviction = 1;
     }
     
-    console.log(`Processing frequently-bought-together request with: minSupport=${minSupport}, minConfidence=${minConfidence}, minLift=${minLift}, minConviction=${minConviction}, limit=${limit}, orderLimit=${orderLimit}, minItems=${minItems}, algorithm=${algorithm}`);
+    const forceRefresh =
+      req.query.force === 'true' ||
+      req.query.force === '1' ||
+      req.query.refresh === 'true';
+
+    console.log(`Processing frequently-bought-together request with: minSupport=${minSupport}, minConfidence=${minConfidence}, minLift=${minLift}, minConviction=${minConviction}, orderLimit=${orderLimit}, force=${forceRefresh}`);
     
     // Gọi service function
     const result = await getFrequentlyBoughtTogether(
       minSupport,
-      limit,
       orderLimit,
-      minItems,
-      algorithm,
       minConfidence,
       minLift,
-      minConviction
+      minConviction,
+      { forceRefresh }
     );
     
     // Ensure we have a properly formed frequentItemsets array
@@ -570,15 +613,18 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
       console.log("No frequent itemsets found in the database");
       return res.status(200).json({
         frequentItemsets: [],
+        strongRules: Array.isArray(result?.strongRules) ? result.strongRules : [],
         message: result?.message || "Không tìm thấy mẫu mua hàng nào. Hãy thử giảm minSupport hoặc thêm dữ liệu đơn hàng.",
-        success: false,
+        success: result?.success === true ? true : false,
         info: {
+          ...(result?.info && typeof result.info === "object" ? result.info : {}),
           minSupport,
-          limit,
+          minConfidence,
+          minLift,
+          minConviction,
           orderLimit,
-          minItems,
-          algorithm: result?.info?.algorithm || (algorithm === "apriori" ? "Apriori" : "FP-Growth")
-        }
+          algorithm: result?.info?.algorithm || "FP-Growth",
+        },
       });
     }
     
@@ -605,16 +651,14 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
       strongRules,
       message: result?.message || "Danh sách sản phẩm thường được mua cùng nhau",
       success: true,
-      info: result?.info || {
+      info: {
+        ...(result?.info && typeof result.info === "object" ? result.info : {}),
         minSupport,
         minConfidence,
         minLift,
         minConviction,
-        limit, 
         orderLimit,
-        minItems,
-        totalTransactions: frequentItemsets[0]?.totalTransactions || 0
-      }
+      },
     });
   } catch (error) {
     console.error("Error getting frequently bought together products:", error);
@@ -624,6 +668,24 @@ router.get("/reports/frequently-bought-together", protect, isAdmin, async (req, 
       message: "Không thể lấy dữ liệu sản phẩm thường được mua cùng nhau: " + error.message, 
       success: false,
       error: error.toString()
+    });
+  }
+});
+
+// Xóa cache gợi ý / mining (FBT, FP-Growth, luật cặp trong NodeCache) — lần gọi sau tính lại từ DB
+router.post("/reports/recommendations-cache/clear", protect, isAdmin, (req, res) => {
+  try {
+    clearRecommendationCache();
+    res.status(200).json({
+      success: true,
+      message:
+        "Đã xóa cache recommendation. Lần gọi sau đọc lại fp_transactions / fp_pair_rules / fp_strong_rules và tính FP-Growth.",
+    });
+  } catch (error) {
+    console.error("clearRecommendationCache:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || String(error),
     });
   }
 });

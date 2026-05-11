@@ -1,7 +1,6 @@
 require("dotenv").config();
 
 const mongoose = require("mongoose");
-const Apriori = require("apriori");
 const FPGrowth = require("node-fpgrowth");
 const connectDB = require("./config/db");
 const Order = require("./models/Order");
@@ -32,7 +31,7 @@ function selectTransactionsForCompare(transactions, maxCount) {
   if (!Number.isFinite(maxCount) || maxCount <= 0 || transactions.length <= maxCount) {
     return transactions;
   }
-  // Lấy tập con cố định để Apriori chạy ổn định và có thể so sánh lặp lại.
+  // Lấy tập con cố định để benchmark ổn định, lặp lại được.
   return transactions.slice(0, maxCount);
 }
 
@@ -95,56 +94,6 @@ function pairCountsFromTransactions(transactions, minSupportCount) {
   return map;
 }
 
-async function runAprioriLibrary(transactions) {
-  const algo = new Apriori.Algorithm(PARAMS.minSupport, PARAMS.minConfidence, false);
-  const analysis = algo.analyze(transactions);
-  const frequentItemsetsBySize = analysis?.frequentItemSets || {};
-  const frequentItemsetsCount = Object.values(frequentItemsetsBySize).reduce((sum, arr) => {
-    return sum + (Array.isArray(arr) ? arr.length : 0);
-  }, 0);
-  const rules = Array.isArray(analysis?.associationRules) ? analysis.associationRules : [];
-
-  const countCache = new Map();
-  const countItemset = (items) => {
-    const key = keyOf(items);
-    if (countCache.has(key)) return countCache.get(key);
-    const target = new Set(items.map(String));
-    let count = 0;
-    for (const tx of transactions) {
-      let ok = true;
-      for (const it of target) {
-        if (!tx.includes(it)) {
-          ok = false;
-          break;
-        }
-      }
-      if (ok) count += 1;
-    }
-    countCache.set(key, count);
-    return count;
-  };
-
-  let strongRules = 0;
-  for (const rule of rules) {
-    const lhs = Array.isArray(rule?.lhs) ? rule.lhs.map(String) : [];
-    const rhs = Array.isArray(rule?.rhs) ? rule.rhs.map(String) : [];
-    if (!lhs.length || !rhs.length) continue;
-
-    const conf = Number(rule?.confidence || 0);
-    const rhsSupport = countItemset(rhs) / transactions.length;
-    if (rhsSupport <= 0) continue;
-
-    const lift = conf / rhsSupport;
-    if (lift >= PARAMS.minLift) strongRules += 1;
-  }
-
-  return {
-    frequentItemsets: frequentItemsetsCount,
-    totalRules: rules.length,
-    strongRules,
-  };
-}
-
 async function runFPGrowthLike(transactions) {
   const fpg = new FPGrowth.FPGrowth(PARAMS.minSupport);
   const frequent = await fpg.exec(transactions);
@@ -197,14 +146,7 @@ async function main() {
     console.log(`So transaction hop le: ${transactionCount}`);
     console.log(`So transaction dung de so sanh: ${evalTransactions.length}`);
 
-    const aprioriTimed = await averageTime(() => runAprioriLibrary(evalTransactions), RUNS);
     const fpTimed = await averageTime(() => runFPGrowthLike(evalTransactions), RUNS);
-
-    console.log("\n--- Apriori ---");
-    console.log(`So Frequent Itemsets: ${aprioriTimed.latest.frequentItemsets}`);
-    console.log(`So luat ket hop (truoc loc Lift): ${aprioriTimed.latest.totalRules}`);
-    console.log(`So luat chat luong cao (Lift >= ${PARAMS.minLift}): ${aprioriTimed.latest.strongRules}`);
-    console.log(`Thoi gian chay trung binh (${RUNS} lan): ${aprioriTimed.avgSeconds.toFixed(2)} giay`);
 
     console.log("\n--- FP-Growth ---");
     console.log(`So Frequent Itemsets: ${fpTimed.latest.frequentItemsets}`);

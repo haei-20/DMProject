@@ -9,7 +9,6 @@ const Discount = require("../models/Discount");
 const Coupon = require("../models/Coupon");
 const Banner = require("../models/Banner");
 const Setting = require("../models/Setting");
-
 // @desc    Get all users
 // @route   GET /api/admin/users
 // @access  Admin
@@ -552,23 +551,21 @@ exports.getUserAnalytics = async (req, res) => {
 exports.getFrequentlyBoughtTogether = async (req, res) => {
   try {
     const minSupport = parseFloat(req.query.minSupport) || 0.05;
-    const limit = parseInt(req.query.limit) || 20;
     const orderLimit = parseInt(req.query.orderLimit) || 1000;
     const minConfidence = parseFloat(req.query.minConfidence) || 0.1;
     const minLift = parseFloat(req.query.minLift) || 1;
     const minConviction = parseFloat(req.query.minConviction) || 1;
-    const rawAlgorithm = String(req.query.algorithm || "fp-growth").toLowerCase();
-    const algorithm = rawAlgorithm === "apriori" ? "apriori" : "fp-growth";
-
+    const forceRefresh =
+      req.query.force === 'true' ||
+      req.query.force === '1' ||
+      req.query.refresh === 'true';
     const result = await getFrequentlyBoughtTogether(
       minSupport,
-      limit,
       orderLimit,
-      2,
-      algorithm,
       minConfidence,
       minLift,
-      minConviction
+      minConviction,
+      { forceRefresh }
     );
 
     // Forward the service result directly to the client (includes frequentItemsets, message, success, info)
@@ -668,12 +665,13 @@ exports.deleteCategory = async (req, res) => {
     const category = await Category.findById(req.params.id);
     
     if (category) {
-      // Check if there are products using this category
-      const productsWithCategory = await Product.countDocuments({ category: req.params.id });
-      
+      const productsWithCategory = await Product.countDocuments({
+        $or: [{ category: req.params.id }, { category: category.name }],
+      });
+
       if (productsWithCategory > 0) {
-        return res.status(400).json({ 
-          message: "Không thể xóa danh mục này vì có sản phẩm đang sử dụng" 
+        return res.status(400).json({
+          message: "Không thể xóa danh mục này vì có sản phẩm đang sử dụng",
         });
       }
       

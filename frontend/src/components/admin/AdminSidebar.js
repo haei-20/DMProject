@@ -131,6 +131,15 @@ const AdminSidebar = () => {
           <h6 className="admin-menu-label">Bán hàng</h6>
           <p className="admin-menu-group-label">Đơn hàng</p>
           <Nav.Item>
+            <Link
+              to="/admin/orders"
+              className={`admin-menu-item admin-menu-item-nested ${location.pathname === '/admin/orders' ? 'active' : ''}`}
+            >
+              <span className="admin-menu-icon admin-menu-icon-placeholder" aria-hidden />
+              <span className="admin-menu-text">Tất cả đơn hàng</span>
+            </Link>
+          </Nav.Item>
+          <Nav.Item>
             <Link 
               to="/admin/orders/pending" 
               className={`admin-menu-item admin-menu-item-nested ${isActive('/admin/orders/pending') ? 'active' : ''}`}

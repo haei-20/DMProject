@@ -6,6 +6,21 @@
   border-collapse: separate;
   border-spacing: 0;
   width: 100%;
+  table-layout: auto;
+}
+
+.top-products-table .table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.top-products-table th:first-child,
+.top-products-table td:first-child,
+.top-products-table td.top-products-table-product-cell {
+  min-width: 260px;
+  width: auto;
+  max-width: none;
+  overflow: visible;
 }
 
 .top-products-table th {
@@ -33,12 +48,15 @@
   background-color: rgba(67, 97, 238, 0.02);
 }
 
-.product-info {
+/* Scope dưới .top-products-table — tránh đè CSS lên bảng FBT / trang khác (cùng class .product-name, .product-image, …) */
+.top-products-table .product-info {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  gap: 0;
 }
 
-.product-image {
+.top-products-table .product-image {
+  flex-shrink: 0;
   width: 50px;
   height: 50px;
   border-radius: 10px;
@@ -46,80 +64,86 @@
   margin-right: 15px;
   border: 1px solid #e9ecef;
   background-color: #f8f9fa;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.product-image img {
+.top-products-table .product-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.product-details {
+.top-products-table .product-details {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: visible;
 }
 
-.product-name {
+.top-products-table .product-name {
   font-weight: 600;
   color: #4361ee;
   text-decoration: none;
   transition: all 0.2s ease;
   margin-bottom: 3px;
-  display: inline-block;
-  max-width: 220px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: block;
+  max-width: none !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
 }
 
-.product-name:hover {
+.top-products-table .product-name:hover {
   color: #3a0ca3;
 }
 
-.product-category {
+.top-products-table .product-category {
   font-size: 0.8rem;
   color: #6c757d;
 }
 
-.price-container {
+.top-products-table .price-container {
   display: flex;
   flex-direction: column;
 }
 
-.current-price {
+.top-products-table .current-price {
   font-weight: 600;
   color: #f72585;
 }
 
-.original-price {
+.top-products-table .original-price {
   font-size: 0.8rem;
   text-decoration: line-through;
   color: #6c757d;
   margin-top: 2px;
 }
 
-.sales-data {
+.top-products-table .sales-data {
   width: 100%;
 }
 
-.sales-count {
+.top-products-table .sales-count {
   display: block;
   font-weight: 600;
   margin-bottom: 8px;
   color: #212529;
 }
 
-.sales-progress {
+.top-products-table .sales-progress {
   height: 8px;
   border-radius: 4px;
 }
 
-.sales-progress .progress-bar {
+.top-products-table .sales-progress .progress-bar {
   background-color: #4361ee;
 }
 
-.stock-badge {
+.top-products-table .stock-badge {
   font-size: 0.75rem;
   display: block;
   margin-bottom: 6px;
@@ -129,12 +153,11 @@
   border-radius: 6px;
 }
 
-.stock-count {
+.top-products-table .stock-count {
   font-size: 0.8rem;
   color: #6c757d;
 }
 
-/* Responsive handling */
 @media (max-width: 992px) {
   .top-products-table th,
   .top-products-table td {
@@ -146,16 +169,16 @@
   .top-products-table {
     font-size: 0.85rem;
   }
-  
+
   .top-products-table td,
   .top-products-table th {
     padding: 0.75rem 0.85rem;
   }
-  
-  .product-image {
+
+  .top-products-table .product-image {
     width: 40px;
     height: 40px;
     border-radius: 8px;
     margin-right: 10px;
   }
-} 
+}

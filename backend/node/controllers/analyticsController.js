@@ -4,15 +4,7 @@ const User = require("../models/User");
 const Order = require("../models/Order");
 const asyncHandler = require("express-async-handler");
 const mongoose = require("mongoose");
-
-// Helper function to get week number
-Date.prototype.getWeek = function() {
-  const date = new Date(this.getTime());
-  date.setHours(0, 0, 0, 0);
-  date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-  const week1 = new Date(date.getFullYear(), 0, 4);
-  return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-};
+const { getCartRecommendations } = require("../services/recommendationService");
 
 // @desc    Track user behavior
 // @route   POST /api/analytics/track
@@ -219,8 +211,53 @@ exports.getRelatedProducts = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 exports.getProductAnalytics = asyncHandler(async (req, res) => {
   try {
-    // Get top selling products
+    const currentYear = new Date().getFullYear();
+    const rawFromY = parseInt(req.query.fromYear, 10);
+    const rawToY = parseInt(req.query.toYear, 10);
+    const rawYear = parseInt(req.query.year, 10);
+
+    let filterFromYear = null;
+    let filterToYear = null;
+    if (Number.isFinite(rawFromY) && Number.isFinite(rawToY)) {
+      filterFromYear = Math.max(2000, Math.min(rawFromY, currentYear));
+      filterToYear = Math.max(2000, Math.min(rawToY, currentYear));
+      if (filterFromYear > filterToYear) {
+        [filterFromYear, filterToYear] = [filterToYear, filterFromYear];
+      }
+    } else if (
+      Number.isFinite(rawYear) &&
+      rawYear >= 2000 &&
+      rawYear <= currentYear
+    ) {
+      filterFromYear = rawYear;
+      filterToYear = rawYear;
+    }
+
+    const useOrderDateFilter =
+      filterFromYear != null && filterToYear != null;
+    const rangeStart = useOrderDateFilter
+      ? new Date(filterFromYear, 0, 1)
+      : null;
+    const rangeEnd = useOrderDateFilter
+      ? new Date(filterToYear, 11, 31, 23, 59, 59, 999)
+      : null;
+
+    const analyticsDateExprOrder = {
+      $min: [
+        { $ifNull: ["$deliveredAt", new Date("9999-12-31T23:59:59.999Z")] },
+        { $ifNull: ["$paidAt", new Date("9999-12-31T23:59:59.999Z")] },
+        { $ifNull: ["$createdAt", new Date("9999-12-31T23:59:59.999Z")] }
+      ]
+    };
+    const orderYearStages = useOrderDateFilter
+      ? [
+          { $addFields: { analyticsDate: analyticsDateExprOrder } },
+          { $match: { analyticsDate: { $gte: rangeStart, $lte: rangeEnd } } }
+        ]
+      : [];
+
     const topProductsPromise = Order.aggregate([
+      ...orderYearStages,
       { $unwind: "$orderItems" },
       { $group: {
           _id: "$orderItems.product",
@@ -254,6 +291,7 @@ exports.getProductAnalytics = asyncHandler(async (req, res) => {
 
     // Get sales by category
     const salesByCategoryPromise = Order.aggregate([
+      ...orderYearStages,
       { $unwind: "$orderItems" },
       { $lookup: {
           from: "products",
@@ -345,7 +383,9 @@ exports.getProductAnalytics = asyncHandler(async (req, res) => {
     res.status(200).json({
       topProducts,
       salesByCategory,
-      productViews
+      productViews,
+      statsFromYear: useOrderDateFilter ? filterFromYear : null,
+      statsToYear: useOrderDateFilter ? filterToYear : null
     });
   } catch (error) {
     console.error("Error getting product analytics:", error);
@@ -469,6 +509,7 @@ exports.getOrderAnalytics = asyncHandler(async (req, res) => {
     if (fromYear > toYear) {
       [fromYear, toYear] = [toYear, fromYear];
     }
+    const singleCalendarYear = fromYear === toYear;
     // So sánh deliveredAt, paidAt, createdAt và lấy ngày cũ nhất
     const analyticsDateExpr = {
       $min: [
@@ -478,29 +519,49 @@ exports.getOrderAnalytics = asyncHandler(async (req, res) => {
       ]
     };
 
-    // Get monthly revenue and order count
-    const monthsAgo = new Date();
-    monthsAgo.setMonth(monthsAgo.getMonth() - 8); // Get data for last 8 months
-    
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     
-    // Get monthly data
-    const orderDataByMonth = await Order.aggregate([
-      {
-        $project: {
-          totalPrice: 1,
-          analyticsDate: analyticsDateExpr
-        }
-      },
-      { $match: { analyticsDate: { $gte: monthsAgo } } },
-      { $group: {
-          _id: { month: { $month: "$analyticsDate" }, year: { $year: "$analyticsDate" } },
-          revenue: { $sum: "$totalPrice" },
-          orders: { $sum: 1 }
-        }
-      },
-      { $sort: { "_id.year": 1, "_id.month": 1 } }
-    ]);
+    let orderDataByMonth;
+    if (singleCalendarYear) {
+      const y = fromYear;
+      const yearStart = new Date(y, 0, 1);
+      const yearEnd = new Date(y, 11, 31, 23, 59, 59, 999);
+      orderDataByMonth = await Order.aggregate([
+        {
+          $project: {
+            totalPrice: 1,
+            analyticsDate: analyticsDateExpr
+          }
+        },
+        { $match: { analyticsDate: { $gte: yearStart, $lte: yearEnd } } },
+        { $group: {
+            _id: { month: { $month: "$analyticsDate" }, year: { $year: "$analyticsDate" } },
+            revenue: { $sum: "$totalPrice" },
+            orders: { $sum: 1 }
+          }
+        },
+        { $sort: { "_id.year": 1, "_id.month": 1 } }
+      ]);
+    } else {
+      const monthsAgo = new Date();
+      monthsAgo.setMonth(monthsAgo.getMonth() - 8);
+      orderDataByMonth = await Order.aggregate([
+        {
+          $project: {
+            totalPrice: 1,
+            analyticsDate: analyticsDateExpr
+          }
+        },
+        { $match: { analyticsDate: { $gte: monthsAgo } } },
+        { $group: {
+            _id: { month: { $month: "$analyticsDate" }, year: { $year: "$analyticsDate" } },
+            revenue: { $sum: "$totalPrice" },
+            orders: { $sum: 1 }
+          }
+        },
+        { $sort: { "_id.year": 1, "_id.month": 1 } }
+      ]);
+    }
     
     // Get weekly data
     const weeksAgo = new Date();
@@ -579,54 +640,71 @@ exports.getOrderAnalytics = asyncHandler(async (req, res) => {
     // Format data for frontend chart
     const revenueByPeriod = [];
     
-    // Create last 8 months of data
-    for (let i = 0; i < 8; i++) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - 7 + i);
-      const month = date.getMonth();
-      const year = date.getFullYear();
-      
-      const monthName = months[month];
-      
-      const data = orderDataByMonth.find(
-        item => item._id.month === month + 1 && item._id.year === year
-      );
-      
-      revenueByPeriod.push({
-        name: monthName,
-        revenue: data ? data.revenue : 0,
-        orders: data ? data.orders : 0,
-        period: 'month'
-      });
+    if (singleCalendarYear) {
+      const y = fromYear;
+      for (let m = 0; m < 12; m++) {
+        const data = orderDataByMonth.find(
+          (item) => item._id.month === m + 1 && item._id.year === y
+        );
+        revenueByPeriod.push({
+          name: months[m],
+          revenue: Number(data ? data.revenue : 0) || 0,
+          orders: Number(data ? data.orders : 0) || 0,
+          period: "month",
+          year: y
+        });
+      }
+    } else {
+      for (let i = 0; i < 8; i++) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - 7 + i);
+        const month = date.getMonth();
+        const year = date.getFullYear();
+
+        const monthName = months[month];
+
+        const data = orderDataByMonth.find(
+          (item) => item._id.month === month + 1 && item._id.year === year
+        );
+
+        revenueByPeriod.push({
+          name: monthName,
+          revenue: Number(data ? data.revenue : 0) || 0,
+          orders: Number(data ? data.orders : 0) || 0,
+          period: "month"
+        });
+      }
     }
     
-    // Create last 8 weeks of data
-    for (let i = 0; i < 8; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() - (7 * (7 - i)));
-      const week = date.getWeek();
-      const year = date.getFullYear();
-      
-      const weekName = `Tuần ${i+1}`;
-      
-      const data = orderDataByWeek.find(
-        item => item._id.week === week && item._id.year === year
-      );
-      
+    // 8 điểm tuần: lấy trực tiếp từ aggregate (tránh lệch ISO week vs $week)
+    const sortedWeekRows = [...orderDataByWeek].sort((a, b) =>
+      a._id.year !== b._id.year ? a._id.year - b._id.year : a._id.week - b._id.week
+    );
+    const lastWeekBuckets = sortedWeekRows.slice(-8);
+    const weekPad = Math.max(0, 8 - lastWeekBuckets.length);
+    for (let i = 0; i < weekPad; i++) {
       revenueByPeriod.push({
-        name: weekName,
-        revenue: data ? data.revenue : 0,
-        orders: data ? data.orders : 0,
+        name: `Tuần ${i + 1}`,
+        revenue: 0,
+        orders: 0,
         period: 'week'
       });
     }
+    lastWeekBuckets.forEach((row, idx) => {
+      revenueByPeriod.push({
+        name: `Tuần ${weekPad + idx + 1} (${row._id.year}-W${row._id.week})`,
+        revenue: Number(row.revenue) || 0,
+        orders: Number(row.orders) || 0,
+        period: 'week'
+      });
+    });
     
     for (let year = fromYear; year <= toYear; year++) {
       const data = orderDataByYear.find((item) => item._id.year === year);
       revenueByPeriod.push({
         name: year.toString(),
-        revenue: data ? data.revenue : 0,
-        orders: data ? data.orders : 0,
+        revenue: Number(data ? data.revenue : 0) || 0,
+        orders: Number(data ? data.orders : 0) || 0,
         period: 'year'
       });
     }
@@ -676,4 +754,23 @@ exports.getOrderAnalytics = asyncHandler(async (req, res) => {
     console.error("Error getting order analytics:", error);
     res.status(500).json({ message: "Lỗi lấy phân tích đơn hàng", error: error.message });
   }
-}); 
+});
+
+// @desc    Gợi ý theo giỏ (luật cặp + FP-Growth cache) từ danh sách productId
+// @route   GET /api/analytics/cart-suggestions?productIds=id1,id2&limit=6
+// @access  Public
+exports.getCartSuggestions = asyncHandler(async (req, res) => {
+  const limitRaw = parseInt(String(req.query.limit ?? "6"), 10);
+  const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 20) : 6;
+  const raw = req.query.productIds ?? req.query.ids ?? "";
+  const ids = String(raw)
+    .split(",")
+    .map((s) => s.trim())
+    .filter((id) => mongoose.Types.ObjectId.isValid(id));
+  if (ids.length === 0) {
+    return res.status(200).json({ products: [] });
+  }
+  const cartItems = ids.map((product) => ({ product, quantity: 1 }));
+  const products = await getCartRecommendations(cartItems, limit);
+  res.status(200).json({ products: Array.isArray(products) ? products : [] });
+});

@@ -3,8 +3,12 @@ import { Table, Card, Badge, Spinner, Alert, Form, Row, Col, Button, Pagination 
 import { FaLink, FaShoppingCart, FaInfoCircle, FaExclamationTriangle } from 'react-icons/fa';
 import { formatPrice } from '../../utils/productHelpers';
 import { DEFAULT_PRODUCT_IMAGE_URL } from '../../constants/defaultProductImageUrl';
-import { productSetSignature } from '../../utils/comboProductSet';
+import { productSetSignature, uniqueProductCountInPattern } from '../../utils/comboProductSet';
+import { getCategoryDisplayEn } from '../../constants/productCategoryTagMap';
 import './FrequentlyBoughtTogetherTable.css';
+
+/** Alias: một số bản build còn gọi getCategoryLabelVI — hiển thị tên danh mục tiếng Anh */
+const getCategoryLabelVI = getCategoryDisplayEn;
 
 const FrequentlyBoughtTogetherTable = ({
   data,
@@ -12,21 +16,16 @@ const FrequentlyBoughtTogetherTable = ({
   isRecomputing = false,
   error,
   minSupport = 0.01,
-  minItems = 2,
   orderLimit = 500,
   minConfidence = 0.1,
   minLift = 1,
   minConviction = 1,
-  algorithm = 'fp-growth',
   showControls = true,
-  showAlgorithmControl = true,
   onMinSupportChange,
-  onMinItemsChange,
   onOrderLimitChange,
   onMinConfidenceChange,
   onMinLiftChange,
   onMinConvictionChange,
-  onAlgorithmChange,
   /** Khi có hàm này, hiển thị cột nút tạo combo nhanh (vd. trang Quản lý combo) */
   onQuickCreateCombo,
   quickCreateLoading = false,
@@ -35,24 +34,18 @@ const FrequentlyBoughtTogetherTable = ({
 }) => {
   const isControlledSupport = typeof onMinSupportChange === 'function';
   const isControlledOrder = typeof onOrderLimitChange === 'function';
-  const isControlledMinItems = typeof onMinItemsChange === 'function';
-  const isControlledAlgorithm = typeof onAlgorithmChange === 'function';
   const isControlledMinConfidence = typeof onMinConfidenceChange === 'function';
   const isControlledMinLift = typeof onMinLiftChange === 'function';
   const isControlledMinConviction = typeof onMinConvictionChange === 'function';
 
   const [internalMinSupport, setInternalMinSupport] = useState(minSupport);
-  const [internalMinItems, setInternalMinItems] = useState(minItems);
   const [internalOrderLimit, setInternalOrderLimit] = useState(orderLimit);
-  const [internalAlgorithm, setInternalAlgorithm] = useState(algorithm);
   const [internalMinConfidence, setInternalMinConfidence] = useState(minConfidence);
   const [internalMinLift, setInternalMinLift] = useState(minLift);
   const [internalMinConviction, setInternalMinConviction] = useState(minConviction);
 
   const committedMinSupport = isControlledSupport ? minSupport : internalMinSupport;
   const committedOrderLimit = isControlledOrder ? orderLimit : internalOrderLimit;
-  const committedMinItems = isControlledMinItems ? minItems : internalMinItems;
-  const committedAlgorithm = isControlledAlgorithm ? algorithm : internalAlgorithm;
   const committedMinConfidence = isControlledMinConfidence ? minConfidence : internalMinConfidence;
   const committedMinLift = isControlledMinLift ? minLift : internalMinLift;
   const committedMinConviction = isControlledMinConviction ? minConviction : internalMinConviction;
@@ -60,7 +53,6 @@ const FrequentlyBoughtTogetherTable = ({
   /** Chuỗi đang gõ — tránh parse số mỗi lần onChange (gây nhảy ô với 0., xóa, v.v.) */
   const [draftMinSupport, setDraftMinSupport] = useState(() => String(committedMinSupport));
   const [draftOrderLimit, setDraftOrderLimit] = useState(() => String(committedOrderLimit));
-  const [draftMinItems, setDraftMinItems] = useState(() => String(committedMinItems));
   const [draftMinConfidence, setDraftMinConfidence] = useState(() => String(committedMinConfidence));
   const [draftMinLift, setDraftMinLift] = useState(() => String(committedMinLift));
   const [draftMinConviction, setDraftMinConviction] = useState(() => String(committedMinConviction));
@@ -74,9 +66,6 @@ const FrequentlyBoughtTogetherTable = ({
   }, [committedOrderLimit]);
 
   useEffect(() => {
-    setDraftMinItems(String(committedMinItems));
-  }, [committedMinItems]);
-  useEffect(() => {
     setDraftMinConfidence(String(committedMinConfidence));
   }, [committedMinConfidence]);
   useEffect(() => {
@@ -85,10 +74,6 @@ const FrequentlyBoughtTogetherTable = ({
   useEffect(() => {
     setDraftMinConviction(String(committedMinConviction));
   }, [committedMinConviction]);
-
-  useEffect(() => {
-    setInternalAlgorithm(algorithm);
-  }, [algorithm]);
 
   const [listPage, setListPage] = useState(1);
   const [listPageSize, setListPageSize] = useState(10);
@@ -99,8 +84,6 @@ const FrequentlyBoughtTogetherTable = ({
     data,
     committedMinSupport,
     committedOrderLimit,
-    committedMinItems,
-    committedAlgorithm,
     committedMinConfidence,
     committedMinLift,
     committedMinConviction
@@ -111,12 +94,6 @@ const FrequentlyBoughtTogetherTable = ({
     draftMinSupport.trim() === '' || Number.isNaN(parsedDraftSupport)
       ? committedMinSupport
       : parsedDraftSupport;
-
-  const parsedDraftItems = parseInt(draftMinItems, 10);
-  const effectiveMinItems =
-    draftMinItems.trim() === '' || Number.isNaN(parsedDraftItems)
-      ? committedMinItems
-      : parsedDraftItems;
 
   
   // Debug the data coming in from the API
@@ -147,7 +124,7 @@ const FrequentlyBoughtTogetherTable = ({
     }
   }, [data]);
 
-  // Function to filter items based on minSupport and minItems
+  // Lọc nhẹ theo ngưỡng support hiển thị (backend đã áp minSupport khi mining)
   const getFilteredPatterns = () => {
     if (!data || !data.frequentItemsets) return [];
     
@@ -171,7 +148,6 @@ const FrequentlyBoughtTogetherTable = ({
     }
 
     return data.frequentItemsets
-      .filter(pattern => pattern.products.length >= effectiveMinItems)
       .map(pattern => {
         // Kiểm tra giá trị support
         const support = typeof pattern.support === 'number' ? pattern.support : 0;
@@ -301,13 +277,20 @@ const FrequentlyBoughtTogetherTable = ({
 
   // Extract the renderDataTable function to avoid code duplication
   function renderDataTable(allPatterns) {
-    const allCount = Array.isArray(allPatterns) ? allPatterns.length : 0;
+    const showQuickCreate = typeof onQuickCreateCombo === 'function';
+    // Chỉ hiển thị luật/mẫu có ít nhất 2 sản phẩm khác nhau (theo id).
+    const rawPatternCount = Array.isArray(allPatterns) ? allPatterns.length : 0;
+    const tablePatterns = Array.isArray(allPatterns)
+      ? allPatterns.filter((p) => uniqueProductCountInPattern(p?.products) >= 2)
+      : [];
+
+    const allCount = Array.isArray(tablePatterns) ? tablePatterns.length : 0;
+    const filteredOutOnlySingles = rawPatternCount > 0 && allCount === 0;
     const hasRows = allCount > 0;
     const totalPages = Math.max(1, Math.ceil(allCount / listPageSize));
     const page = Math.min(listPage, totalPages);
     const rowOffset = (page - 1) * listPageSize;
-    const patterns = hasRows ? allPatterns.slice(rowOffset, rowOffset + listPageSize) : [];
-    const showQuickCreate = typeof onQuickCreateCombo === 'function';
+    const patterns = hasRows ? tablePatterns.slice(rowOffset, rowOffset + listPageSize) : [];
     const showComboMatch = Array.isArray(existingCombos);
     const comboByProductSig = new Map();
     if (showComboMatch) {
@@ -321,40 +304,12 @@ const FrequentlyBoughtTogetherTable = ({
     }
     return (
       <Card className="frequently-bought-together-card">
+        {showControls ? (
         <Card.Header className="fbt-header">
-          <div className="fbt-header-info">
-            <small className="text-muted">
-              {data?.info ? (
-                <>
-                  Dựa trên phân tích{' '}
-                  <strong>{data.info.totalTransactions}</strong> giao dịch hợp lệ (≥2 SP, tối đa 20 SP/đơn)
-                  {data.info.algorithm ? (
-                    <> — thuật toán <strong>{data.info.algorithm}</strong></>
-                  ) : null}
-                  {typeof data.info.minConfidence === 'number' ? (
-                    <> — minConf <strong>{data.info.minConfidence}</strong></>
-                  ) : null}
-                  {typeof data.info.minLift === 'number' ? (
-                    <> — minLift <strong>{data.info.minLift}</strong></>
-                  ) : null}
-                  {typeof data.info.minConviction === 'number' ? (
-                    <> — minConv <strong>{data.info.minConviction}</strong></>
-                  ) : null}
-                  {typeof data.info.ordersScanned === 'number' &&
-                  data.info.ordersScanned > data.info.totalTransactions ? (
-                    <> — đã quét <strong>{data.info.ordersScanned}</strong> đơn trong DB</>
-                  ) : null}
-                </>
-              ) : (
-                'Dựa trên dữ liệu đơn hàng'
-              )}
-            </small>
-          </div>
-          {showControls && (
           <Row className="g-2 align-items-end filter-controls fbt-controls-grid">
             <Col xs={6} md={4} lg={3}>
               <Form.Group controlId="minSupport" className="mb-0">
-                <Form.Label className="small mb-1">Ngưỡng hỗ trợ</Form.Label>
+                <Form.Label className="small mb-1">minSupport — ngưỡng hỗ trợ</Form.Label>
                 <Form.Control
                   size="sm"
                   type="text"
@@ -377,32 +332,8 @@ const FrequentlyBoughtTogetherTable = ({
               </Form.Group>
             </Col>
             <Col xs={6} md={4} lg={3}>
-              <Form.Group controlId="minItems" className="mb-0">
-                <Form.Label className="small mb-1">Số SP tối thiểu</Form.Label>
-                <Form.Control
-                  size="sm"
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  value={draftMinItems}
-                  onChange={(e) => setDraftMinItems(e.target.value.replace(/[^\d]/g, ''))}
-                  onBlur={() => {
-                    const raw = parseInt(draftMinItems, 10);
-                    const base = Number.isNaN(raw) ? committedMinItems : raw;
-                    const clampedValue = Math.max(2, base);
-                    setDraftMinItems(String(clampedValue));
-                    if (isControlledMinItems) {
-                      onMinItemsChange(clampedValue);
-                    } else {
-                      setInternalMinItems(clampedValue);
-                    }
-                  }}
-                />
-              </Form.Group>
-            </Col>
-            <Col xs={6} md={4} lg={3}>
               <Form.Group controlId="minConfidence" className="mb-0">
-                <Form.Label className="small mb-1">Min Confidence</Form.Label>
+                <Form.Label className="small mb-1">minConfidence</Form.Label>
                 <Form.Control
                   size="sm"
                   type="text"
@@ -423,7 +354,7 @@ const FrequentlyBoughtTogetherTable = ({
             </Col>
             <Col xs={6} md={4} lg={3}>
               <Form.Group controlId="minLift" className="mb-0">
-                <Form.Label className="small mb-1">Min Lift</Form.Label>
+                <Form.Label className="small mb-1">minLift</Form.Label>
                 <Form.Control
                   size="sm"
                   type="text"
@@ -444,7 +375,7 @@ const FrequentlyBoughtTogetherTable = ({
             </Col>
             <Col xs={6} md={4} lg={3}>
               <Form.Group controlId="minConviction" className="mb-0">
-                <Form.Label className="small mb-1">Min Conviction</Form.Label>
+                <Form.Label className="small mb-1">minConviction</Form.Label>
                 <Form.Control
                   size="sm"
                   type="text"
@@ -463,31 +394,9 @@ const FrequentlyBoughtTogetherTable = ({
                 />
               </Form.Group>
             </Col>
-            {showAlgorithmControl && (
-            <Col xs={12} md={4} lg={3}>
-              <Form.Group controlId="algorithm" className="mb-0">
-                <Form.Label className="small mb-1">Thuật toán</Form.Label>
-                <Form.Select
-                  size="sm"
-                  value={committedAlgorithm}
-                  onChange={(e) => {
-                    const selectedAlgorithm = e.target.value === 'apriori' ? 'apriori' : 'fp-growth';
-                    if (isControlledAlgorithm) {
-                      onAlgorithmChange(selectedAlgorithm);
-                    } else {
-                      setInternalAlgorithm(selectedAlgorithm);
-                    }
-                  }}
-                >
-                  <option value="fp-growth">FP-Growth</option>
-                  <option value="apriori">Apriori</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
-            )}
             <Col xs={12} md={4} lg={3}>
               <Form.Group controlId="orderLimit" className="mb-0">
-                <Form.Label className="small mb-1">Số giao dịch hợp lệ (mẫu)</Form.Label>
+                <Form.Label className="small mb-1">orderLimit — số giao dịch hợp lệ (mẫu)</Form.Label>
                 <Form.Control
                   size="sm"
                   type="text"
@@ -520,29 +429,48 @@ const FrequentlyBoughtTogetherTable = ({
               </div>
             </Col>
           </Row>
-          )}
         </Card.Header>
+        ) : null}
         <Card.Body className="p-0">
           <div className="px-3 pt-3">
             {!hasRows ? (
                 <Alert variant="info" className="m-3 mb-3 fbt-empty-alert">
                   <div className="d-flex align-items-center">
                     <FaInfoCircle className="me-2" />
-                    <strong>Không có dữ liệu hiển thị</strong>
+                    <strong>
+                      {filteredOutOnlySingles
+                        ? 'Chưa có luật/mẫu từ 2 sản phẩm trở lên'
+                        : 'Không có dữ liệu hiển thị'}
+                    </strong>
                   </div>
-                  <p className="mb-2 mt-2 small">
-                    Chưa đủ dữ liệu để phân tích hành vi mua kèm, hoặc bộ lọc hiện tại không khớp mẫu nào. Cần ít nhất 2 đơn hàng có sản phẩm chung.
-                  </p>
-                  <p className="mb-1 small fw-semibold">Nguyên nhân có thể:</p>
-                  <ul className="small mb-0 ps-3">
-                    <li>Hệ thống chưa có đủ đơn hàng</li>
-                    <li>Các đơn hàng chưa có sản phẩm trùng nhau</li>
-                    <li>Ngưỡng hỗ trợ đang quá cao (thử giảm xuống 0.0001 hoặc thấp hơn)</li>
-                  </ul>
+                  {filteredOutOnlySingles ? (
+                    <p className="mb-0 mt-2 small">
+                      Bảng chỉ hiển thị các tập có <strong>ít nhất 2 sản phẩm khác nhau</strong>. Hiện thuật toán chỉ
+                      trả về tập <strong>1 sản phẩm</strong> — thử giảm <strong>minSupport</strong> / tăng{' '}
+                      <strong>orderLimit</strong> để có mẫu cặp hoặc nhóm lớn hơn, hoặc kiểm tra nguồn giao dịch FBT.
+                    </p>
+                  ) : (
+                    <>
+                      <p className="mb-2 mt-2 small">
+                        Chưa đủ dữ liệu để phân tích hành vi mua kèm, hoặc bộ lọc hiện tại không khớp mẫu nào. Cần ít nhất 2 đơn hàng có sản phẩm chung.
+                      </p>
+                      <p className="mb-1 small fw-semibold">Nguyên nhân có thể:</p>
+                      <ul className="small mb-0 ps-3">
+                        <li>Hệ thống chưa có đủ đơn hàng</li>
+                        <li>Các đơn hàng chưa có sản phẩm trùng nhau</li>
+                        <li>Ngưỡng hỗ trợ đang quá cao (thử giảm xuống 0.0001 hoặc thấp hơn)</li>
+                      </ul>
+                    </>
+                  )}
                 </Alert>
               ) : (
-                <div className="table-responsive">
-                  <Table className="align-middle mb-0">
+                <div className="table-responsive fbt-table-wrap">
+                  <Table
+                    striped
+                    bordered
+                    hover
+                    className="align-middle mb-0 fbt-order-like-table"
+                  >
                     <thead>
                       <tr>
                         <th>Sản phẩm</th>
@@ -591,7 +519,11 @@ const FrequentlyBoughtTogetherTable = ({
                                     <div className="product-name">{product.name}</div>
                                     <div className="product-meta">
                                       <span className="product-price">{formatPrice(product.price)}</span>
-                                      <span className="product-category">{product.category}</span>
+                                      <span className="product-category">
+                                        {product.category
+                                          ? getCategoryLabelVI(product.category)
+                                          : '—'}
+                                      </span>
                                     </div>
                                   </div>
                                   {productIdx < pattern.products.length - 1 && (
@@ -639,14 +571,21 @@ const FrequentlyBoughtTogetherTable = ({
                           {showQuickCreate ? (
                             <td className="fbt-quick-create-col text-end">
                               <Button
+                                type="button"
                                 variant="primary"
                                 size="sm"
                                 className="fbt-btn-create-combo"
                                 disabled={
                                   quickCreateLoading ||
-                                  !pattern.products ||
-                                  pattern.products.length < 2 ||
+                                  uniqueProductCountInPattern(pattern.products) < 2 ||
                                   !!matchedCombo
+                                }
+                                title={
+                                  matchedCombo
+                                    ? 'Đã có combo trùng tập sản phẩm này'
+                                    : uniqueProductCountInPattern(pattern.products) < 2
+                                      ? 'Cần ít nhất 2 sản phẩm (id khác nhau) trong mẫu'
+                                      : 'Mở tab Tạo Combo với sẵn nhóm sản phẩm'
                                 }
                                 onClick={() => onQuickCreateCombo(pattern)}
                               >
@@ -701,7 +640,8 @@ const FrequentlyBoughtTogetherTable = ({
           <Card.Footer className="text-muted">
             <small>
               <FaShoppingCart className="me-1" />
-              Dữ liệu thực từ cơ sở dữ liệu. Các sản phẩm này thường được khách hàng mua cùng nhau.
+              Dữ liệu thực từ cơ sở dữ liệu. Chỉ liệt kê các <strong>mẫu / luật có ít nhất 2 sản phẩm khác nhau</strong>{' '}
+              (theo <code>_id</code>). Các sản phẩm trong mỗi dòng thường được khách mua cùng nhau.
               {showComboMatch ? (
                 <>
                   {' '}

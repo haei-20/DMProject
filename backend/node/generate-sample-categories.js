@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Category = require('./models/Category');
 
-const MONGODB_URI = "mongodb+srv://dangthiha20012004_db_user:hRlbDYM2GnuC9NMd@haei.ludrqc2.mongodb.net/dmproject_db";
+const MONGODB_URI = "mongodb+srv://dangthiha20012004_db_user:hRlbDYM2GnuC9NMd@haei.ludrqc2.mongodb.net/dmproject";
 
 async function generateSampleCategories() {
   try {

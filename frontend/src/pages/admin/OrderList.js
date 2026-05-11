@@ -1,66 +1,131 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Badge, Spinner, Alert, Dropdown, Modal, Form, Row, Col } from 'react-bootstrap';
-import { FaEye, FaShippingFast, FaCheck, FaTimes, FaAngleDown, FaExclamationTriangle, FaSync, FaCalendar, FaSearch } from 'react-icons/fa';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Table, Button, Badge, Spinner, Alert, Form, Row, Col, Pagination } from 'react-bootstrap';
+import { FaEye, FaSync, FaCalendar, FaSearch } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
-import { useGetAdminOrdersQuery, useUpdateOrderStatusMutation } from '../../services/api';
+import { useGetAdminOrdersQuery } from '../../services/api';
 import './OrderList.css';
 import { formatPrice } from '../../utils/productHelpers';
 
+/** RTK Query / fetchBaseQuery thường không có error.message */
+function formatOrderListError(err) {
+  if (!err) return 'Lỗi không xác định';
+  if (typeof err === 'string') return err;
+  if (err.message && typeof err.message === 'string') return err.message;
+  if (err.status === 'FETCH_ERROR') {
+    return err.error || 'Không kết nối được server (kiểm tra backend và CORS).';
+  }
+  if (typeof err.status === 'number') {
+    const msg = err.data?.message;
+    if (typeof msg === 'string') return msg;
+    if (msg && typeof msg === 'object') return JSON.stringify(msg);
+    return `Lỗi HTTP ${err.status}`;
+  }
+  if (err.error) return String(err.error);
+  return 'Lỗi không xác định';
+}
+
+/** Chuỗi id đơn hàng an toàn cho Link/API (tránh .slice trên ObjectId / undefined). */
+function orderRecordId(order) {
+  const raw = order?._id ?? order?.id;
+  if (raw == null || raw === '') return '';
+  return typeof raw === 'string' ? raw : String(raw);
+}
+
+/** Giá trị gửi API + nhãn hiển thị cho dropdown lọc trạng thái */
+const STATUS_FILTER_OPTIONS = [
+  { value: 'all', label: 'Tất cả' },
+  { value: 'pending', label: 'Chờ xử lý' },
+  { value: 'placed', label: 'Đã đặt' },
+  { value: 'confirmed', label: 'Đã xác nhận' },
+  { value: 'processing', label: 'Đang xử lý' },
+  { value: 'shipped', label: 'Đang giao' },
+  { value: 'delivered', label: 'Đã giao' },
+  { value: 'cancelled', label: 'Đã hủy' },
+];
+
+/** Số trang hiển thị + khoảng trống (ellipsis) khi tổng trang lớn */
+function buildPageList(current, total) {
+  if (total <= 1) return [1];
+  if (total <= 9) return Array.from({ length: total }, (_, i) => i + 1);
+  const s = new Set([1, total, current - 1, current, current + 1]);
+  const arr = [...s].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+  const out = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (i > 0 && arr[i] - arr[i - 1] > 1) out.push('ellipsis');
+    out.push(arr[i]);
+  }
+  return out;
+}
+
 const OrderList = () => {
-  const [forceRefresh, setForceRefresh] = useState(0); // Force refetch
-  
-  const { data: ordersData, isLoading, error, refetch } = useGetAdminOrdersQuery(undefined, {
+  const [forceRefresh, setForceRefresh] = useState(0);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [listPage, setListPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
+  // Đã bỏ lọc theo trạng thái `paid` — tránh trùng ý với thanh toán; đưa về Tất cả nếu state còn sót
+  useEffect(() => {
+    if (statusFilter === 'paid') {
+      setStatusFilter('all');
+      setListPage(1);
+    }
+  }, [statusFilter]);
+
+  const listQuery = useMemo(
+    () => ({
+      page: listPage,
+      limit: pageSize,
+      ...(statusFilter !== 'all' ? { status: statusFilter } : {}),
+    }),
+    [listPage, pageSize, statusFilter]
+  );
+
+  const { data: ordersData, isLoading, error, refetch } = useGetAdminOrdersQuery(listQuery, {
     refetchOnMountOrArgChange: true,
     refetchOnFocus: true,
     refetchOnReconnect: true,
-    pollingInterval: 10000, // Poll more frequently (every 10 seconds)
+    pollingInterval: 0,
     skip: false,
   });
-  
-  const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
-  const [statusFilter, setStatusFilter] = useState('all');
+
   const [orders, setOrders] = useState([]);
-  
-  // State cho bộ lọc thời gian
+
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [showDateFilter, setShowDateFilter] = useState(false);
-  
-  // State cho modal xác nhận thay đổi trạng thái
-  const [showStatusModal, setShowStatusModal] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [newStatus, setNewStatus] = useState('');
-  const [statusNote, setStatusNote] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Cập nhật state orders khi ordersData thay đổi
+  const [ordersPagination, setOrdersPagination] = useState(null);
+
+  // Cập nhật state orders khi ordersData thay đổi (API: { orders, pagination })
   useEffect(() => {
     if (ordersData) {
       console.log('Orders data updated:', ordersData);
-      setOrders(ordersData);
+      const list = Array.isArray(ordersData)
+        ? ordersData
+        : ordersData.orders ?? [];
+      setOrders(list);
+      setOrdersPagination(
+        !Array.isArray(ordersData) ? ordersData.pagination ?? null : null
+      );
     }
   }, [ordersData]);
 
-  // Force refresh khi cần thiết
+  useEffect(() => {
+    if (!ordersPagination?.totalPages) return;
+    const tp = ordersPagination.totalPages;
+    if (listPage > tp) setListPage(tp);
+  }, [ordersPagination, listPage]);
+
   useEffect(() => {
     refetch();
-  }, [forceRefresh]);
+  }, [forceRefresh, refetch]);
 
   // Format date function
   const formatDate = (dateString) => {
     if (!dateString) return 'Không có';
     const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     return new Date(dateString).toLocaleDateString('vi-VN', options);
-  };
-
-  // Format date for input (YYYY-MM-DD)
-  const formatDateForInput = (date) => {
-    if (!date) return '';
-    const d = new Date(date);
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
-    const day = d.getDate().toString().padStart(2, '0');
-    return `${d.getFullYear()}-${month}-${day}`;
   };
 
   // Parse date string to Date object, handling timezone
@@ -95,6 +160,10 @@ const OrderList = () => {
     switch(status.toLowerCase()) {
       case 'pending':
         return 'Chờ xử lý';
+      case 'placed':
+        return 'Đã đặt';
+      case 'confirmed':
+        return 'Đã xác nhận';
       case 'processing':
         return 'Đang xử lý';
       case 'shipped':
@@ -111,63 +180,37 @@ const OrderList = () => {
   };
 
   const getStatusBadge = (status) => {
-    const formattedStatus = formatStatus(status);
-    let variant;
-    
-    switch(status?.toLowerCase()) {
-      case 'delivered':
-        variant = 'success';
-        break;
-      case 'shipped':
-        variant = 'info';
-        break;
-      case 'processing':
-        variant = 'primary';
-        break;
-      case 'pending':
-        variant = 'warning';
-        break;
-      case 'cancelled':
-        variant = 'danger';
-        break;
-      case 'paid':
-        variant = 'secondary';
-        break;
-      default:
-        variant = 'secondary';
-    }
-    return <Badge bg={variant}>{formattedStatus}</Badge>;
+    let key = String(status || 'pending')
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]/g, '');
+    if (!key || key.length > 24) key = 'unknown';
+    const label = formatStatus(status);
+    return (
+      <span className={`order-status-pill order-status-pill--${key}`}>{label}</span>
+    );
   };
 
-  // Filter orders based on status and date range
+  // Chỉ lọc theo ngày trên trang hiện tại (trạng thái đã lọc trên server qua tiêu đề cột)
   const getFilteredOrders = () => {
     if (!orders || !orders.length) return [];
-    
-    return orders.filter(order => {
-      // Filter by status
-      const statusMatch = statusFilter === 'all' || order.status?.toLowerCase() === statusFilter.toLowerCase();
-      
-      // Filter by date range
+
+    return orders.filter((order) => {
       let dateMatch = true;
       const orderDate = parseDate(order.createdAt || order.date);
-      
+
       if (startDate && orderDate) {
         const filterStartDate = new Date(startDate);
-        filterStartDate.setHours(0, 0, 0, 0); // Start of day
-        if (orderDate < filterStartDate) {
-          dateMatch = false;
-        }
+        filterStartDate.setHours(0, 0, 0, 0);
+        if (orderDate < filterStartDate) dateMatch = false;
       }
-      
+
       if (endDate && orderDate) {
         const filterEndDate = new Date(endDate);
-        filterEndDate.setHours(23, 59, 59, 999); // End of day
-        if (orderDate > filterEndDate) {
-          dateMatch = false;
-        }
+        filterEndDate.setHours(23, 59, 59, 999);
+        if (orderDate > filterEndDate) dateMatch = false;
       }
-      
-      return statusMatch && dateMatch;
+
+      return dateMatch;
     });
   };
 
@@ -182,98 +225,18 @@ const OrderList = () => {
     setEndDate('');
   };
 
-  // Mở modal cập nhật trạng thái
-  const openStatusModal = (order, status) => {
-    setSelectedOrder(order);
-    setNewStatus(status);
-    setStatusNote('');
-    setShowStatusModal(true);
-  };
-
-  // Làm mới dữ liệu
   const handleForceRefresh = () => {
-    setForceRefresh(prev => prev + 1);
+    setForceRefresh((prev) => prev + 1);
     refetch();
-    // Thêm setTimeout để đảm bảo UI sẽ được làm mới sau khi API trả về kết quả
     setTimeout(() => {
-      window.location.reload(); // Force refresh toàn trang nếu cần
+      window.location.reload();
     }, 1000);
   };
 
-  // Handle status update
-  const handleUpdateStatus = async () => {
-    if (!selectedOrder || !newStatus) return;
-    
-    setIsSubmitting(true);
-    try {
-      // Đơn giản hóa payload theo đúng yêu cầu của API
-      const payload = {
-        id: selectedOrder._id || selectedOrder.id,
-        status: newStatus
-      };
-      
-      // Chỉ thêm note nếu có giá trị
-      if (statusNote.trim()) {
-        payload.note = statusNote.trim();
-      }
-      
-      console.log('Sending update with payload:', payload);
-      
-      const result = await updateOrderStatus(payload).unwrap();
-      console.log('Update status result:', result);
-      
-      // Cập nhật trạng thái trong state local ngay lập tức
-      setOrders(prevOrders => 
-        prevOrders.map(order => {
-          if ((order._id || order.id) === (selectedOrder._id || selectedOrder.id)) {
-            return {...order, status: newStatus};
-          }
-          return order;
-        })
-      );
-      
-      // Đóng modal trước
-      setShowStatusModal(false);
-      
-      // Thông báo thành công
-      alert(`Đơn hàng #${(selectedOrder._id || selectedOrder.id).slice(-6)} đã được cập nhật thành "${formatStatus(newStatus)}"`);
-      
-      // Đảm bảo dữ liệu được cập nhật từ server bằng nhiều cách
-      refetch().then(() => {
-        console.log("Refetch completed after status update");
-        setForceRefresh(prev => prev + 1); // Force another refetch
-      });
-      
-    } catch (err) {
-      console.error('Failed to update order status:', err);
-      alert(`Không thể cập nhật trạng thái đơn hàng. Lỗi: ${err.data?.message || err.error || 'Lỗi không xác định'}`);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Danh sách các trạng thái đơn hàng
-  const orderStatuses = [
-    { value: 'pending', label: 'Chờ xử lý', variant: 'warning' },
-    { value: 'processing', label: 'Đang xử lý', variant: 'primary' },
-    { value: 'shipped', label: 'Đang giao', variant: 'info' },
-    { value: 'delivered', label: 'Đã giao', variant: 'success' },
-    { value: 'cancelled', label: 'Đã hủy', variant: 'danger' },
-    { value: 'paid', label: 'Đã thanh toán', variant: 'secondary' }
-  ];
-
-  // Kiểm tra xem trạng thái mới có hợp lệ không
-  const isValidStatusTransition = (currentStatus, newStatus) => {
-    // Logic kiểm tra chuyển đổi trạng thái
-    if (currentStatus === newStatus) return false;
-    
-    // Không cho phép chuyển từ đã hủy hoặc đã giao sang trạng thái khác
-    if (currentStatus === 'cancelled' || currentStatus === 'delivered') {
-      return newStatus === 'pending'; // Chỉ cho phép đặt lại về chờ xử lý
-    }
-    
-    return true;
-  };
+  const totalCount = ordersPagination?.totalCount ?? 0;
+  const totalPages = Math.max(1, ordersPagination?.totalPages ?? 1);
+  const rowFrom = totalCount === 0 ? 0 : (listPage - 1) * pageSize + 1;
+  const rowTo = Math.min(listPage * pageSize, totalCount);
 
   return (
     <AdminLayout>
@@ -285,7 +248,7 @@ const OrderList = () => {
             variant="success" 
             className="mb-3 d-flex align-items-center" 
             onClick={handleForceRefresh}
-            disabled={isLoading || isUpdating}
+            disabled={isLoading}
           >
             <FaSync className={isLoading ? "me-2 spin-animation" : "me-2"} /> 
             {isLoading ? "Đang làm mới..." : "Làm mới dữ liệu"}
@@ -358,64 +321,16 @@ const OrderList = () => {
               )}
             </div>
           )}
-          
-          <div className="filter-buttons mb-3">
-            <Button 
-              variant={statusFilter === 'all' ? 'primary' : 'outline-primary'} 
-              className="me-2"
-              onClick={() => setStatusFilter('all')}
-            >
-              Tất cả
-            </Button>
-            <Button 
-              variant={statusFilter === 'pending' ? 'warning' : 'outline-warning'} 
-              className="me-2"
-              onClick={() => setStatusFilter('pending')}
-            >
-              Chờ xử lý
-            </Button>
-            <Button 
-              variant={statusFilter === 'processing' ? 'info' : 'outline-info'} 
-              className="me-2"
-              onClick={() => setStatusFilter('processing')}
-            >
-              Đang xử lý
-            </Button>
-            <Button 
-              variant={statusFilter === 'shipped' ? 'primary' : 'outline-primary'} 
-              className="me-2"
-              onClick={() => setStatusFilter('shipped')}
-            >
-              Đang giao
-            </Button>
-            <Button 
-              variant={statusFilter === 'delivered' ? 'success' : 'outline-success'} 
-              className="me-2"
-              onClick={() => setStatusFilter('delivered')}
-            >
-              Đã giao
-            </Button>
-            <Button 
-              variant={statusFilter === 'cancelled' ? 'danger' : 'outline-danger'} 
-              className="me-2"
-              onClick={() => setStatusFilter('cancelled')}
-            >
-              Đã hủy
-            </Button>
-            <Button 
-              variant={statusFilter === 'paid' ? 'secondary' : 'outline-secondary'} 
-              className="me-2"
-              onClick={() => setStatusFilter('paid')}
-            >
-              Đã thanh toán
-            </Button>
-          </div>
+
+          <p className="text-muted small mb-3 mb-md-0">
+            Lọc trạng thái trong cột tiêu đề bảng; lọc theo ngày chỉ trên đơn của trang hiện tại. Đổi trạng thái đơn tại trang chi tiết.
+          </p>
         </div>
 
         {error && (
           <Alert variant="danger">
             <div className="d-flex justify-content-between align-items-center">
-              <span>Lỗi khi tải danh sách đơn hàng: {error.message || 'Lỗi không xác định'}</span>
+              <span>Lỗi khi tải danh sách đơn hàng: {formatOrderListError(error)}</span>
               <Button variant="outline-danger" size="sm" onClick={handleForceRefresh}>
                 <FaSync /> Thử lại
               </Button>
@@ -429,32 +344,60 @@ const OrderList = () => {
             <p className="mt-2">Đang tải đơn hàng...</p>
           </div>
         ) : (
-          <Table striped bordered hover responsive className="order-table">
+          <>
+          <div className="order-list-table-shell">
+          <Table striped bordered hover responsive className="order-table order-list-main-table mb-0">
             <thead>
               <tr>
                 <th>Mã đơn</th>
                 <th>Khách hàng</th>
                 <th>Ngày đặt</th>
-                <th>Số lượng SP</th>
+                <th>Sản phẩm</th>
                 <th>Tổng tiền</th>
                 <th>Phương thức thanh toán</th>
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
               </tr>
+              <tr className="order-list-thead-filter-row">
+                <th colSpan={6} className="order-list-thead-filter-gap" aria-hidden="true" />
+                <th className="order-list-th-status-filter">
+                  <Form.Select
+                    size="sm"
+                    className="order-list-status-filter"
+                    value={statusFilter}
+                    onChange={(e) => {
+                      setStatusFilter(e.target.value);
+                      setListPage(1);
+                    }}
+                    aria-label="Lọc danh sách theo trạng thái"
+                  >
+                    {STATUS_FILTER_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </th>
+                <th className="order-list-thead-filter-gap" aria-hidden="true" />
+              </tr>
             </thead>
             <tbody>
-              {getFilteredOrders().map(order => {
-                // Trích xuất dữ liệu đơn hàng từ các định dạng khác nhau
-                const orderId = order._id || order.id || 'Không có';
-                const orderNumber = order.orderNumber || `#${orderId.slice(-6)}`;
-                
-                // Lấy thông tin khách hàng từ cả định dạng API thực tế và mẫu
-                const customerName = order.user?.name || order.shippingAddress?.name || 'Khách lẻ';
-                
-                // Lấy số lượng sản phẩm từ nhiều nơi có thể có
-                const itemsCount = order.orderItems?.length || 
-                                  (order.items?.length ? order.items.length :
-                                   (Array.isArray(order.items) ? order.items.length : order.items || 0));
+              {getFilteredOrders().map((order, idx) => {
+                const orderId = orderRecordId(order);
+                const orderNumber =
+                  order.orderNumber || (orderId ? `#${orderId.slice(-6)}` : '—');
+
+                const customerName =
+                  order.user?.name ||
+                  order.guestInfo?.name ||
+                  order.shippingAddress?.name ||
+                  'Khách lẻ';
+
+                const itemsCount = Array.isArray(order.orderItems)
+                  ? order.orderItems.length
+                  : Array.isArray(order.items)
+                    ? order.items.length
+                    : 0;
                 
                 // Tính tổng tiền
                 const totalPrice = order.totalPrice || order.total || 0;
@@ -463,48 +406,22 @@ const OrderList = () => {
                 const currentStatus = (order.status || 'pending').toLowerCase();
                 
                 return (
-                  <tr key={orderId} className={`status-${currentStatus}`}>
+                  <tr key={orderId || `order-row-${idx}`} className={`status-${currentStatus}`}>
                     <td>{orderNumber}</td>
                     <td>{customerName}</td>
                     <td>{formatDate(order.createdAt || order.date)}</td>
-                    <td>{itemsCount}</td>
+                    <td>{itemsCount} sản phẩm</td>
                     <td>{formatPrice(totalPrice || 0)}</td>
                     <td>{formatPaymentMethod(order.paymentMethod)}</td>
-                    <td>
-                      <Dropdown>
-                        <Dropdown.Toggle 
-                          variant={currentStatus === 'cancelled' ? 'danger' : 
-                                 currentStatus === 'delivered' ? 'success' : 
-                                 currentStatus === 'shipped' ? 'info' : 
-                                 currentStatus === 'processing' ? 'primary' :
-                                 currentStatus === 'paid' ? 'secondary' : 'warning'} 
-                          size="sm" 
-                          id={`dropdown-status-${orderId}`} 
-                          className="w-100 d-flex align-items-center justify-content-between"
-                        >
-                          {getStatusBadge(currentStatus)}
-                          <span className="ms-1"><FaAngleDown /></span>
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                          <Dropdown.Header>Thay đổi trạng thái</Dropdown.Header>
-                          {orderStatuses.map(status => (
-                            <Dropdown.Item 
-                              key={status.value} 
-                              onClick={() => openStatusModal(order, status.value)}
-                              disabled={!isValidStatusTransition(currentStatus, status.value)}
-                              className={status.value === currentStatus ? 'active' : ''}
-                            >
-                              <Badge bg={status.variant} className="me-2">{status.label}</Badge>
-                              {status.value === currentStatus && <span className="ms-2">(Hiện tại)</span>}
-                            </Dropdown.Item>
-                          ))}
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </td>
+                    <td>{getStatusBadge(currentStatus)}</td>
                     <td className="order-actions">
-                      <Link to={`/admin/orders/${orderId}`} className="btn btn-info btn-sm me-1">
-                        <FaEye /> Chi tiết
-                    </Link>
+                      {orderId ? (
+                        <Link to={`/admin/orders/${orderId}`} className="btn btn-info btn-sm me-1">
+                          <FaEye /> Chi tiết
+                        </Link>
+                      ) : (
+                        <span className="text-muted small">Thiếu mã</span>
+                      )}
                     </td>
                   </tr>
                 );
@@ -512,55 +429,89 @@ const OrderList = () => {
               {getFilteredOrders().length === 0 && (
                 <tr>
                   <td colSpan="8" className="text-center py-4">
-                    Không tìm thấy đơn hàng nào {statusFilter !== 'all' ? `với trạng thái "${formatStatus(statusFilter)}"` : ''}
+                    {orders.length === 0
+                      ? 'Không có đơn hàng nào trên trang này.'
+                      : 'Không có đơn nào khớp bộ lọc ngày trên trang hiện tại.'}
                   </td>
                 </tr>
               )}
             </tbody>
           </Table>
+
+          {ordersPagination && (
+            <div className="order-list-table-footer">
+              <div className="order-list-footer-inner">
+                <div className="order-list-footer-summary text-muted small">
+                  {totalCount === 0 ? (
+                    <>Không có đơn hàng nào khớp bộ lọc.</>
+                  ) : (
+                    <>
+                      Hiển thị <strong>{rowFrom}</strong>–<strong>{rowTo}</strong> trên{' '}
+                      <strong>{totalCount.toLocaleString('vi-VN')}</strong> đơn
+                    </>
+                  )}
+                </div>
+
+                <div className="order-list-footer-pagination">
+                  <Pagination size="sm" className="mb-0 flex-wrap justify-content-center">
+                    <Pagination.First
+                      disabled={listPage <= 1 || totalCount === 0}
+                      onClick={() => setListPage(1)}
+                    />
+                    <Pagination.Prev
+                      disabled={listPage <= 1 || totalCount === 0}
+                      onClick={() => setListPage((p) => Math.max(1, p - 1))}
+                    />
+                    {buildPageList(listPage, totalPages).map((item, idx) =>
+                      item === 'ellipsis' ? (
+                        <Pagination.Ellipsis key={`ellipsis-${idx}`} disabled />
+                      ) : (
+                        <Pagination.Item
+                          key={item}
+                          active={item === listPage}
+                          onClick={() => setListPage(item)}
+                        >
+                          {item}
+                        </Pagination.Item>
+                      )
+                    )}
+                    <Pagination.Next
+                      disabled={listPage >= totalPages || totalCount === 0}
+                      onClick={() => setListPage((p) => Math.min(totalPages, p + 1))}
+                    />
+                    <Pagination.Last
+                      disabled={listPage >= totalPages || totalCount === 0}
+                      onClick={() => setListPage(totalPages)}
+                    />
+                  </Pagination>
+                </div>
+
+                <div className="order-list-footer-controls">
+                  <Form.Group className="order-list-footer-field mb-0">
+                    <Form.Label className="small text-secondary mb-1">Dòng / trang</Form.Label>
+                    <Form.Select
+                      size="sm"
+                      value={pageSize}
+                      onChange={(e) => {
+                        setPageSize(Number(e.target.value) || 20);
+                        setListPage(1);
+                      }}
+                      aria-label="Số đơn hàng mỗi trang"
+                    >
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                    </Form.Select>
+                  </Form.Group>
+                </div>
+              </div>
+            </div>
+          )}
+          </div>
+          </>
         )}
       </div>
-
-      {/* Modal xác nhận thay đổi trạng thái */}
-      <Modal show={showStatusModal} onHide={() => setShowStatusModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Cập nhật trạng thái đơn hàng</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>Bạn có chắc chắn muốn thay đổi trạng thái đơn hàng <strong>{selectedOrder?.orderNumber || (selectedOrder && `#${(selectedOrder._id || selectedOrder.id).slice(-6)}`)}</strong> sang <strong>{formatStatus(newStatus)}</strong>?</p>
-          
-          {newStatus === 'cancelled' && (
-            <Alert variant="warning">
-              <FaExclamationTriangle className="me-2" />
-              Lưu ý: Hủy đơn hàng sẽ không thể hoàn tác. Các sản phẩm sẽ được trả lại kho.
-            </Alert>
-          )}
-          
-          <Form.Group className="mb-3">
-            <Form.Label>Ghi chú (tùy chọn)</Form.Label>
-            <Form.Control 
-              as="textarea" 
-              rows={3} 
-              placeholder="Nhập ghi chú hoặc lý do thay đổi trạng thái"
-              value={statusNote}
-              onChange={(e) => setStatusNote(e.target.value)}
-            />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowStatusModal(false)}>
-            Hủy bỏ
-          </Button>
-          <Button 
-            variant={newStatus === 'cancelled' ? 'danger' : 'primary'} 
-            onClick={handleUpdateStatus}
-            disabled={isSubmitting}
-          >
-            {isSubmitting && <Spinner animation="border" size="sm" className="me-2" />}
-            {newStatus === 'cancelled' ? 'Xác nhận hủy đơn' : 'Cập nhật trạng thái'}
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </AdminLayout>
   );
 };

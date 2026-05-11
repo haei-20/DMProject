@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, Spinner } from 'react-bootstrap';
@@ -6,11 +6,19 @@ import { FaMinus, FaPlus, FaTrash } from 'react-icons/fa';
 import { 
   removeFromCart, 
   updateCartQuantity, 
-  calculatePrices 
+  calculatePrices,
+  addToCart,
 } from '../redux/slices/cartSlice';
 import { formatPrice, formatImageUrl } from '../utils/productHelpers';
-import { useGetCartQuery, useUpdateCartItemMutation, useRemoveCartItemMutation } from '../services/api';
+import {
+  useGetCartQuery,
+  useUpdateCartItemMutation,
+  useRemoveCartItemMutation,
+  useGetCartSuggestionsQuery,
+  useAddToCartMutation,
+} from '../services/api';
 import SlidingDrawer from './SlidingDrawer';
+import CartSuggestionsRow from './CartSuggestionsRow';
 import './CartDrawer.css';
 
 const CartDrawer = ({ isOpen, onClose }) => {
@@ -28,6 +36,46 @@ const CartDrawer = ({ isOpen, onClose }) => {
   
   const [updateCartItem, { isLoading: isUpdating }] = useUpdateCartItemMutation();
   const [removeCartItem, { isLoading: isRemoving }] = useRemoveCartItemMutation();
+  const [addToCartApi] = useAddToCartMutation();
+
+  const productIds = useMemo(() => items.map((i) => i._id).filter(Boolean), [items]);
+  const serverRecs =
+    isAuthenticated &&
+    Array.isArray(cartData?.recommendations) &&
+    cartData.recommendations.length > 0;
+  const { data: suggData } = useGetCartSuggestionsQuery(
+    { productIds, limit: 8 },
+    { skip: items.length === 0 || serverRecs }
+  );
+  const suggestionProducts = useMemo(() => {
+    const raw = serverRecs ? cartData.recommendations : (suggData?.products ?? []);
+    const inCart = new Set(items.map((i) => String(i._id)));
+    return raw.filter((p) => p && p._id && !inCart.has(String(p._id)));
+  }, [serverRecs, cartData, suggData, items]);
+
+  const handleSuggestAdd = useCallback(
+    async (product) => {
+      const cartItem = {
+        _id: product._id,
+        name: product.name,
+        image: product.image || (Array.isArray(product.images) && product.images[0]),
+        price: product.salePrice ?? product.price,
+        originalPrice: product.originalPrice,
+        countInStock: product.countInStock ?? product.stock ?? 99,
+        quantity: 1,
+      };
+      dispatch(addToCart(cartItem));
+      if (isAuthenticated) {
+        try {
+          await addToCartApi({ productId: product._id, quantity: 1 }).unwrap();
+        } catch (e) {
+          console.warn('Đồng bộ giỏ API:', e);
+          refetch();
+        }
+      }
+    },
+    [dispatch, addToCartApi, isAuthenticated, refetch]
+  );
 
   // Calculate totals whenever cart items change
   useEffect(() => {
@@ -86,7 +134,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
   };
 
   return (
-    <SlidingDrawer isOpen={isOpen} onClose={onClose} title="Giở hàng của bạn" position="right">
+    <SlidingDrawer isOpen={isOpen} onClose={onClose} title="Giỏ hàng của bạn" position="right">
       {isLoading ? (
         <div className="drawer-loading">
           <Spinner animation="border" variant="primary" />
@@ -119,8 +167,9 @@ const CartDrawer = ({ isOpen, onClose }) => {
           </div>
         </div>
       ) : (
-        <>
-          <div className="cart-drawer-items">
+        <div className="cart-drawer-layout">
+          <div className="cart-drawer-scroll">
+            <div className="cart-drawer-items">
             {items.map((item) => (
               <div key={item._id} className="cart-drawer-item">
                 <div className="cart-drawer-item-image">
@@ -187,8 +236,16 @@ const CartDrawer = ({ isOpen, onClose }) => {
                 </div>
               </div>
             ))}
+            </div>
+
+            <CartSuggestionsRow
+              title="Có thể bạn cần"
+              products={suggestionProducts}
+              onAdd={handleSuggestAdd}
+              compact
+            />
           </div>
-          
+
           <div className="cart-drawer-summary">
             <div className="summary-item">
               <span>Giá sản phẩm</span>
@@ -234,7 +291,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
               </Button>
             </div>
           </div>
-        </>
+        </div>
       )}
     </SlidingDrawer>
   );

@@ -79,25 +79,15 @@ app.use("/api/metrics", metricsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/combos', comboRoutes);
 
-// Thêm cron job để chạy FP-Growth mỗi 3 ngày
+// Thêm cron job: mỗi 3 ngày xóa cache kết quả FBT admin + chạy FP-Growth homepage
 cron.schedule('0 0 */3 * *', async () => {
-  console.log('Running FP-Growth algorithm update...');
+  console.log('[cron 3 ngày] invalidateFbtComputedResultsCache + updateFPGrowthRecommendations');
   try {
+    recommendationService.invalidateFbtComputedResultsCache();
     await recommendationService.updateFPGrowthRecommendations();
-    console.log('FP-Growth algorithm update completed successfully');
+    console.log('[cron 3 ngày] Hoàn tất');
   } catch (error) {
-    console.error('Error updating FP-Growth recommendations:', error);
-  }
-});
-
-// Thêm cron job để chạy Apriori mỗi 3 ngày
-cron.schedule('0 0 */3 * *', async () => {
-  console.log('Running Apriori algorithm update...');
-  try {
-    await recommendationService.updateAprioriRecommendations();
-    console.log('Apriori algorithm update completed successfully');
-  } catch (error) {
-    console.error('Error updating Apriori recommendations:', error);
+    console.error('[cron 3 ngày] Lỗi:', error);
   }
 });
 
@@ -119,6 +109,9 @@ const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
+  recommendationService
+    .preloadFpSourceFiles({ replace: true })
+    .catch((err) => console.error("preloadFpSourceFiles:", err));
 });
 
 server.on('error', (err) => {

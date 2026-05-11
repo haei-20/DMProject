@@ -14,6 +14,10 @@ import DealHot from '../components/DealHot';
 import ComboSection from '../components/ComboSection';
 import { FaArrowRight, FaRegClock } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import {
+  getCategoryDisplayEn,
+  resolveCategoryForQuery,
+} from '../constants/productCategoryTagMap';
 
 const HomePage = () => {
   const scrollToBottom = () => {
@@ -35,7 +39,7 @@ const HomePage = () => {
 
   const [filters, setFilters] = useState({
     keyword: searchFilter || '',
-    category: categoryFilter || '',
+    category: categoryFilter ? resolveCategoryForQuery(categoryFilter) : '',
     page: 1,
   });
   document.addEventListener("DOMContentLoaded", function () {
@@ -79,7 +83,7 @@ const HomePage = () => {
     setFilters(prev => ({
       ...prev,
       keyword: searchFilter || '',
-      category: categoryFilter || '',
+      category: categoryFilter ? resolveCategoryForQuery(categoryFilter) : '',
     }));
   }, [searchFilter, categoryFilter]);
 
@@ -254,7 +258,7 @@ const HomePage = () => {
           <div className="search-results-header">
             <h2>
               {filters.keyword ? `Kết quả tìm kiếm cho "${filters.keyword}"` : ''}
-              {filters.category ? `Category: ${filters.category}` : ''}
+              {filters.category ? `Category: ${getCategoryDisplayEn(filters.category)}` : ''}
             </h2>
           </div>
         )}

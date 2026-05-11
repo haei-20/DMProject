@@ -12,12 +12,15 @@ import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { 
   useGetProductsQuery, 
-  useGetCategoriesQuery,
   useUpdateProductMutation
 } from '../../services/api';
 import '../../styles/AdminTheme.css';
 import './InventoryManagement.css';
 import { formatPrice } from '../../utils/productHelpers';
+import {
+  getAdminCategorySelectOptions,
+  getCategoryDisplayEn,
+} from '../../constants/productCategoryTagMap';
 
 const InventoryManagement = () => {
   // State for filters and pagination
@@ -41,7 +44,8 @@ const InventoryManagement = () => {
   const [activeTab, setActiveTab] = useState('all');
   
   // API hooks
-  const { data: categoriesData } = useGetCategoriesQuery();
+  const categorySelectOptions = useMemo(() => getAdminCategorySelectOptions(), []);
+
   const inventoryQueryParams = useMemo(() => {
     const params = {
       page: currentPage,
@@ -70,23 +74,7 @@ const InventoryManagement = () => {
 
   // Get categories for filtering
   const products = productsData?.products || [];
-  const categories = useMemo(() => {
-    const categoryNames = new Set();
-    const apiCategories = Array.isArray(categoriesData) ? categoriesData : [];
-    const localCategories = products
-      .filter((product) => product?.category)
-      .map((product) => product.category);
 
-    apiCategories.forEach((category) => {
-      if (category?.name) categoryNames.add(category.name);
-    });
-    localCategories.forEach((name) => categoryNames.add(name));
-
-    return [...categoryNames]
-      .sort((a, b) => a.localeCompare(b))
-      .map((name) => ({ _id: name, name }));
-  }, [categoriesData, products]);
-  
   // Apply filters
   const applyFilters = (products) => {
     return products.filter(product => {
@@ -360,9 +348,9 @@ const InventoryManagement = () => {
                         onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
                       >
                         <option value="">Tất cả danh mục</option>
-                        {categories.map((category) => (
-                          <option key={category._id} value={category._id}>
-                            {category.name}
+                        {categorySelectOptions.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
                           </option>
                         ))}
                       </Form.Select>
@@ -492,7 +480,7 @@ const InventoryManagement = () => {
                         </td>
                         <td>{product.sku || product._id || 'Không có'}</td>
                         <td>
-                          {categories.find(c => c._id === product.category)?.name || 'Chưa phân loại'}
+                          {product.category ? getCategoryDisplayEn(product.category) : 'Uncategorized'}
                         </td>
                         <td>
                           <span className={`admin-fw-medium ${getStockStatusClass(product.stock)}`}>

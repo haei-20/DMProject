@@ -79,8 +79,18 @@
 
 .drawer-body {
   flex: 1;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
   padding: 1.5rem;
+}
+
+.drawer-body > .drawer-loading,
+.drawer-body > .drawer-error,
+.drawer-body > .empty-cart {
+  flex: 1;
+  min-height: 0;
 }
 
 /* Mobile specific styles */

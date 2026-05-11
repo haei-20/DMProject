@@ -1,0 +1,1465 @@
+[
+  {
+    "items": [
+      "23171",
+      "23172"
+    ],
+    "antecedent": "23171",
+    "consequent": "23172",
+    "support": 0.011434,
+    "confidence": 0.767717,
+    "lift": 60.338274
+  },
+  {
+    "items": [
+      "23172",
+      "23171"
+    ],
+    "antecedent": "23172",
+    "consequent": "23171",
+    "support": 0.011434,
+    "confidence": 0.898618,
+    "lift": 60.338274
+  },
+  {
+    "items": [
+      "23175",
+      "23174"
+    ],
+    "antecedent": "23175",
+    "consequent": "23174",
+    "support": 0.011316,
+    "confidence": 0.753906,
+    "lift": 52.267769
+  },
+  {
+    "items": [
+      "23174",
+      "23175"
+    ],
+    "antecedent": "23174",
+    "consequent": "23175",
+    "support": 0.011316,
+    "confidence": 0.784553,
+    "lift": 52.267769
+  },
+  {
+    "items": [
+      "22745",
+      "22746"
+    ],
+    "antecedent": "22745",
+    "consequent": "22746",
+    "support": 0.010613,
+    "confidence": 0.660584,
+    "lift": 51.444106
+  },
+  {
+    "items": [
+      "22746",
+      "22745"
+    ],
+    "antecedent": "22746",
+    "consequent": "22745",
+    "support": 0.010613,
+    "confidence": 0.826484,
+    "lift": 51.444106
+  },
+  {
+    "items": [
+      "23170",
+      "23172"
+    ],
+    "antecedent": "23170",
+    "consequent": "23172",
+    "support": 0.011199,
+    "confidence": 0.62623,
+    "lift": 49.218176
+  },
+  {
+    "items": [
+      "23172",
+      "23170"
+    ],
+    "antecedent": "23172",
+    "consequent": "23170",
+    "support": 0.011199,
+    "confidence": 0.880184,
+    "lift": 49.218176
+  },
+  {
+    "items": [
+      "22746",
+      "22748"
+    ],
+    "antecedent": "22746",
+    "consequent": "22748",
+    "support": 0.010965,
+    "confidence": 0.853881,
+    "lift": 49.033486
+  },
+  {
+    "items": [
+      "22748",
+      "22746"
+    ],
+    "antecedent": "22748",
+    "consequent": "22746",
+    "support": 0.010965,
+    "confidence": 0.62963,
+    "lift": 49.033486
+  },
+  {
+    "items": [
+      "23170",
+      "23171"
+    ],
+    "antecedent": "23170",
+    "consequent": "23171",
+    "support": 0.012724,
+    "confidence": 0.711475,
+    "lift": 47.772493
+  },
+  {
+    "items": [
+      "23171",
+      "23170"
+    ],
+    "antecedent": "23171",
+    "consequent": "23170",
+    "support": 0.012724,
+    "confidence": 0.854331,
+    "lift": 47.772493
+  },
+  {
+    "items": [
+      "22748",
+      "22745"
+    ],
+    "antecedent": "22748",
+    "consequent": "22745",
+    "support": 0.013075,
+    "confidence": 0.750842,
+    "lift": 46.735789
+  },
+  {
+    "items": [
+      "22745",
+      "22748"
+    ],
+    "antecedent": "22745",
+    "consequent": "22748",
+    "support": 0.013075,
+    "confidence": 0.813869,
+    "lift": 46.735789
+  },
+  {
+    "items": [
+      "21932",
+      "21933"
+    ],
+    "antecedent": "21932",
+    "consequent": "21933",
+    "support": 0.010495,
+    "confidence": 0.613014,
+    "lift": 41.819795
+  },
+  {
+    "items": [
+      "21933",
+      "21932"
+    ],
+    "antecedent": "21933",
+    "consequent": "21932",
+    "support": 0.010495,
+    "confidence": 0.716,
+    "lift": 41.819795
+  },
+  {
+    "items": [
+      "84596B",
+      "84596F"
+    ],
+    "antecedent": "84596B",
+    "consequent": "84596F",
+    "support": 0.011727,
+    "confidence": 0.607903,
+    "lift": 40.185198
+  },
+  {
+    "items": [
+      "84596F",
+      "84596B"
+    ],
+    "antecedent": "84596F",
+    "consequent": "84596B",
+    "support": 0.011727,
+    "confidence": 0.775194,
+    "lift": 40.185198
+  },
+  {
+    "items": [
+      "23173",
+      "23174"
+    ],
+    "antecedent": "23173",
+    "consequent": "23174",
+    "support": 0.010789,
+    "confidence": 0.555891,
+    "lift": 38.539533
+  },
+  {
+    "items": [
+      "23174",
+      "23173"
+    ],
+    "antecedent": "23174",
+    "consequent": "23173",
+    "support": 0.010789,
+    "confidence": 0.747967,
+    "lift": 38.539533
+  },
+  {
+    "items": [
+      "22570",
+      "22569"
+    ],
+    "antecedent": "22570",
+    "consequent": "22569",
+    "support": 0.011492,
+    "confidence": 0.624204,
+    "lift": 37.223064
+  },
+  {
+    "items": [
+      "22569",
+      "22570"
+    ],
+    "antecedent": "22569",
+    "consequent": "22570",
+    "support": 0.011492,
+    "confidence": 0.685315,
+    "lift": 37.223064
+  },
+  {
+    "items": [
+      "23175",
+      "23173"
+    ],
+    "antecedent": "23175",
+    "consequent": "23173",
+    "support": 0.01073,
+    "confidence": 0.714844,
+    "lift": 36.83281
+  },
+  {
+    "items": [
+      "23173",
+      "23175"
+    ],
+    "antecedent": "23173",
+    "consequent": "23175",
+    "support": 0.01073,
+    "confidence": 0.55287,
+    "lift": 36.83281
+  },
+  {
+    "items": [
+      "47590B",
+      "47590A"
+    ],
+    "antecedent": "47590B",
+    "consequent": "47590A",
+    "support": 0.014013,
+    "confidence": 0.702941,
+    "lift": 36.775036
+  },
+  {
+    "items": [
+      "47590A",
+      "47590B"
+    ],
+    "antecedent": "47590A",
+    "consequent": "47590B",
+    "support": 0.014013,
+    "confidence": 0.733129,
+    "lift": 36.775036
+  },
+  {
+    "items": [
+      "84997D",
+      "84997C"
+    ],
+    "antecedent": "84997D",
+    "consequent": "84997C",
+    "support": 0.011551,
+    "confidence": 0.56447,
+    "lift": 36.466039
+  },
+  {
+    "items": [
+      "84997C",
+      "84997D"
+    ],
+    "antecedent": "84997C",
+    "consequent": "84997D",
+    "support": 0.011551,
+    "confidence": 0.746212,
+    "lift": 36.466039
+  },
+  {
+    "items": [
+      "22579",
+      "22578"
+    ],
+    "antecedent": "22579",
+    "consequent": "22578",
+    "support": 0.011903,
+    "confidence": 0.831967,
+    "lift": 36.289516
+  },
+  {
+    "items": [
+      "22578",
+      "22579"
+    ],
+    "antecedent": "22578",
+    "consequent": "22579",
+    "support": 0.011903,
+    "confidence": 0.519182,
+    "lift": 36.289516
+  },
+  {
+    "items": [
+      "23295",
+      "23294"
+    ],
+    "antecedent": "23295",
+    "consequent": "23294",
+    "support": 0.010085,
+    "confidence": 0.544304,
+    "lift": 35.704236
+  },
+  {
+    "items": [
+      "23294",
+      "23295"
+    ],
+    "antecedent": "23294",
+    "consequent": "23295",
+    "support": 0.010085,
+    "confidence": 0.661538,
+    "lift": 35.704236
+  },
+  {
+    "items": [
+      "82581",
+      "82580"
+    ],
+    "antecedent": "82581",
+    "consequent": "82580",
+    "support": 0.012665,
+    "confidence": 0.739726,
+    "lift": 34.754896
+  },
+  {
+    "items": [
+      "82580",
+      "82581"
+    ],
+    "antecedent": "82580",
+    "consequent": "82581",
+    "support": 0.012665,
+    "confidence": 0.595041,
+    "lift": 34.754896
+  },
+  {
+    "items": [
+      "21668",
+      "21669"
+    ],
+    "antecedent": "21668",
+    "consequent": "21669",
+    "support": 0.011316,
+    "confidence": 0.632787,
+    "lift": 33.516088
+  },
+  {
+    "items": [
+      "21669",
+      "21668"
+    ],
+    "antecedent": "21669",
+    "consequent": "21668",
+    "support": 0.011316,
+    "confidence": 0.599379,
+    "lift": 33.516088
+  },
+  {
+    "items": [
+      "22578",
+      "22577"
+    ],
+    "antecedent": "22578",
+    "consequent": "22577",
+    "support": 0.016887,
+    "confidence": 0.736573,
+    "lift": 29.768366
+  },
+  {
+    "items": [
+      "22577",
+      "22578"
+    ],
+    "antecedent": "22577",
+    "consequent": "22578",
+    "support": 0.016887,
+    "confidence": 0.682464,
+    "lift": 29.768366
+  },
+  {
+    "items": [
+      "22579",
+      "22577"
+    ],
+    "antecedent": "22579",
+    "consequent": "22577",
+    "support": 0.010437,
+    "confidence": 0.729508,
+    "lift": 29.482849
+  },
+  {
+    "items": [
+      "22749",
+      "22750"
+    ],
+    "antecedent": "22749",
+    "consequent": "22750",
+    "support": 0.013251,
+    "confidence": 0.597884,
+    "lift": 29.470823
+  },
+  {
+    "items": [
+      "22750",
+      "22749"
+    ],
+    "antecedent": "22750",
+    "consequent": "22749",
+    "support": 0.013251,
+    "confidence": 0.653179,
+    "lift": 29.470823
+  },
+  {
+    "items": [
+      "23294",
+      "23293"
+    ],
+    "antecedent": "23294",
+    "consequent": "23293",
+    "support": 0.010847,
+    "confidence": 0.711538,
+    "lift": 29.031791
+  },
+  {
+    "items": [
+      "23293",
+      "23295"
+    ],
+    "antecedent": "23293",
+    "consequent": "23295",
+    "support": 0.012899,
+    "confidence": 0.526316,
+    "lift": 28.406063
+  },
+  {
+    "items": [
+      "23295",
+      "23293"
+    ],
+    "antecedent": "23295",
+    "consequent": "23293",
+    "support": 0.012899,
+    "confidence": 0.696203,
+    "lift": 28.406063
+  },
+  {
+    "items": [
+      "22142",
+      "22144"
+    ],
+    "antecedent": "22142",
+    "consequent": "22144",
+    "support": 0.010495,
+    "confidence": 0.621528,
+    "lift": 28.342664
+  },
+  {
+    "items": [
+      "23296",
+      "23293"
+    ],
+    "antecedent": "23296",
+    "consequent": "23293",
+    "support": 0.011082,
+    "confidence": 0.675,
+    "lift": 27.540969
+  },
+  {
+    "items": [
+      "22570",
+      "22568"
+    ],
+    "antecedent": "22570",
+    "consequent": "22568",
+    "support": 0.011316,
+    "confidence": 0.61465,
+    "lift": 26.471844
+  },
+  {
+    "items": [
+      "22569",
+      "22568"
+    ],
+    "antecedent": "22569",
+    "consequent": "22568",
+    "support": 0.010026,
+    "confidence": 0.597902,
+    "lift": 25.750556
+  },
+  {
+    "items": [
+      "22141",
+      "22144"
+    ],
+    "antecedent": "22141",
+    "consequent": "22144",
+    "support": 0.010202,
+    "confidence": 0.54717,
+    "lift": 24.951821
+  },
+  {
+    "items": [
+      "22192",
+      "22193"
+    ],
+    "antecedent": "22192",
+    "consequent": "22193",
+    "support": 0.010261,
+    "confidence": 0.55205,
+    "lift": 23.836002
+  },
+  {
+    "items": [
+      "22191",
+      "22193"
+    ],
+    "antecedent": "22191",
+    "consequent": "22193",
+    "support": 0.011199,
+    "confidence": 0.512064,
+    "lift": 22.109512
+  },
+  {
+    "items": [
+      "22698",
+      "22697"
+    ],
+    "antecedent": "22698",
+    "consequent": "22697",
+    "support": 0.025506,
+    "confidence": 0.823864,
+    "lift": 21.616914
+  },
+  {
+    "items": [
+      "22697",
+      "22698"
+    ],
+    "antecedent": "22697",
+    "consequent": "22698",
+    "support": 0.025506,
+    "confidence": 0.669231,
+    "lift": 21.616914
+  },
+  {
+    "items": [
+      "22629",
+      "22630"
+    ],
+    "antecedent": "22629",
+    "consequent": "22630",
+    "support": 0.020463,
+    "confidence": 0.625448,
+    "lift": 20.998063
+  },
+  {
+    "items": [
+      "22630",
+      "22629"
+    ],
+    "antecedent": "22630",
+    "consequent": "22629",
+    "support": 0.020463,
+    "confidence": 0.687008,
+    "lift": 20.998063
+  },
+  {
+    "items": [
+      "21231",
+      "21232"
+    ],
+    "antecedent": "21231",
+    "consequent": "21232",
+    "support": 0.012606,
+    "confidence": 0.625,
+    "lift": 20.778509
+  },
+  {
+    "items": [
+      "23343",
+      "23344"
+    ],
+    "antecedent": "23343",
+    "consequent": "23344",
+    "support": 0.013779,
+    "confidence": 0.645604,
+    "lift": 20.056071
+  },
+  {
+    "items": [
+      "22867",
+      "22866"
+    ],
+    "antecedent": "22867",
+    "consequent": "22866",
+    "support": 0.013779,
+    "confidence": 0.521064,
+    "lift": 19.361115
+  },
+  {
+    "items": [
+      "22866",
+      "22867"
+    ],
+    "antecedent": "22866",
+    "consequent": "22867",
+    "support": 0.013779,
+    "confidence": 0.511983,
+    "lift": 19.361115
+  },
+  {
+    "items": [
+      "22632",
+      "22866"
+    ],
+    "antecedent": "22632",
+    "consequent": "22866",
+    "support": 0.010437,
+    "confidence": 0.512968,
+    "lift": 19.060293
+  },
+  {
+    "items": [
+      "22866",
+      "22865"
+    ],
+    "antecedent": "22866",
+    "consequent": "22865",
+    "support": 0.016124,
+    "confidence": 0.599129,
+    "lift": 18.922476
+  },
+  {
+    "items": [
+      "22865",
+      "22866"
+    ],
+    "antecedent": "22865",
+    "consequent": "22866",
+    "support": 0.016124,
+    "confidence": 0.509259,
+    "lift": 18.922476
+  },
+  {
+    "items": [
+      "22625",
+      "22624"
+    ],
+    "antecedent": "22625",
+    "consequent": "22624",
+    "support": 0.014131,
+    "confidence": 0.596535,
+    "lift": 18.397647
+  },
+  {
+    "items": [
+      "21914",
+      "21915"
+    ],
+    "antecedent": "21914",
+    "consequent": "21915",
+    "support": 0.01331,
+    "confidence": 0.521839,
+    "lift": 18.388359
+  },
+  {
+    "items": [
+      "22698",
+      "22699"
+    ],
+    "antecedent": "22698",
+    "consequent": "22699",
+    "support": 0.024333,
+    "confidence": 0.785985,
+    "lift": 18.262904
+  },
+  {
+    "items": [
+      "22699",
+      "22698"
+    ],
+    "antecedent": "22699",
+    "consequent": "22698",
+    "support": 0.024333,
+    "confidence": 0.565395,
+    "lift": 18.262904
+  },
+  {
+    "items": [
+      "22699",
+      "22697"
+    ],
+    "antecedent": "22699",
+    "consequent": "22697",
+    "support": 0.029903,
+    "confidence": 0.694823,
+    "lift": 18.231084
+  },
+  {
+    "items": [
+      "22697",
+      "22699"
+    ],
+    "antecedent": "22697",
+    "consequent": "22699",
+    "support": 0.029903,
+    "confidence": 0.784615,
+    "lift": 18.231084
+  },
+  {
+    "items": [
+      "22356",
+      "20724"
+    ],
+    "antecedent": "22356",
+    "consequent": "20724",
+    "support": 0.016242,
+    "confidence": 0.656398,
+    "lift": 17.797885
+  },
+  {
+    "items": [
+      "22867",
+      "22865"
+    ],
+    "antecedent": "22867",
+    "consequent": "22865",
+    "support": 0.014893,
+    "confidence": 0.563193,
+    "lift": 17.787509
+  },
+  {
+    "items": [
+      "23200",
+      "23199"
+    ],
+    "antecedent": "23200",
+    "consequent": "23199",
+    "support": 0.016828,
+    "confidence": 0.668998,
+    "lift": 17.634861
+  },
+  {
+    "items": [
+      "23439",
+      "22865"
+    ],
+    "antecedent": "23439",
+    "consequent": "22865",
+    "support": 0.011551,
+    "confidence": 0.55493,
+    "lift": 17.526526
+  },
+  {
+    "items": [
+      "20971",
+      "20972"
+    ],
+    "antecedent": "20971",
+    "consequent": "20972",
+    "support": 0.01243,
+    "confidence": 0.507177,
+    "lift": 17.230885
+  },
+  {
+    "items": [
+      "82483",
+      "82486"
+    ],
+    "antecedent": "82483",
+    "consequent": "82486",
+    "support": 0.015597,
+    "confidence": 0.543967,
+    "lift": 17.053974
+  },
+  {
+    "items": [
+      "23300",
+      "23301"
+    ],
+    "antecedent": "23300",
+    "consequent": "23301",
+    "support": 0.025916,
+    "confidence": 0.72459,
+    "lift": 16.951832
+  },
+  {
+    "items": [
+      "23301",
+      "23300"
+    ],
+    "antecedent": "23301",
+    "consequent": "23300",
+    "support": 0.025916,
+    "confidence": 0.60631,
+    "lift": 16.951832
+  },
+  {
+    "items": [
+      "23322",
+      "23321"
+    ],
+    "antecedent": "23322",
+    "consequent": "23321",
+    "support": 0.015714,
+    "confidence": 0.54918,
+    "lift": 16.906625
+  },
+  {
+    "items": [
+      "22632",
+      "22865"
+    ],
+    "antecedent": "22632",
+    "consequent": "22865",
+    "support": 0.010789,
+    "confidence": 0.530259,
+    "lift": 16.747358
+  },
+  {
+    "items": [
+      "22617",
+      "22138"
+    ],
+    "antecedent": "22617",
+    "consequent": "22138",
+    "support": 0.015421,
+    "confidence": 0.716621,
+    "lift": 16.361413
+  },
+  {
+    "items": [
+      "20723",
+      "20724"
+    ],
+    "antecedent": "20723",
+    "consequent": "20724",
+    "support": 0.015714,
+    "confidence": 0.602247,
+    "lift": 16.329612
+  },
+  {
+    "items": [
+      "22725",
+      "22726"
+    ],
+    "antecedent": "22725",
+    "consequent": "22726",
+    "support": 0.010906,
+    "confidence": 0.65035,
+    "lift": 15.666262
+  },
+  {
+    "items": [
+      "21928",
+      "21929"
+    ],
+    "antecedent": "21928",
+    "consequent": "21929",
+    "support": 0.015597,
+    "confidence": 0.514507,
+    "lift": 15.530819
+  },
+  {
+    "items": [
+      "22725",
+      "22727"
+    ],
+    "antecedent": "22725",
+    "consequent": "22727",
+    "support": 0.011785,
+    "confidence": 0.702797,
+    "lift": 15.191643
+  },
+  {
+    "items": [
+      "20719",
+      "20724"
+    ],
+    "antecedent": "20719",
+    "consequent": "20724",
+    "support": 0.01331,
+    "confidence": 0.555012,
+    "lift": 15.048861
+  },
+  {
+    "items": [
+      "22729",
+      "22726"
+    ],
+    "antecedent": "22729",
+    "consequent": "22726",
+    "support": 0.011609,
+    "confidence": 0.613003,
+    "lift": 14.766621
+  },
+  {
+    "items": [
+      "22729",
+      "22727"
+    ],
+    "antecedent": "22729",
+    "consequent": "22727",
+    "support": 0.012841,
+    "confidence": 0.678019,
+    "lift": 14.656029
+  },
+  {
+    "items": [
+      "22730",
+      "22727"
+    ],
+    "antecedent": "22730",
+    "consequent": "22727",
+    "support": 0.017238,
+    "confidence": 0.674312,
+    "lift": 14.575906
+  },
+  {
+    "items": [
+      "22835",
+      "22112"
+    ],
+    "antecedent": "22835",
+    "consequent": "22112",
+    "support": 0.016652,
+    "confidence": 0.580777,
+    "lift": 14.397025
+  },
+  {
+    "items": [
+      "22727",
+      "22726"
+    ],
+    "antecedent": "22727",
+    "consequent": "22726",
+    "support": 0.027499,
+    "confidence": 0.594423,
+    "lift": 14.319053
+  },
+  {
+    "items": [
+      "22726",
+      "22727"
+    ],
+    "antecedent": "22726",
+    "consequent": "22727",
+    "support": 0.027499,
+    "confidence": 0.662429,
+    "lift": 14.319053
+  },
+  {
+    "items": [
+      "22730",
+      "22726"
+    ],
+    "antecedent": "22730",
+    "consequent": "22726",
+    "support": 0.015186,
+    "confidence": 0.594037,
+    "lift": 14.30974
+  },
+  {
+    "items": [
+      "22728",
+      "22727"
+    ],
+    "antecedent": "22728",
+    "consequent": "22727",
+    "support": 0.019877,
+    "confidence": 0.660819,
+    "lift": 14.284237
+  },
+  {
+    "items": [
+      "22355",
+      "20724"
+    ],
+    "antecedent": "22355",
+    "consequent": "20724",
+    "support": 0.015479,
+    "confidence": 0.515625,
+    "lift": 13.980897
+  },
+  {
+    "items": [
+      "23204",
+      "20724"
+    ],
+    "antecedent": "23204",
+    "consequent": "20724",
+    "support": 0.01073,
+    "confidence": 0.515493,
+    "lift": 13.977317
+  },
+  {
+    "items": [
+      "22728",
+      "22726"
+    ],
+    "antecedent": "22728",
+    "consequent": "22726",
+    "support": 0.017004,
+    "confidence": 0.565302,
+    "lift": 13.617554
+  },
+  {
+    "items": [
+      "21791",
+      "21790"
+    ],
+    "antecedent": "21791",
+    "consequent": "21790",
+    "support": 0.013662,
+    "confidence": 0.538106,
+    "lift": 13.300582
+  },
+  {
+    "items": [
+      "23170",
+      "22699"
+    ],
+    "antecedent": "23170",
+    "consequent": "22699",
+    "support": 0.010202,
+    "confidence": 0.570492,
+    "lift": 13.255773
+  },
+  {
+    "items": [
+      "22114",
+      "22112"
+    ],
+    "antecedent": "22114",
+    "consequent": "22112",
+    "support": 0.015069,
+    "confidence": 0.518145,
+    "lift": 12.844427
+  },
+  {
+    "items": [
+      "23200",
+      "23202"
+    ],
+    "antecedent": "23200",
+    "consequent": "23202",
+    "support": 0.013369,
+    "confidence": 0.531469,
+    "lift": 12.554288
+  },
+  {
+    "items": [
+      "23173",
+      "22699"
+    ],
+    "antecedent": "23173",
+    "consequent": "22699",
+    "support": 0.010437,
+    "confidence": 0.537764,
+    "lift": 12.495328
+  },
+  {
+    "items": [
+      "22910",
+      "22086"
+    ],
+    "antecedent": "22910",
+    "consequent": "22086",
+    "support": 0.024919,
+    "confidence": 0.638138,
+    "lift": 11.753181
+  },
+  {
+    "items": [
+      "82482",
+      "82494L"
+    ],
+    "antecedent": "82482",
+    "consequent": "82494L",
+    "support": 0.026268,
+    "confidence": 0.532067,
+    "lift": 11.678757
+  },
+  {
+    "items": [
+      "82494L",
+      "82482"
+    ],
+    "antecedent": "82494L",
+    "consequent": "82482",
+    "support": 0.026268,
+    "confidence": 0.576577,
+    "lift": 11.678757
+  },
+  {
+    "items": [
+      "22662",
+      "22382"
+    ],
+    "antecedent": "22662",
+    "consequent": "22382",
+    "support": 0.018997,
+    "confidence": 0.594495,
+    "lift": 11.353997
+  },
+  {
+    "items": [
+      "23208",
+      "23206"
+    ],
+    "antecedent": "23208",
+    "consequent": "23206",
+    "support": 0.016593,
+    "confidence": 0.501773,
+    "lift": 11.028015
+  },
+  {
+    "items": [
+      "23200",
+      "23203"
+    ],
+    "antecedent": "23200",
+    "consequent": "23203",
+    "support": 0.01501,
+    "confidence": 0.596737,
+    "lift": 10.116643
+  },
+  {
+    "items": [
+      "23208",
+      "23209"
+    ],
+    "antecedent": "23208",
+    "consequent": "23209",
+    "support": 0.017649,
+    "confidence": 0.533688,
+    "lift": 9.745233
+  },
+  {
+    "items": [
+      "23202",
+      "23203"
+    ],
+    "antecedent": "23202",
+    "consequent": "23203",
+    "support": 0.024216,
+    "confidence": 0.572022,
+    "lift": 9.697652
+  },
+  {
+    "items": [
+      "20726",
+      "22382"
+    ],
+    "antecedent": "20726",
+    "consequent": "22382",
+    "support": 0.020522,
+    "confidence": 0.500715,
+    "lift": 9.562933
+  },
+  {
+    "items": [
+      "21136",
+      "84879"
+    ],
+    "antecedent": "21136",
+    "consequent": "84879",
+    "support": 0.014483,
+    "confidence": 0.730769,
+    "lift": 9.535784
+  },
+  {
+    "items": [
+      "22417",
+      "21212"
+    ],
+    "antecedent": "22417",
+    "consequent": "21212",
+    "support": 0.010261,
+    "confidence": 0.5,
+    "lift": 9.475
+  },
+  {
+    "items": [
+      "22470",
+      "22469"
+    ],
+    "antecedent": "22470",
+    "consequent": "22469",
+    "support": 0.023278,
+    "confidence": 0.508974,
+    "lift": 9.30392
+  },
+  {
+    "items": [
+      "22662",
+      "22383"
+    ],
+    "antecedent": "22662",
+    "consequent": "22383",
+    "support": 0.016183,
+    "confidence": 0.506422,
+    "lift": 8.913341
+  },
+  {
+    "items": [
+      "22384",
+      "20727"
+    ],
+    "antecedent": "22384",
+    "consequent": "20727",
+    "support": 0.026092,
+    "confidence": 0.508571,
+    "lift": 8.647742
+  },
+  {
+    "items": [
+      "22384",
+      "20725"
+    ],
+    "antecedent": "22384",
+    "consequent": "20725",
+    "support": 0.028848,
+    "confidence": 0.562286,
+    "lift": 8.252825
+  },
+  {
+    "items": [
+      "20726",
+      "20725"
+    ],
+    "antecedent": "20726",
+    "consequent": "20725",
+    "support": 0.021812,
+    "confidence": 0.532189,
+    "lift": 7.811085
+  },
+  {
+    "items": [
+      "22662",
+      "20725"
+    ],
+    "antecedent": "22662",
+    "consequent": "20725",
+    "support": 0.016535,
+    "confidence": 0.517431,
+    "lift": 7.594483
+  },
+  {
+    "items": [
+      "85099F",
+      "85099B"
+    ],
+    "antecedent": "85099F",
+    "consequent": "85099B",
+    "support": 0.023629,
+    "confidence": 0.639683,
+    "lift": 7.341713
+  },
+  {
+    "items": [
+      "22386",
+      "85099B"
+    ],
+    "antecedent": "22386",
+    "consequent": "85099B",
+    "support": 0.030255,
+    "confidence": 0.627737,
+    "lift": 7.204615
+  },
+  {
+    "items": [
+      "21928",
+      "85099B"
+    ],
+    "antecedent": "21928",
+    "consequent": "85099B",
+    "support": 0.017942,
+    "confidence": 0.591876,
+    "lift": 6.793034
+  },
+  {
+    "items": [
+      "22804",
+      "85123A"
+    ],
+    "antecedent": "22804",
+    "consequent": "85123A",
+    "support": 0.016593,
+    "confidence": 0.736979,
+    "lift": 6.611878
+  },
+  {
+    "items": [
+      "21931",
+      "85099B"
+    ],
+    "antecedent": "21931",
+    "consequent": "85099B",
+    "support": 0.023923,
+    "confidence": 0.565097,
+    "lift": 6.485685
+  },
+  {
+    "items": [
+      "85099C",
+      "85099B"
+    ],
+    "antecedent": "85099C",
+    "consequent": "85099B",
+    "support": 0.020756,
+    "confidence": 0.564593,
+    "lift": 6.479905
+  },
+  {
+    "items": [
+      "22385",
+      "85099B"
+    ],
+    "antecedent": "22385",
+    "consequent": "85099B",
+    "support": 0.01372,
+    "confidence": 0.553191,
+    "lift": 6.349045
+  },
+  {
+    "items": [
+      "21929",
+      "85099B"
+    ],
+    "antecedent": "21929",
+    "consequent": "85099B",
+    "support": 0.018294,
+    "confidence": 0.552212,
+    "lift": 6.337808
+  },
+  {
+    "items": [
+      "22698",
+      "22423"
+    ],
+    "antecedent": "22698",
+    "consequent": "22423",
+    "support": 0.016887,
+    "confidence": 0.545455,
+    "lift": 6.17711
+  },
+  {
+    "items": [
+      "21930",
+      "85099B"
+    ],
+    "antecedent": "21930",
+    "consequent": "85099B",
+    "support": 0.014072,
+    "confidence": 0.532151,
+    "lift": 6.107558
+  },
+  {
+    "items": [
+      "20712",
+      "85099B"
+    ],
+    "antecedent": "20712",
+    "consequent": "85099B",
+    "support": 0.012137,
+    "confidence": 0.532134,
+    "lift": 6.107362
+  },
+  {
+    "items": [
+      "23173",
+      "22423"
+    ],
+    "antecedent": "23173",
+    "consequent": "22423",
+    "support": 0.010378,
+    "confidence": 0.534743,
+    "lift": 6.055807
+  },
+  {
+    "items": [
+      "22697",
+      "22423"
+    ],
+    "antecedent": "22697",
+    "consequent": "22423",
+    "support": 0.020287,
+    "confidence": 0.532308,
+    "lift": 6.028226
+  },
+  {
+    "items": [
+      "21733",
+      "85123A"
+    ],
+    "antecedent": "21733",
+    "consequent": "85123A",
+    "support": 0.025447,
+    "confidence": 0.670788,
+    "lift": 6.01804
+  },
+  {
+    "items": [
+      "22699",
+      "22423"
+    ],
+    "antecedent": "22699",
+    "consequent": "22423",
+    "support": 0.022633,
+    "confidence": 0.525886,
+    "lift": 5.955497
+  },
+  {
+    "items": [
+      "20713",
+      "85099B"
+    ],
+    "antecedent": "20713",
+    "consequent": "85099B",
+    "support": 0.011023,
+    "confidence": 0.5,
+    "lift": 5.73856
+  }
+]

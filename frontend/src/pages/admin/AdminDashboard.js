@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Spinner, Alert, Tabs, Tab, Badge, Form } from 'react-bootstrap';
-import {
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  AreaChart, Area
-} from 'recharts';
+import { Row, Col, Card, Spinner, Alert, Badge, Button } from 'react-bootstrap';
 import { 
   FaUsers, FaShoppingBag, FaMoneyBillWave, FaShoppingCart, 
-  FaChartLine, FaRegCalendarAlt, FaRegBell
+  FaRegCalendarAlt, FaSyncAlt
 } from 'react-icons/fa';
 import { 
   useGetDashboardStatsQuery,
   useGetOrderAnalyticsQuery,
   useGetFrequentlyBoughtTogetherQuery,
-  useGetSalesReportQuery,
   useGetTopProductsQuery,
   useGetDealHotQuery
 } from '../../services/api';
@@ -23,18 +18,28 @@ import FrequentlyBoughtTogetherTable from '../../components/admin/FrequentlyBoug
 import './AdminDashboard.css';
 import { useSelector } from 'react-redux';
 import { getUserData } from '../../utils/tokenHelper';
-import { Link } from 'react-router-dom';
 import { formatPrice } from '../../utils/productHelpers';
 
+/** Thông báo lỗi từ RTK Query (FETCH_ERROR để message trong `error`, không phải `data.message`). */
+const getRtkQueryErrorMessage = (err) => {
+  if (!err) return '';
+  const data = err.data;
+  if (data && typeof data === 'object') {
+    if (typeof data.message === 'string') return data.message;
+    if (typeof data.error === 'string') return data.error;
+  }
+  if (typeof err.error === 'string') return err.error;
+  if (typeof err.status === 'number') return `Lỗi máy chủ (HTTP ${err.status})`;
+  return '';
+};
+
 const AdminDashboard = () => {
-  const [period, setPeriod] = useState('monthly');
   const currentYear = new Date().getFullYear();
   const [fromYear, setFromYear] = useState(currentYear - 4);
   const [toYear, setToYear] = useState(currentYear);
   const [isYearRangeAutoInitialized, setIsYearRangeAutoInitialized] = useState(false);
   const [fbtFilters, setFbtFilters] = useState({
     minSupport: 0.01,
-    minItems: 2,
     orderLimit: 500,
     minConfidence: 0.1,
     minLift: 1,
@@ -42,54 +47,50 @@ const AdminDashboard = () => {
   });
   const [debouncedFbtFilters, setDebouncedFbtFilters] = useState({
     minSupport: 0.01,
-    minItems: 2,
     orderLimit: 500,
     minConfidence: 0.1,
     minLift: 1,
     minConviction: 1
   });
-  const { data: dashboardStats, isLoading: statsLoading, error: statsError } = useGetDashboardStatsQuery();
-  const { data: topProducts = [], isLoading: topProductsLoading, error: topProductsError } = useGetTopProductsQuery({
-    limit: 5,
-    timeRange: 'month'
-  });
+
   const normalizedFromYear = Math.min(fromYear, toYear);
   const normalizedToYear = Math.max(fromYear, toYear);
-  const { data: orderAnalytics, isLoading: orderLoading } = useGetOrderAnalyticsQuery({
+
+  const {
+    data: dashboardStats,
+    isLoading: statsLoading,
+    error: statsError,
+    refetch: refetchDashboardStats,
+  } = useGetDashboardStatsQuery(undefined, { refetchOnReconnect: true });
+  const {
+    data: orderAnalytics,
+    isLoading: orderLoading,
+    isFetched: orderAnalyticsFetched,
+  } = useGetOrderAnalyticsQuery({
     fromYear: normalizedFromYear,
     toYear: normalizedToYear
   });
+
+  /** Top bán chạy: toàn thời gian (không lọc theo năm/khoảng ngày). */
+  const { data: topProducts = [], isLoading: topProductsLoading, error: topProductsError } = useGetTopProductsQuery({
+    limit: 10,
+    timeRange: 'all',
+  });
+
   const { data: dealHotData, isLoading: dealHotLoading } = useGetDealHotQuery({ limit: 3 });
   const {
     data: frequentlyBoughtFpData,
     isLoading: frequentlyBoughtFpLoading,
-    isFetching: frequentlyBoughtFpFetching
+    isFetching: frequentlyBoughtFpFetching,
   } = useGetFrequentlyBoughtTogetherQuery({
     // Refetch backend khi đổi các bộ lọc FBT
     minSupport: debouncedFbtFilters.minSupport,
-    minItems: debouncedFbtFilters.minItems,
-    limit: 20,
     orderLimit: debouncedFbtFilters.orderLimit,
-    algorithm: 'fp-growth',
     minConfidence: debouncedFbtFilters.minConfidence,
     minLift: debouncedFbtFilters.minLift,
     minConviction: debouncedFbtFilters.minConviction
   });
-  const {
-    data: frequentlyBoughtAprioriData,
-    isLoading: frequentlyBoughtAprioriLoading,
-    isFetching: frequentlyBoughtAprioriFetching
-  } = useGetFrequentlyBoughtTogetherQuery({
-    minSupport: debouncedFbtFilters.minSupport,
-    minItems: debouncedFbtFilters.minItems,
-    limit: 20,
-    orderLimit: debouncedFbtFilters.orderLimit,
-    algorithm: 'apriori',
-    minConfidence: debouncedFbtFilters.minConfidence,
-    minLift: debouncedFbtFilters.minLift,
-    minConviction: debouncedFbtFilters.minConviction
-  });
-  
+
   // Debug user authentication
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const localStorageUser = getUserData();
@@ -106,17 +107,17 @@ const AdminDashboard = () => {
     });
   }, [user, isAuthenticated]);
 
-  // Lần đầu vào dashboard: tự set khoảng năm theo dữ liệu thực tế trong DB
+  // Sau khi analytics đơn hàng tải xong: đồng bộ khoảng năm với DB (nếu có), rồi mới cho phép gọi top-products
   useEffect(() => {
-    if (isYearRangeAutoInitialized) return;
+    if (isYearRangeAutoInitialized || !orderAnalyticsFetched) return;
     const minDataYear = Number(orderAnalytics?.info?.minDataYear);
     const maxDataYear = Number(orderAnalytics?.info?.maxDataYear);
-    if (!Number.isFinite(minDataYear) || !Number.isFinite(maxDataYear)) return;
-
-    setFromYear(minDataYear);
-    setToYear(maxDataYear);
+    if (Number.isFinite(minDataYear) && Number.isFinite(maxDataYear)) {
+      setFromYear(minDataYear);
+      setToYear(maxDataYear);
+    }
     setIsYearRangeAutoInitialized(true);
-  }, [orderAnalytics, isYearRangeAutoInitialized]);
+  }, [orderAnalytics, orderAnalyticsFetched, isYearRangeAutoInitialized]);
 
   // Debounce filter để tránh gọi API liên tục khi người dùng đổi nhanh
   useEffect(() => {
@@ -128,14 +129,12 @@ const AdminDashboard = () => {
 
   const isFbtFilterDebouncing =
     fbtFilters.minSupport !== debouncedFbtFilters.minSupport ||
-    fbtFilters.minItems !== debouncedFbtFilters.minItems ||
     fbtFilters.orderLimit !== debouncedFbtFilters.orderLimit ||
     fbtFilters.minConfidence !== debouncedFbtFilters.minConfidence ||
     fbtFilters.minLift !== debouncedFbtFilters.minLift ||
     fbtFilters.minConviction !== debouncedFbtFilters.minConviction;
   const isFbtFpRecomputing = isFbtFilterDebouncing || frequentlyBoughtFpFetching;
-  const isFbtAprioriRecomputing = isFbtFilterDebouncing || frequentlyBoughtAprioriFetching;
-  
+
   // Modern, elegant color palette
   const THEME_COLORS = {
     primary: '#4361ee',
@@ -150,10 +149,6 @@ const AdminDashboard = () => {
     dark: '#212529',
     gray: '#6c757d'
   };
-  
-  // Chart colors - elegant palette
-  const COLORS = [THEME_COLORS.primary, THEME_COLORS.warning, THEME_COLORS.success, 
-                  THEME_COLORS.info, THEME_COLORS.accent1, THEME_COLORS.accent2];
   
   const formatCurrency = (amount) => formatPrice(amount || 0);
   
@@ -185,44 +180,6 @@ const AdminDashboard = () => {
     </Card>
   );
   
-  // Handle period change
-  const handlePeriodChange = (key) => {
-    setPeriod(key);
-  };
-  
-  if (statsError) {
-    return (
-      <AdminLayout>
-        <Alert variant="danger" className="modern-alert">
-          <i className="fas fa-exclamation-circle me-2"></i>
-          Lỗi tải dữ liệu dashboard: {statsError.data?.message || 'Đã xảy ra lỗi'}
-        </Alert>
-      </AdminLayout>
-    );
-  }
-  
-  // Get the appropriate analytics data based on period
-  const getRevenueData = () => {
-    if (!orderAnalytics) return [];
-    
-    // Return filtered analytics data based on period
-    const revenueData = orderAnalytics.revenueByPeriod || [];
-    
-    const filteredData = revenueData.filter(item => {
-      if (period === 'weekly') return item.period === 'week';
-      if (period === 'monthly') return item.period === 'month';
-      if (period === 'yearly') return item.period === 'year';
-      return true;
-    });
-    
-    // Make sure we have data for the selected period
-    if (filteredData.length === 0) {
-      return [];
-    }
-    
-    return filteredData;
-  };
-  
   // Get top products data
   const getTopProducts = () => {
     return topProducts || [];
@@ -236,6 +193,21 @@ const AdminDashboard = () => {
   return (
     <AdminLayout>
       <div className="modern-admin-dashboard">
+        {statsError && (
+          <Alert variant="warning" className="modern-alert mb-3 d-flex flex-wrap align-items-center gap-2">
+            <span>
+              <i className="fas fa-exclamation-triangle me-2" />
+              Không tải được thống kê tổng quan:{' '}
+              <strong>{getRtkQueryErrorMessage(statsError) || 'Đã xảy ra lỗi'}</strong>
+              {statsError?.status === 'FETCH_ERROR' &&
+                ' — Kiểm tra backend đang chạy và REACT_APP_API_URL đúng với URL API (ví dụ http://localhost:5000/api).'}
+            </span>
+            <Button variant="outline-dark" size="sm" onClick={() => refetchDashboardStats()}>
+              <FaSyncAlt className="me-1" />
+              Thử lại
+            </Button>
+          </Alert>
+        )}
         {/* Dashboard Header */}
         <div className="dashboard-header">
           <div>
@@ -295,125 +267,10 @@ const AdminDashboard = () => {
           </Col>
         </Row>
         
-        {/* Charts */}
+        {/* Deal Hot — full width + lưới ngang để không còn khoảng trống sau khi gỡ biểu đồ */}
         <Row className="g-4 mt-1">
-          <Col lg={8}>
-            <Card className="modern-chart-card">
-              <Card.Header className="chart-card-header">
-                <div className="d-flex justify-content-between align-items-center">
-                  <h5 className="mb-0">Tổng quan doanh thu</h5>
-                  <div className="d-flex align-items-center gap-2">
-                    <Tabs
-                      activeKey={period}
-                      onSelect={handlePeriodChange}
-                      className="modern-chart-tabs"
-                    >
-                      <Tab eventKey="weekly" title="Tuần" />
-                      <Tab eventKey="monthly" title="Tháng" />
-                      <Tab eventKey="yearly" title="Năm" />
-                    </Tabs>
-                    {period === 'yearly' && (
-                      <div className="d-flex align-items-center gap-2">
-                        <Form.Label className="mb-0 small text-muted">Từ năm</Form.Label>
-                        <Form.Control
-                          size="sm"
-                          type="number"
-                          min={2000}
-                          max={currentYear}
-                          value={fromYear}
-                          onChange={(e) => {
-                            const value = Number(e.target.value);
-                            if (!Number.isNaN(value)) {
-                              const safeValue = Math.min(Math.max(value, 2000), currentYear);
-                              setFromYear(safeValue);
-                            }
-                          }}
-                          aria-label="Từ năm"
-                          style={{ width: 96 }}
-                        />
-                        <Form.Label className="mb-0 small text-muted">Đến năm</Form.Label>
-                        <Form.Control
-                          size="sm"
-                          type="number"
-                          min={2000}
-                          max={currentYear}
-                          value={toYear}
-                          onChange={(e) => {
-                            const value = Number(e.target.value);
-                            if (!Number.isNaN(value)) {
-                              const safeValue = Math.min(Math.max(value, 2000), currentYear);
-                              setToYear(safeValue);
-                            }
-                          }}
-                          aria-label="Đến năm"
-                          style={{ width: 96 }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </Card.Header>
-              <Card.Body>
-                {orderLoading ? (
-                  <div className="chart-loader">
-                    <Spinner animation="border" variant="primary" />
-                  </div>
-                ) : getRevenueData().length === 0 ? (
-                  <div className="text-center p-4">
-                    <Alert variant="warning">
-                      <i className="fas fa-exclamation-circle me-2"></i>
-                      Không có dữ liệu cho giai đoạn đã chọn. Vui lòng chọn giai đoạn khác.
-                    </Alert>
-                  </div>
-                ) : (
-                  <ResponsiveContainer width="100%" height={350}>
-                    <AreaChart
-                      data={getRevenueData()}
-                      margin={{ top: 10, right: 30, left: 20, bottom: 10 }}
-                    >
-                      <defs>
-                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={THEME_COLORS.primary} stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor={THEME_COLORS.primary} stopOpacity={0.1}/>
-                        </linearGradient>
-                        <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={THEME_COLORS.warning} stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor={THEME_COLORS.warning} stopOpacity={0.1}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="name" stroke={THEME_COLORS.gray} />
-                      <YAxis stroke={THEME_COLORS.gray} />
-                      <Tooltip contentStyle={{ borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-                      <Legend />
-                      <Area
-                        type="monotone"
-                        dataKey="revenue"
-                        name="Doanh thu"
-                        stroke={THEME_COLORS.primary}
-                        fillOpacity={1}
-                        fill="url(#colorRevenue)"
-                        activeDot={{ r: 6 }}
-                        strokeWidth={2}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="orders"
-                        name="Đơn hàng"
-                        stroke={THEME_COLORS.warning}
-                        fillOpacity={1}
-                        fill="url(#colorOrders)"
-                        strokeWidth={2}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                )}
-              </Card.Body>
-            </Card>
-          </Col>
-          
-          <Col lg={4}>
-            <Card className="modern-chart-card h-100">
+          <Col xs={12}>
+            <Card className="modern-chart-card h-100 deal-hot-dashboard-card">
               <Card.Header className="chart-card-header">
                 <h5 className="mb-0">Deal Hot</h5>
               </Card.Header>
@@ -474,91 +331,6 @@ const AdminDashboard = () => {
                   </div>
                 )}
               </Card.Body>
-              <style jsx="true">{`
-                .deal-hot-container {
-                  height: 100%;
-                  display: flex;
-                  flex-direction: column;
-                }
-                .deal-hot-header {
-                  display: flex;
-                  justify-content: center;
-                  margin-bottom: 15px;
-                }
-                .deal-timer {
-                  font-size: 0.9rem;
-                  padding: 6px 12px;
-                }
-                .deal-products {
-                  flex: 1;
-                  overflow-y: auto;
-                }
-                .deal-product-item {
-                  display: flex;
-                  align-items: center;
-                  margin-bottom: 15px;
-                  padding: 10px;
-                  border-radius: 8px;
-                  background-color: #f8f9fa;
-                  transition: all 0.3s ease;
-                }
-                .deal-product-item:hover {
-                  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                  transform: translateY(-2px);
-                }
-                .deal-product-image {
-                  width: 60px;
-                  height: 60px;
-                  border-radius: 6px;
-                  overflow: hidden;
-                  margin-right: 12px;
-                  background-color: #fff;
-                }
-                .deal-product-image img {
-                  width: 100%;
-                  height: 100%;
-                  object-fit: contain;
-                }
-                .placeholder-image {
-                  width: 100%;
-                  height: 100%;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  background-color: #4a6cf7;
-                  color: white;
-                  font-weight: bold;
-                }
-                .deal-product-info {
-                  flex: 1;
-                }
-                .deal-product-name {
-                  font-size: 0.95rem;
-                  margin-bottom: 4px;
-                  white-space: nowrap;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                }
-                .deal-product-price {
-                  display: flex;
-                  align-items: center;
-                  gap: 6px;
-                  margin-bottom: 4px;
-                }
-                .current-price {
-                  font-weight: bold;
-                  color: #f72585;
-                  font-size: 0.9rem;
-                }
-                .original-price {
-                  text-decoration: line-through;
-                  color: #6c757d;
-                  font-size: 0.8rem;
-                }
-                .no-deals-message {
-                  padding: 20px 10px;
-                }
-              `}</style>
             </Card>
           </Col>
         </Row>
@@ -568,13 +340,13 @@ const AdminDashboard = () => {
           <Col xs={12}>
             <Card className="modern-table-card">
               <Card.Header className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Sản phẩm bán chạy</h5>
+                <h5 className="mb-0">Sản phẩm bán chạy <small className="text-muted fw-normal">(top 10, toàn thời gian)</small></h5>
               </Card.Header>
               <Card.Body className="p-0 dashboard-table-body">
                 <TopProductsTable 
                   products={getTopProducts()} 
                   loading={topProductsLoading} 
-                  error={topProductsError ? { message: topProductsError?.data?.message || 'Không thể tải sản phẩm bán chạy' } : null} 
+                  error={topProductsError ? { message: getRtkQueryErrorMessage(topProductsError) || 'Không thể tải sản phẩm bán chạy' } : null} 
                 />
               </Card.Body>
             </Card>
@@ -598,10 +370,10 @@ const AdminDashboard = () => {
         
         {/* Frequently Bought Together Table */}
         <Row className="g-4 mt-1 mb-4">
-          <Col lg={6}>
+          <Col lg={12}>
             <Card className="modern-table-card">
               <Card.Header className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Sản phẩm thường mua cùng nhau (FP-Growth)</h5>
+                <h5 className="mb-0">Sản phẩm thường mua cùng nhau</h5>
               </Card.Header>
               <Card.Body className="p-0">
                 <FrequentlyBoughtTogetherTable 
@@ -609,49 +381,16 @@ const AdminDashboard = () => {
                   loading={frequentlyBoughtFpLoading}
                   isRecomputing={isFbtFpRecomputing}
                   minSupport={fbtFilters.minSupport}
-                  minItems={fbtFilters.minItems}
                   orderLimit={fbtFilters.orderLimit}
                   minConfidence={fbtFilters.minConfidence}
                   minLift={fbtFilters.minLift}
                   minConviction={fbtFilters.minConviction}
                   onMinSupportChange={(value) => setFbtFilters((prev) => ({ ...prev, minSupport: value }))}
-                  onMinItemsChange={(value) => setFbtFilters((prev) => ({ ...prev, minItems: value }))}
                   onOrderLimitChange={(value) => setFbtFilters((prev) => ({ ...prev, orderLimit: value }))}
                   onMinConfidenceChange={(value) => setFbtFilters((prev) => ({ ...prev, minConfidence: value }))}
                   onMinLiftChange={(value) => setFbtFilters((prev) => ({ ...prev, minLift: value }))}
                   onMinConvictionChange={(value) => setFbtFilters((prev) => ({ ...prev, minConviction: value }))}
-                  showAlgorithmControl={false}
-                  algorithm="fp-growth"
-                  error={frequentlyBoughtFpData === undefined && !frequentlyBoughtFpLoading ? { message: 'Không thể tải dữ liệu FP-Growth' } : null}
-                />
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col lg={6}>
-            <Card className="modern-table-card">
-              <Card.Header className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Sản phẩm thường mua cùng nhau (Apriori)</h5>
-              </Card.Header>
-              <Card.Body className="p-0">
-                <FrequentlyBoughtTogetherTable
-                  data={frequentlyBoughtAprioriData}
-                  loading={frequentlyBoughtAprioriLoading}
-                  isRecomputing={isFbtAprioriRecomputing}
-                  minSupport={fbtFilters.minSupport}
-                  minItems={fbtFilters.minItems}
-                  orderLimit={fbtFilters.orderLimit}
-                  minConfidence={fbtFilters.minConfidence}
-                  minLift={fbtFilters.minLift}
-                  minConviction={fbtFilters.minConviction}
-                  algorithm="apriori"
-                  onMinSupportChange={(value) => setFbtFilters((prev) => ({ ...prev, minSupport: value }))}
-                  onMinItemsChange={(value) => setFbtFilters((prev) => ({ ...prev, minItems: value }))}
-                  onOrderLimitChange={(value) => setFbtFilters((prev) => ({ ...prev, orderLimit: value }))}
-                  onMinConfidenceChange={(value) => setFbtFilters((prev) => ({ ...prev, minConfidence: value }))}
-                  onMinLiftChange={(value) => setFbtFilters((prev) => ({ ...prev, minLift: value }))}
-                  onMinConvictionChange={(value) => setFbtFilters((prev) => ({ ...prev, minConviction: value }))}
-                  showAlgorithmControl={false}
-                  error={frequentlyBoughtAprioriData === undefined && !frequentlyBoughtAprioriLoading ? { message: 'Không thể tải dữ liệu Apriori' } : null}
+                  error={frequentlyBoughtFpData === undefined && !frequentlyBoughtFpLoading ? { message: 'Không thể tải dữ liệu FBT' } : null}
                 />
               </Card.Body>
             </Card>

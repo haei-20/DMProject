@@ -163,6 +163,132 @@
   height: 300px;
 }
 
+.deal-hot-dashboard-card .chart-loader {
+  height: 180px;
+}
+
+/* Deal Hot — full width + lưới ngang (tránh khoảng trống sau khi gỡ biểu đồ doanh thu) */
+.deal-hot-dashboard-card .deal-hot-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.deal-hot-dashboard-card .deal-hot-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.deal-hot-dashboard-card .deal-timer {
+  font-size: 0.9rem;
+  padding: 6px 12px;
+}
+
+.deal-hot-dashboard-card .deal-products {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  align-content: start;
+}
+
+.deal-hot-dashboard-card .deal-product-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  min-height: 88px;
+}
+
+.deal-hot-dashboard-card .deal-product-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.deal-hot-dashboard-card .deal-product-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-right: 12px;
+  background-color: #fff;
+  flex-shrink: 0;
+}
+
+.deal-hot-dashboard-card .deal-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.deal-hot-dashboard-card .placeholder-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4a6cf7;
+  color: white;
+  font-weight: bold;
+}
+
+.deal-hot-dashboard-card .deal-product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.deal-hot-dashboard-card .deal-product-name {
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  white-space: normal;
+  overflow: visible;
+  word-break: break-word;
+  line-height: 1.3;
+}
+
+.deal-hot-dashboard-card .deal-product-price {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.deal-hot-dashboard-card .current-price {
+  font-weight: bold;
+  color: #f72585;
+  font-size: 0.9rem;
+}
+
+.deal-hot-dashboard-card .original-price {
+  text-decoration: line-through;
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+.deal-hot-dashboard-card .no-deals-message {
+  padding: 20px 10px;
+  grid-column: 1 / -1;
+}
+
+/* Recharts cần ô cha có min-width/min-height rõ — tránh biểu đồ trắng trong flex/col */
+.chart-card-body {
+  min-width: 0;
+}
+
+.admin-revenue-chart-area {
+  width: 100%;
+  min-width: 0;
+  min-height: 350px;
+}
+
+.admin-revenue-chart-area .recharts-responsive-container {
+  min-height: 350px;
+}
+
 /* Table card styling */
 .modern-table-card {
   border: none;
@@ -197,7 +323,8 @@
 .dashboard-table-body {
   max-height: 430px;
   overflow-y: auto;
-  overflow-x: hidden;
+  /* Cho phép cuộn ngang khi bảng rộng — tránh cắt (che) nội dung cột sản phẩm */
+  overflow-x: auto;
 }
 
 .dashboard-table-body thead th {

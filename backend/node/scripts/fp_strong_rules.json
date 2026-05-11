@@ -1,0 +1,5024 @@
+[
+  {
+    "antecedent": [
+      "23172"
+    ],
+    "consequent": [
+      "23170",
+      "23171"
+    ],
+    "support": 0.010495,
+    "confidence": 0.824885,
+    "lift": 64.831383,
+    "conviction": 5.6379,
+    "supportPercent": "1.05%",
+    "confidencePercent": "82.49%"
+  },
+  {
+    "antecedent": [
+      "23170",
+      "23171"
+    ],
+    "consequent": [
+      "23172"
+    ],
+    "support": 0.010495,
+    "confidence": 0.824885,
+    "lift": 64.831383,
+    "conviction": 5.6379,
+    "supportPercent": "1.05%",
+    "confidencePercent": "82.49%"
+  },
+  {
+    "antecedent": [
+      "23170",
+      "23172"
+    ],
+    "consequent": [
+      "23171"
+    ],
+    "support": 0.010495,
+    "confidence": 0.937173,
+    "lift": 62.927093,
+    "conviction": 15.6796,
+    "supportPercent": "1.05%",
+    "confidencePercent": "93.72%"
+  },
+  {
+    "antecedent": [
+      "23171"
+    ],
+    "consequent": [
+      "23170",
+      "23172"
+    ],
+    "support": 0.010495,
+    "confidence": 0.704724,
+    "lift": 62.927093,
+    "conviction": 3.3487,
+    "supportPercent": "1.05%",
+    "confidencePercent": "70.47%"
+  },
+  {
+    "antecedent": [
+      "23171"
+    ],
+    "consequent": [
+      "23172"
+    ],
+    "support": 0.011434,
+    "confidence": 0.767717,
+    "lift": 60.338274,
+    "conviction": 4.2503,
+    "supportPercent": "1.14%",
+    "confidencePercent": "76.77%"
+  },
+  {
+    "antecedent": [
+      "23172"
+    ],
+    "consequent": [
+      "23171"
+    ],
+    "support": 0.011434,
+    "confidence": 0.898618,
+    "lift": 60.338274,
+    "conviction": 9.7167,
+    "supportPercent": "1.14%",
+    "confidencePercent": "89.86%"
+  },
+  {
+    "antecedent": [
+      "23175"
+    ],
+    "consequent": [
+      "23174"
+    ],
+    "support": 0.011316,
+    "confidence": 0.753906,
+    "lift": 52.267769,
+    "conviction": 4.0049,
+    "supportPercent": "1.13%",
+    "confidencePercent": "75.39%"
+  },
+  {
+    "antecedent": [
+      "23174"
+    ],
+    "consequent": [
+      "23175"
+    ],
+    "support": 0.011316,
+    "confidence": 0.784553,
+    "lift": 52.267769,
+    "conviction": 4.5718,
+    "supportPercent": "1.13%",
+    "confidencePercent": "78.46%"
+  },
+  {
+    "antecedent": [
+      "22745"
+    ],
+    "consequent": [
+      "22746"
+    ],
+    "support": 0.010613,
+    "confidence": 0.660584,
+    "lift": 51.444106,
+    "conviction": 2.9084,
+    "supportPercent": "1.06%",
+    "confidencePercent": "66.06%"
+  },
+  {
+    "antecedent": [
+      "22746"
+    ],
+    "consequent": [
+      "22745"
+    ],
+    "support": 0.010613,
+    "confidence": 0.826484,
+    "lift": 51.444106,
+    "conviction": 5.6706,
+    "supportPercent": "1.06%",
+    "confidencePercent": "82.65%"
+  },
+  {
+    "antecedent": [
+      "23171",
+      "23172"
+    ],
+    "consequent": [
+      "23170"
+    ],
+    "support": 0.010495,
+    "confidence": 0.917949,
+    "lift": 51.329887,
+    "conviction": 11.9695,
+    "supportPercent": "1.05%",
+    "confidencePercent": "91.79%"
+  },
+  {
+    "antecedent": [
+      "23170"
+    ],
+    "consequent": [
+      "23171",
+      "23172"
+    ],
+    "support": 0.010495,
+    "confidence": 0.586885,
+    "lift": 51.329887,
+    "conviction": 2.393,
+    "supportPercent": "1.05%",
+    "confidencePercent": "58.69%"
+  },
+  {
+    "antecedent": [
+      "23170"
+    ],
+    "consequent": [
+      "23172"
+    ],
+    "support": 0.011199,
+    "confidence": 0.62623,
+    "lift": 49.218176,
+    "conviction": 2.6414,
+    "supportPercent": "1.12%",
+    "confidencePercent": "62.62%"
+  },
+  {
+    "antecedent": [
+      "23172"
+    ],
+    "consequent": [
+      "23170"
+    ],
+    "support": 0.011199,
+    "confidence": 0.880184,
+    "lift": 49.218176,
+    "conviction": 8.1969,
+    "supportPercent": "1.12%",
+    "confidencePercent": "88.02%"
+  },
+  {
+    "antecedent": [
+      "22746"
+    ],
+    "consequent": [
+      "22748"
+    ],
+    "support": 0.010965,
+    "confidence": 0.853881,
+    "lift": 49.033486,
+    "conviction": 6.7246,
+    "supportPercent": "1.10%",
+    "confidencePercent": "85.39%"
+  },
+  {
+    "antecedent": [
+      "22748"
+    ],
+    "consequent": [
+      "22746"
+    ],
+    "support": 0.010965,
+    "confidence": 0.62963,
+    "lift": 49.033486,
+    "conviction": 2.6653,
+    "supportPercent": "1.10%",
+    "confidencePercent": "62.96%"
+  },
+  {
+    "antecedent": [
+      "23170"
+    ],
+    "consequent": [
+      "23171"
+    ],
+    "support": 0.012724,
+    "confidence": 0.711475,
+    "lift": 47.772493,
+    "conviction": 3.4143,
+    "supportPercent": "1.27%",
+    "confidencePercent": "71.15%"
+  },
+  {
+    "antecedent": [
+      "23171"
+    ],
+    "consequent": [
+      "23170"
+    ],
+    "support": 0.012724,
+    "confidence": 0.854331,
+    "lift": 47.772493,
+    "conviction": 6.7421,
+    "supportPercent": "1.27%",
+    "confidencePercent": "85.43%"
+  },
+  {
+    "antecedent": [
+      "22748"
+    ],
+    "consequent": [
+      "22745"
+    ],
+    "support": 0.013075,
+    "confidence": 0.750842,
+    "lift": 46.735789,
+    "conviction": 3.949,
+    "supportPercent": "1.31%",
+    "confidencePercent": "75.08%"
+  },
+  {
+    "antecedent": [
+      "22745"
+    ],
+    "consequent": [
+      "22748"
+    ],
+    "support": 0.013075,
+    "confidence": 0.813869,
+    "lift": 46.735789,
+    "conviction": 5.279,
+    "supportPercent": "1.31%",
+    "confidencePercent": "81.39%"
+  },
+  {
+    "antecedent": [
+      "21932"
+    ],
+    "consequent": [
+      "21933"
+    ],
+    "support": 0.010495,
+    "confidence": 0.613014,
+    "lift": 41.819795,
+    "conviction": 2.5462,
+    "supportPercent": "1.05%",
+    "confidencePercent": "61.30%"
+  },
+  {
+    "antecedent": [
+      "21933"
+    ],
+    "consequent": [
+      "21932"
+    ],
+    "support": 0.010495,
+    "confidence": 0.716,
+    "lift": 41.819795,
+    "conviction": 3.4608,
+    "supportPercent": "1.05%",
+    "confidencePercent": "71.60%"
+  },
+  {
+    "antecedent": [
+      "84596B"
+    ],
+    "consequent": [
+      "84596F"
+    ],
+    "support": 0.011727,
+    "confidence": 0.607903,
+    "lift": 40.185198,
+    "conviction": 2.5118,
+    "supportPercent": "1.17%",
+    "confidencePercent": "60.79%"
+  },
+  {
+    "antecedent": [
+      "84596F"
+    ],
+    "consequent": [
+      "84596B"
+    ],
+    "support": 0.011727,
+    "confidence": 0.775194,
+    "lift": 40.185198,
+    "conviction": 4.3625,
+    "supportPercent": "1.17%",
+    "confidencePercent": "77.52%"
+  },
+  {
+    "antecedent": [
+      "23173"
+    ],
+    "consequent": [
+      "23174"
+    ],
+    "support": 0.010789,
+    "confidence": 0.555891,
+    "lift": 38.539533,
+    "conviction": 2.2192,
+    "supportPercent": "1.08%",
+    "confidencePercent": "55.59%"
+  },
+  {
+    "antecedent": [
+      "23174"
+    ],
+    "consequent": [
+      "23173"
+    ],
+    "support": 0.010789,
+    "confidence": 0.747967,
+    "lift": 38.539533,
+    "conviction": 3.8907,
+    "supportPercent": "1.08%",
+    "confidencePercent": "74.80%"
+  },
+  {
+    "antecedent": [
+      "22570"
+    ],
+    "consequent": [
+      "22569"
+    ],
+    "support": 0.011492,
+    "confidence": 0.624204,
+    "lift": 37.223064,
+    "conviction": 2.6164,
+    "supportPercent": "1.15%",
+    "confidencePercent": "62.42%"
+  },
+  {
+    "antecedent": [
+      "22569"
+    ],
+    "consequent": [
+      "22570"
+    ],
+    "support": 0.011492,
+    "confidence": 0.685315,
+    "lift": 37.223064,
+    "conviction": 3.1193,
+    "supportPercent": "1.15%",
+    "confidencePercent": "68.53%"
+  },
+  {
+    "antecedent": [
+      "23175"
+    ],
+    "consequent": [
+      "23173"
+    ],
+    "support": 0.01073,
+    "confidence": 0.714844,
+    "lift": 36.83281,
+    "conviction": 3.4388,
+    "supportPercent": "1.07%",
+    "confidencePercent": "71.48%"
+  },
+  {
+    "antecedent": [
+      "23173"
+    ],
+    "consequent": [
+      "23175"
+    ],
+    "support": 0.01073,
+    "confidence": 0.55287,
+    "lift": 36.83281,
+    "conviction": 2.2029,
+    "supportPercent": "1.07%",
+    "confidencePercent": "55.29%"
+  },
+  {
+    "antecedent": [
+      "47590B"
+    ],
+    "consequent": [
+      "47590A"
+    ],
+    "support": 0.014013,
+    "confidence": 0.702941,
+    "lift": 36.775036,
+    "conviction": 3.302,
+    "supportPercent": "1.40%",
+    "confidencePercent": "70.29%"
+  },
+  {
+    "antecedent": [
+      "47590A"
+    ],
+    "consequent": [
+      "47590B"
+    ],
+    "support": 0.014013,
+    "confidence": 0.733129,
+    "lift": 36.775036,
+    "conviction": 3.6724,
+    "supportPercent": "1.40%",
+    "confidencePercent": "73.31%"
+  },
+  {
+    "antecedent": [
+      "84997D"
+    ],
+    "consequent": [
+      "84997C"
+    ],
+    "support": 0.011551,
+    "confidence": 0.56447,
+    "lift": 36.466039,
+    "conviction": 2.2605,
+    "supportPercent": "1.16%",
+    "confidencePercent": "56.45%"
+  },
+  {
+    "antecedent": [
+      "84997C"
+    ],
+    "consequent": [
+      "84997D"
+    ],
+    "support": 0.011551,
+    "confidence": 0.746212,
+    "lift": 36.466039,
+    "conviction": 3.8597,
+    "supportPercent": "1.16%",
+    "confidencePercent": "74.62%"
+  },
+  {
+    "antecedent": [
+      "22579"
+    ],
+    "consequent": [
+      "22578"
+    ],
+    "support": 0.011903,
+    "confidence": 0.831967,
+    "lift": 36.289516,
+    "conviction": 5.8148,
+    "supportPercent": "1.19%",
+    "confidencePercent": "83.20%"
+  },
+  {
+    "antecedent": [
+      "22578"
+    ],
+    "consequent": [
+      "22579"
+    ],
+    "support": 0.011903,
+    "confidence": 0.519182,
+    "lift": 36.289516,
+    "conviction": 2.05,
+    "supportPercent": "1.19%",
+    "confidencePercent": "51.92%"
+  },
+  {
+    "antecedent": [
+      "23295"
+    ],
+    "consequent": [
+      "23294"
+    ],
+    "support": 0.010085,
+    "confidence": 0.544304,
+    "lift": 35.704236,
+    "conviction": 2.161,
+    "supportPercent": "1.01%",
+    "confidencePercent": "54.43%"
+  },
+  {
+    "antecedent": [
+      "23294"
+    ],
+    "consequent": [
+      "23295"
+    ],
+    "support": 0.010085,
+    "confidence": 0.661538,
+    "lift": 35.704236,
+    "conviction": 2.8998,
+    "supportPercent": "1.01%",
+    "confidencePercent": "66.15%"
+  },
+  {
+    "antecedent": [
+      "82581"
+    ],
+    "consequent": [
+      "82580"
+    ],
+    "support": 0.012665,
+    "confidence": 0.739726,
+    "lift": 34.754896,
+    "conviction": 3.7603,
+    "supportPercent": "1.27%",
+    "confidencePercent": "73.97%"
+  },
+  {
+    "antecedent": [
+      "82580"
+    ],
+    "consequent": [
+      "82581"
+    ],
+    "support": 0.012665,
+    "confidence": 0.595041,
+    "lift": 34.754896,
+    "conviction": 2.4271,
+    "supportPercent": "1.27%",
+    "confidencePercent": "59.50%"
+  },
+  {
+    "antecedent": [
+      "21668"
+    ],
+    "consequent": [
+      "21669"
+    ],
+    "support": 0.011316,
+    "confidence": 0.632787,
+    "lift": 33.516088,
+    "conviction": 2.6718,
+    "supportPercent": "1.13%",
+    "confidencePercent": "63.28%"
+  },
+  {
+    "antecedent": [
+      "21669"
+    ],
+    "consequent": [
+      "21668"
+    ],
+    "support": 0.011316,
+    "confidence": 0.599379,
+    "lift": 33.516088,
+    "conviction": 2.4515,
+    "supportPercent": "1.13%",
+    "confidencePercent": "59.94%"
+  },
+  {
+    "antecedent": [
+      "22578"
+    ],
+    "consequent": [
+      "22577"
+    ],
+    "support": 0.016887,
+    "confidence": 0.736573,
+    "lift": 29.768366,
+    "conviction": 3.7022,
+    "supportPercent": "1.69%",
+    "confidencePercent": "73.66%"
+  },
+  {
+    "antecedent": [
+      "22577"
+    ],
+    "consequent": [
+      "22578"
+    ],
+    "support": 0.016887,
+    "confidence": 0.682464,
+    "lift": 29.768366,
+    "conviction": 3.0771,
+    "supportPercent": "1.69%",
+    "confidencePercent": "68.25%"
+  },
+  {
+    "antecedent": [
+      "22579"
+    ],
+    "consequent": [
+      "22577"
+    ],
+    "support": 0.010437,
+    "confidence": 0.729508,
+    "lift": 29.482849,
+    "conviction": 3.6055,
+    "supportPercent": "1.04%",
+    "confidencePercent": "72.95%"
+  },
+  {
+    "antecedent": [
+      "22749"
+    ],
+    "consequent": [
+      "22750"
+    ],
+    "support": 0.013251,
+    "confidence": 0.597884,
+    "lift": 29.470823,
+    "conviction": 2.4364,
+    "supportPercent": "1.33%",
+    "confidencePercent": "59.79%"
+  },
+  {
+    "antecedent": [
+      "22750"
+    ],
+    "consequent": [
+      "22749"
+    ],
+    "support": 0.013251,
+    "confidence": 0.653179,
+    "lift": 29.470823,
+    "conviction": 2.8194,
+    "supportPercent": "1.33%",
+    "confidencePercent": "65.32%"
+  },
+  {
+    "antecedent": [
+      "23294"
+    ],
+    "consequent": [
+      "23293"
+    ],
+    "support": 0.010847,
+    "confidence": 0.711538,
+    "lift": 29.031791,
+    "conviction": 3.3817,
+    "supportPercent": "1.08%",
+    "confidencePercent": "71.15%"
+  },
+  {
+    "antecedent": [
+      "23293"
+    ],
+    "consequent": [
+      "23295"
+    ],
+    "support": 0.012899,
+    "confidence": 0.526316,
+    "lift": 28.406063,
+    "conviction": 2.072,
+    "supportPercent": "1.29%",
+    "confidencePercent": "52.63%"
+  },
+  {
+    "antecedent": [
+      "23295"
+    ],
+    "consequent": [
+      "23293"
+    ],
+    "support": 0.012899,
+    "confidence": 0.696203,
+    "lift": 28.406063,
+    "conviction": 3.211,
+    "supportPercent": "1.29%",
+    "confidencePercent": "69.62%"
+  },
+  {
+    "antecedent": [
+      "22142"
+    ],
+    "consequent": [
+      "22144"
+    ],
+    "support": 0.010495,
+    "confidence": 0.621528,
+    "lift": 28.342664,
+    "conviction": 2.5843,
+    "supportPercent": "1.05%",
+    "confidencePercent": "62.15%"
+  },
+  {
+    "antecedent": [
+      "23296"
+    ],
+    "consequent": [
+      "23293"
+    ],
+    "support": 0.011082,
+    "confidence": 0.675,
+    "lift": 27.540969,
+    "conviction": 3.0015,
+    "supportPercent": "1.11%",
+    "confidencePercent": "67.50%"
+  },
+  {
+    "antecedent": [
+      "22570"
+    ],
+    "consequent": [
+      "22568"
+    ],
+    "support": 0.011316,
+    "confidence": 0.61465,
+    "lift": 26.471844,
+    "conviction": 2.5348,
+    "supportPercent": "1.13%",
+    "confidencePercent": "61.47%"
+  },
+  {
+    "antecedent": [
+      "22697",
+      "22423"
+    ],
+    "consequent": [
+      "22698",
+      "22699"
+    ],
+    "support": 0.013017,
+    "confidence": 0.641618,
+    "lift": 26.368201,
+    "conviction": 2.7224,
+    "supportPercent": "1.30%",
+    "confidencePercent": "64.16%"
+  },
+  {
+    "antecedent": [
+      "22698",
+      "22699"
+    ],
+    "consequent": [
+      "22697",
+      "22423"
+    ],
+    "support": 0.013017,
+    "confidence": 0.53494,
+    "lift": 26.368201,
+    "conviction": 2.1066,
+    "supportPercent": "1.30%",
+    "confidencePercent": "53.49%"
+  },
+  {
+    "antecedent": [
+      "23202",
+      "23199"
+    ],
+    "consequent": [
+      "23200"
+    ],
+    "support": 0.01032,
+    "confidence": 0.654275,
+    "lift": 26.010866,
+    "conviction": 2.8197,
+    "supportPercent": "1.03%",
+    "confidencePercent": "65.43%"
+  },
+  {
+    "antecedent": [
+      "22698",
+      "22423"
+    ],
+    "consequent": [
+      "22697",
+      "22699"
+    ],
+    "support": 0.013017,
+    "confidence": 0.770833,
+    "lift": 25.777574,
+    "conviction": 4.2331,
+    "supportPercent": "1.30%",
+    "confidencePercent": "77.08%"
+  },
+  {
+    "antecedent": [
+      "22569"
+    ],
+    "consequent": [
+      "22568"
+    ],
+    "support": 0.010026,
+    "confidence": 0.597902,
+    "lift": 25.750556,
+    "conviction": 2.4292,
+    "supportPercent": "1.00%",
+    "confidencePercent": "59.79%"
+  },
+  {
+    "antecedent": [
+      "22141"
+    ],
+    "consequent": [
+      "22144"
+    ],
+    "support": 0.010202,
+    "confidence": 0.54717,
+    "lift": 24.951821,
+    "conviction": 2.1599,
+    "supportPercent": "1.02%",
+    "confidencePercent": "54.72%"
+  },
+  {
+    "antecedent": [
+      "22697",
+      "22699",
+      "22423"
+    ],
+    "consequent": [
+      "22698"
+    ],
+    "support": 0.013017,
+    "confidence": 0.765517,
+    "lift": 24.727077,
+    "conviction": 4.1327,
+    "supportPercent": "1.30%",
+    "confidencePercent": "76.55%"
+  },
+  {
+    "antecedent": [
+      "23203",
+      "23199"
+    ],
+    "consequent": [
+      "23200"
+    ],
+    "support": 0.010906,
+    "confidence": 0.615894,
+    "lift": 24.485018,
+    "conviction": 2.538,
+    "supportPercent": "1.09%",
+    "confidencePercent": "61.59%"
+  },
+  {
+    "antecedent": [
+      "22192"
+    ],
+    "consequent": [
+      "22193"
+    ],
+    "support": 0.010261,
+    "confidence": 0.55205,
+    "lift": 23.836002,
+    "conviction": 2.1807,
+    "supportPercent": "1.03%",
+    "confidencePercent": "55.21%"
+  },
+  {
+    "antecedent": [
+      "22698",
+      "22699",
+      "22423"
+    ],
+    "consequent": [
+      "22697"
+    ],
+    "support": 0.013017,
+    "confidence": 0.895161,
+    "lift": 23.487655,
+    "conviction": 9.1749,
+    "supportPercent": "1.30%",
+    "confidencePercent": "89.52%"
+  },
+  {
+    "antecedent": [
+      "22697",
+      "22423"
+    ],
+    "consequent": [
+      "22698"
+    ],
+    "support": 0.014717,
+    "confidence": 0.725434,
+    "lift": 23.432327,
+    "conviction": 3.5294,
+    "supportPercent": "1.47%",
+    "confidencePercent": "72.54%"
+  },
+  {
+    "antecedent": [
+      "22697",
+      "22699"
+    ],
+    "consequent": [
+      "22698"
+    ],
+    "support": 0.021636,
+    "confidence": 0.723529,
+    "lift": 23.370822,
+    "conviction": 3.505,
+    "supportPercent": "2.16%",
+    "confidencePercent": "72.35%"
+  },
+  {
+    "antecedent": [
+      "22698"
+    ],
+    "consequent": [
+      "22697",
+      "22699"
+    ],
+    "support": 0.021636,
+    "confidence": 0.698864,
+    "lift": 23.370822,
+    "conviction": 3.2215,
+    "supportPercent": "2.16%",
+    "confidencePercent": "69.89%"
+  },
+  {
+    "antecedent": [
+      "22697"
+    ],
+    "consequent": [
+      "22698",
+      "22699"
+    ],
+    "support": 0.021636,
+    "confidence": 0.567692,
+    "lift": 23.330102,
+    "conviction": 2.2569,
+    "supportPercent": "2.16%",
+    "confidencePercent": "56.77%"
+  },
+  {
+    "antecedent": [
+      "22698",
+      "22699"
+    ],
+    "consequent": [
+      "22697"
+    ],
+    "support": 0.021636,
+    "confidence": 0.889157,
+    "lift": 23.330102,
+    "conviction": 8.6779,
+    "supportPercent": "2.16%",
+    "confidencePercent": "88.92%"
+  },
+  {
+    "antecedent": [
+      "22698",
+      "22423"
+    ],
+    "consequent": [
+      "22697"
+    ],
+    "support": 0.014717,
+    "confidence": 0.871528,
+    "lift": 22.867548,
+    "conviction": 7.4871,
+    "supportPercent": "1.47%",
+    "confidencePercent": "87.15%"
+  },
+  {
+    "antecedent": [
+      "22699",
+      "22423"
+    ],
+    "consequent": [
+      "22697",
+      "22698"
+    ],
+    "support": 0.013017,
+    "confidence": 0.57513,
+    "lift": 22.549044,
+    "conviction": 2.2936,
+    "supportPercent": "1.30%",
+    "confidencePercent": "57.51%"
+  },
+  {
+    "antecedent": [
+      "22697",
+      "22698"
+    ],
+    "consequent": [
+      "22699",
+      "22423"
+    ],
+    "support": 0.013017,
+    "confidence": 0.510345,
+    "lift": 22.549044,
+    "conviction": 1.996,
+    "supportPercent": "1.30%",
+    "confidencePercent": "51.03%"
+  },
+  {
+    "antecedent": [
+      "22191"
+    ],
+    "consequent": [
+      "22193"
+    ],
+    "support": 0.011199,
+    "confidence": 0.512064,
+    "lift": 22.109512,
+    "conviction": 2.002,
+    "supportPercent": "1.12%",
+    "confidencePercent": "51.21%"
+  },
+  {
+    "antecedent": [
+      "22698"
+    ],
+    "consequent": [
+      "22697"
+    ],
+    "support": 0.025506,
+    "confidence": 0.823864,
+    "lift": 21.616914,
+    "conviction": 5.461,
+    "supportPercent": "2.55%",
+    "confidencePercent": "82.39%"
+  },
+  {
+    "antecedent": [
+      "22697"
+    ],
+    "consequent": [
+      "22698"
+    ],
+    "support": 0.025506,
+    "confidence": 0.669231,
+    "lift": 21.616914,
+    "conviction": 2.9297,
+    "supportPercent": "2.55%",
+    "confidencePercent": "66.92%"
+  },
+  {
+    "antecedent": [
+      "22629"
+    ],
+    "consequent": [
+      "22630"
+    ],
+    "support": 0.020463,
+    "confidence": 0.625448,
+    "lift": 20.998063,
+    "conviction": 2.5903,
+    "supportPercent": "2.05%",
+    "confidencePercent": "62.54%"
+  },
+  {
+    "antecedent": [
+      "22630"
+    ],
+    "consequent": [
+      "22629"
+    ],
+    "support": 0.020463,
+    "confidence": 0.687008,
+    "lift": 20.998063,
+    "conviction": 3.0904,
+    "supportPercent": "2.05%",
+    "confidencePercent": "68.70%"
+  },
+  {
+    "antecedent": [
+      "21231"
+    ],
+    "consequent": [
+      "21232"
+    ],
+    "support": 0.012606,
+    "confidence": 0.625,
+    "lift": 20.778509,
+    "conviction": 2.5865,
+    "supportPercent": "1.26%",
+    "confidencePercent": "62.50%"
+  },
+  {
+    "antecedent": [
+      "22699",
+      "22423"
+    ],
+    "consequent": [
+      "22698"
+    ],
+    "support": 0.014541,
+    "confidence": 0.642487,
+    "lift": 20.753062,
+    "conviction": 2.7105,
+    "supportPercent": "1.45%",
+    "confidencePercent": "64.25%"
+  },
+  {
+    "antecedent": [
+      "22697",
+      "22698",
+      "22423"
+    ],
+    "consequent": [
+      "22699"
+    ],
+    "support": 0.013017,
+    "confidence": 0.884462,
+    "lift": 20.551093,
+    "conviction": 8.2827,
+    "supportPercent": "1.30%",
+    "confidencePercent": "88.45%"
+  },
+  {
+    "antecedent": [
+      "23200",
+      "23202"
+    ],
+    "consequent": [
+      "23199"
+    ],
+    "support": 0.01032,
+    "confidence": 0.77193,
+    "lift": 20.348166,
+    "conviction": 4.2183,
+    "supportPercent": "1.03%",
+    "confidencePercent": "77.19%"
+  },
+  {
+    "antecedent": [
+      "23343"
+    ],
+    "consequent": [
+      "23344"
+    ],
+    "support": 0.013779,
+    "confidence": 0.645604,
+    "lift": 20.056071,
+    "conviction": 2.7309,
+    "supportPercent": "1.38%",
+    "confidencePercent": "64.56%"
+  },
+  {
+    "antecedent": [
+      "22698",
+      "22423"
+    ],
+    "consequent": [
+      "22699"
+    ],
+    "support": 0.014541,
+    "confidence": 0.861111,
+    "lift": 20.008515,
+    "conviction": 6.8901,
+    "supportPercent": "1.45%",
+    "confidencePercent": "86.11%"
+  },
+  {
+    "antecedent": [
+      "22699",
+      "22423"
+    ],
+    "consequent": [
+      "22697"
+    ],
+    "support": 0.017004,
+    "confidence": 0.751295,
+    "lift": 19.712834,
+    "conviction": 3.8676,
+    "supportPercent": "1.70%",
+    "confidencePercent": "75.13%"
+  },
+  {
+    "antecedent": [
+      "22699"
+    ],
+    "consequent": [
+      "22697",
+      "22698"
+    ],
+    "support": 0.021636,
+    "confidence": 0.502725,
+    "lift": 19.710279,
+    "conviction": 1.9597,
+    "supportPercent": "2.16%",
+    "confidencePercent": "50.27%"
+  },
+  {
+    "antecedent": [
+      "22697",
+      "22698"
+    ],
+    "consequent": [
+      "22699"
+    ],
+    "support": 0.021636,
+    "confidence": 0.848276,
+    "lift": 19.710279,
+    "conviction": 6.3073,
+    "supportPercent": "2.16%",
+    "confidencePercent": "84.83%"
+  },
+  {
+    "antecedent": [
+      "22697",
+      "22423"
+    ],
+    "consequent": [
+      "22699"
+    ],
+    "support": 0.017004,
+    "confidence": 0.83815,
+    "lift": 19.475004,
+    "conviction": 5.9127,
+    "supportPercent": "1.70%",
+    "confidencePercent": "83.81%"
+  },
+  {
+    "antecedent": [
+      "22867"
+    ],
+    "consequent": [
+      "22866"
+    ],
+    "support": 0.013779,
+    "confidence": 0.521064,
+    "lift": 19.361115,
+    "conviction": 2.0318,
+    "supportPercent": "1.38%",
+    "confidencePercent": "52.11%"
+  },
+  {
+    "antecedent": [
+      "22866"
+    ],
+    "consequent": [
+      "22867"
+    ],
+    "support": 0.013779,
+    "confidence": 0.511983,
+    "lift": 19.361115,
+    "conviction": 1.9949,
+    "supportPercent": "1.38%",
+    "confidencePercent": "51.20%"
+  },
+  {
+    "antecedent": [
+      "23200",
+      "23203"
+    ],
+    "consequent": [
+      "23199"
+    ],
+    "support": 0.010906,
+    "confidence": 0.726562,
+    "lift": 19.152277,
+    "conviction": 3.5184,
+    "supportPercent": "1.09%",
+    "confidencePercent": "72.66%"
+  },
+  {
+    "antecedent": [
+      "22632"
+    ],
+    "consequent": [
+      "22866"
+    ],
+    "support": 0.010437,
+    "confidence": 0.512968,
+    "lift": 19.060293,
+    "conviction": 1.998,
+    "supportPercent": "1.04%",
+    "confidencePercent": "51.30%"
+  },
+  {
+    "antecedent": [
+      "22866"
+    ],
+    "consequent": [
+      "22865"
+    ],
+    "support": 0.016124,
+    "confidence": 0.599129,
+    "lift": 18.922476,
+    "conviction": 2.4156,
+    "supportPercent": "1.61%",
+    "confidencePercent": "59.91%"
+  },
+  {
+    "antecedent": [
+      "22865"
+    ],
+    "consequent": [
+      "22866"
+    ],
+    "support": 0.016124,
+    "confidence": 0.509259,
+    "lift": 18.922476,
+    "conviction": 1.9829,
+    "supportPercent": "1.61%",
+    "confidencePercent": "50.93%"
+  },
+  {
+    "antecedent": [
+      "21929",
+      "85099B"
+    ],
+    "consequent": [
+      "21928"
+    ],
+    "support": 0.01032,
+    "confidence": 0.564103,
+    "lift": 18.608838,
+    "conviction": 2.2246,
+    "supportPercent": "1.03%",
+    "confidencePercent": "56.41%"
+  },
+  {
+    "antecedent": [
+      "22625"
+    ],
+    "consequent": [
+      "22624"
+    ],
+    "support": 0.014131,
+    "confidence": 0.596535,
+    "lift": 18.397647,
+    "conviction": 2.3982,
+    "supportPercent": "1.41%",
+    "confidencePercent": "59.65%"
+  },
+  {
+    "antecedent": [
+      "21914"
+    ],
+    "consequent": [
+      "21915"
+    ],
+    "support": 0.01331,
+    "confidence": 0.521839,
+    "lift": 18.388359,
+    "conviction": 2.032,
+    "supportPercent": "1.33%",
+    "confidencePercent": "52.18%"
+  },
+  {
+    "antecedent": [
+      "22698"
+    ],
+    "consequent": [
+      "22699"
+    ],
+    "support": 0.024333,
+    "confidence": 0.785985,
+    "lift": 18.262904,
+    "conviction": 4.4715,
+    "supportPercent": "2.43%",
+    "confidencePercent": "78.60%"
+  },
+  {
+    "antecedent": [
+      "22699"
+    ],
+    "consequent": [
+      "22698"
+    ],
+    "support": 0.024333,
+    "confidence": 0.565395,
+    "lift": 18.262904,
+    "conviction": 2.2297,
+    "supportPercent": "2.43%",
+    "confidencePercent": "56.54%"
+  },
+  {
+    "antecedent": [
+      "22699"
+    ],
+    "consequent": [
+      "22697"
+    ],
+    "support": 0.029903,
+    "confidence": 0.694823,
+    "lift": 18.231084,
+    "conviction": 3.1519,
+    "supportPercent": "2.99%",
+    "confidencePercent": "69.48%"
+  },
+  {
+    "antecedent": [
+      "22697"
+    ],
+    "consequent": [
+      "22699"
+    ],
+    "support": 0.029903,
+    "confidence": 0.784615,
+    "lift": 18.231084,
+    "conviction": 4.443,
+    "supportPercent": "2.99%",
+    "confidencePercent": "78.46%"
+  },
+  {
+    "antecedent": [
+      "22356"
+    ],
+    "consequent": [
+      "20724"
+    ],
+    "support": 0.016242,
+    "confidence": 0.656398,
+    "lift": 17.797885,
+    "conviction": 2.803,
+    "supportPercent": "1.62%",
+    "confidencePercent": "65.64%"
+  },
+  {
+    "antecedent": [
+      "22867"
+    ],
+    "consequent": [
+      "22865"
+    ],
+    "support": 0.014893,
+    "confidence": 0.563193,
+    "lift": 17.787509,
+    "conviction": 2.2169,
+    "supportPercent": "1.49%",
+    "confidencePercent": "56.32%"
+  },
+  {
+    "antecedent": [
+      "23200"
+    ],
+    "consequent": [
+      "23199"
+    ],
+    "support": 0.016828,
+    "confidence": 0.668998,
+    "lift": 17.634861,
+    "conviction": 2.9065,
+    "supportPercent": "1.68%",
+    "confidencePercent": "66.90%"
+  },
+  {
+    "antecedent": [
+      "23439"
+    ],
+    "consequent": [
+      "22865"
+    ],
+    "support": 0.011551,
+    "confidence": 0.55493,
+    "lift": 17.526526,
+    "conviction": 2.1757,
+    "supportPercent": "1.16%",
+    "confidencePercent": "55.49%"
+  },
+  {
+    "antecedent": [
+      "21928",
+      "85099B"
+    ],
+    "consequent": [
+      "21929"
+    ],
+    "support": 0.01032,
+    "confidence": 0.575163,
+    "lift": 17.361791,
+    "conviction": 2.2759,
+    "supportPercent": "1.03%",
+    "confidencePercent": "57.52%"
+  },
+  {
+    "antecedent": [
+      "20971"
+    ],
+    "consequent": [
+      "20972"
+    ],
+    "support": 0.01243,
+    "confidence": 0.507177,
+    "lift": 17.230885,
+    "conviction": 1.9694,
+    "supportPercent": "1.24%",
+    "confidencePercent": "50.72%"
+  },
+  {
+    "antecedent": [
+      "82483"
+    ],
+    "consequent": [
+      "82486"
+    ],
+    "support": 0.015597,
+    "confidence": 0.543967,
+    "lift": 17.053974,
+    "conviction": 2.1229,
+    "supportPercent": "1.56%",
+    "confidencePercent": "54.40%"
+  },
+  {
+    "antecedent": [
+      "23300"
+    ],
+    "consequent": [
+      "23301"
+    ],
+    "support": 0.025916,
+    "confidence": 0.72459,
+    "lift": 16.951832,
+    "conviction": 3.4758,
+    "supportPercent": "2.59%",
+    "confidencePercent": "72.46%"
+  },
+  {
+    "antecedent": [
+      "23301"
+    ],
+    "consequent": [
+      "23300"
+    ],
+    "support": 0.025916,
+    "confidence": 0.60631,
+    "lift": 16.951832,
+    "conviction": 2.4492,
+    "supportPercent": "2.59%",
+    "confidencePercent": "60.63%"
+  },
+  {
+    "antecedent": [
+      "23322"
+    ],
+    "consequent": [
+      "23321"
+    ],
+    "support": 0.015714,
+    "confidence": 0.54918,
+    "lift": 16.906625,
+    "conviction": 2.1461,
+    "supportPercent": "1.57%",
+    "confidencePercent": "54.92%"
+  },
+  {
+    "antecedent": [
+      "22730",
+      "22726"
+    ],
+    "consequent": [
+      "22727"
+    ],
+    "support": 0.011844,
+    "confidence": 0.779923,
+    "lift": 16.858787,
+    "conviction": 4.3337,
+    "supportPercent": "1.18%",
+    "confidencePercent": "77.99%"
+  },
+  {
+    "antecedent": [
+      "22632"
+    ],
+    "consequent": [
+      "22865"
+    ],
+    "support": 0.010789,
+    "confidence": 0.530259,
+    "lift": 16.747358,
+    "conviction": 2.0614,
+    "supportPercent": "1.08%",
+    "confidencePercent": "53.03%"
+  },
+  {
+    "antecedent": [
+      "22728",
+      "22726"
+    ],
+    "consequent": [
+      "22727"
+    ],
+    "support": 0.013134,
+    "confidence": 0.772414,
+    "lift": 16.696473,
+    "conviction": 4.1907,
+    "supportPercent": "1.31%",
+    "confidencePercent": "77.24%"
+  },
+  {
+    "antecedent": [
+      "22730",
+      "22727"
+    ],
+    "consequent": [
+      "22726"
+    ],
+    "support": 0.011844,
+    "confidence": 0.687075,
+    "lift": 16.550934,
+    "conviction": 3.063,
+    "supportPercent": "1.18%",
+    "confidencePercent": "68.71%"
+  },
+  {
+    "antecedent": [
+      "22617"
+    ],
+    "consequent": [
+      "22138"
+    ],
+    "support": 0.015421,
+    "confidence": 0.716621,
+    "lift": 16.361413,
+    "conviction": 3.3743,
+    "supportPercent": "1.54%",
+    "confidencePercent": "71.66%"
+  },
+  {
+    "antecedent": [
+      "20723"
+    ],
+    "consequent": [
+      "20724"
+    ],
+    "support": 0.015714,
+    "confidence": 0.602247,
+    "lift": 16.329612,
+    "conviction": 2.4214,
+    "supportPercent": "1.57%",
+    "confidencePercent": "60.22%"
+  },
+  {
+    "antecedent": [
+      "22728",
+      "22727"
+    ],
+    "consequent": [
+      "22726"
+    ],
+    "support": 0.013134,
+    "confidence": 0.660767,
+    "lift": 15.917204,
+    "conviction": 2.8255,
+    "supportPercent": "1.31%",
+    "confidencePercent": "66.08%"
+  },
+  {
+    "antecedent": [
+      "22725"
+    ],
+    "consequent": [
+      "22726"
+    ],
+    "support": 0.010906,
+    "confidence": 0.65035,
+    "lift": 15.666262,
+    "conviction": 2.7413,
+    "supportPercent": "1.09%",
+    "confidencePercent": "65.03%"
+  },
+  {
+    "antecedent": [
+      "21928"
+    ],
+    "consequent": [
+      "21929"
+    ],
+    "support": 0.015597,
+    "confidence": 0.514507,
+    "lift": 15.530819,
+    "conviction": 1.9915,
+    "supportPercent": "1.56%",
+    "confidencePercent": "51.45%"
+  },
+  {
+    "antecedent": [
+      "22725"
+    ],
+    "consequent": [
+      "22727"
+    ],
+    "support": 0.011785,
+    "confidence": 0.702797,
+    "lift": 15.191643,
+    "conviction": 3.209,
+    "supportPercent": "1.18%",
+    "confidencePercent": "70.28%"
+  },
+  {
+    "antecedent": [
+      "20719"
+    ],
+    "consequent": [
+      "20724"
+    ],
+    "support": 0.01331,
+    "confidence": 0.555012,
+    "lift": 15.048861,
+    "conviction": 2.1644,
+    "supportPercent": "1.33%",
+    "confidencePercent": "55.50%"
+  },
+  {
+    "antecedent": [
+      "22729"
+    ],
+    "consequent": [
+      "22726"
+    ],
+    "support": 0.011609,
+    "confidence": 0.613003,
+    "lift": 14.766621,
+    "conviction": 2.4767,
+    "supportPercent": "1.16%",
+    "confidencePercent": "61.30%"
+  },
+  {
+    "antecedent": [
+      "22729"
+    ],
+    "consequent": [
+      "22727"
+    ],
+    "support": 0.012841,
+    "confidence": 0.678019,
+    "lift": 14.656029,
+    "conviction": 2.9621,
+    "supportPercent": "1.28%",
+    "confidencePercent": "67.80%"
+  },
+  {
+    "antecedent": [
+      "22730"
+    ],
+    "consequent": [
+      "22727"
+    ],
+    "support": 0.017238,
+    "confidence": 0.674312,
+    "lift": 14.575906,
+    "conviction": 2.9284,
+    "supportPercent": "1.72%",
+    "confidencePercent": "67.43%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20725",
+      "20727"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.01073,
+    "confidence": 0.743902,
+    "lift": 14.499721,
+    "conviction": 3.7044,
+    "supportPercent": "1.07%",
+    "confidencePercent": "74.39%"
+  },
+  {
+    "antecedent": [
+      "23200",
+      "23199"
+    ],
+    "consequent": [
+      "23202"
+    ],
+    "support": 0.01032,
+    "confidence": 0.61324,
+    "lift": 14.485894,
+    "conviction": 2.4761,
+    "supportPercent": "1.03%",
+    "confidencePercent": "61.32%"
+  },
+  {
+    "antecedent": [
+      "22835"
+    ],
+    "consequent": [
+      "22112"
+    ],
+    "support": 0.016652,
+    "confidence": 0.580777,
+    "lift": 14.397025,
+    "conviction": 2.2891,
+    "supportPercent": "1.67%",
+    "confidencePercent": "58.08%"
+  },
+  {
+    "antecedent": [
+      "22727"
+    ],
+    "consequent": [
+      "22726"
+    ],
+    "support": 0.027499,
+    "confidence": 0.594423,
+    "lift": 14.319053,
+    "conviction": 2.3633,
+    "supportPercent": "2.75%",
+    "confidencePercent": "59.44%"
+  },
+  {
+    "antecedent": [
+      "22726"
+    ],
+    "consequent": [
+      "22727"
+    ],
+    "support": 0.027499,
+    "confidence": 0.662429,
+    "lift": 14.319053,
+    "conviction": 2.8253,
+    "supportPercent": "2.75%",
+    "confidencePercent": "66.24%"
+  },
+  {
+    "antecedent": [
+      "22730"
+    ],
+    "consequent": [
+      "22726"
+    ],
+    "support": 0.015186,
+    "confidence": 0.594037,
+    "lift": 14.30974,
+    "conviction": 2.361,
+    "supportPercent": "1.52%",
+    "confidencePercent": "59.40%"
+  },
+  {
+    "antecedent": [
+      "22728"
+    ],
+    "consequent": [
+      "22727"
+    ],
+    "support": 0.019877,
+    "confidence": 0.660819,
+    "lift": 14.284237,
+    "conviction": 2.8119,
+    "supportPercent": "1.99%",
+    "confidencePercent": "66.08%"
+  },
+  {
+    "antecedent": [
+      "23203",
+      "20725"
+    ],
+    "consequent": [
+      "23209"
+    ],
+    "support": 0.011023,
+    "confidence": 0.77686,
+    "lift": 14.185588,
+    "conviction": 4.2361,
+    "supportPercent": "1.10%",
+    "confidencePercent": "77.69%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "23202"
+    ],
+    "consequent": [
+      "23203"
+    ],
+    "support": 0.011668,
+    "confidence": 0.836134,
+    "lift": 14.175222,
+    "conviction": 5.7426,
+    "supportPercent": "1.17%",
+    "confidencePercent": "83.61%"
+  },
+  {
+    "antecedent": [
+      "23203",
+      "23199"
+    ],
+    "consequent": [
+      "23202"
+    ],
+    "support": 0.010613,
+    "confidence": 0.599338,
+    "lift": 14.157487,
+    "conviction": 2.3902,
+    "supportPercent": "1.06%",
+    "confidencePercent": "59.93%"
+  },
+  {
+    "antecedent": [
+      "22355"
+    ],
+    "consequent": [
+      "20724"
+    ],
+    "support": 0.015479,
+    "confidence": 0.515625,
+    "lift": 13.980897,
+    "conviction": 1.9884,
+    "supportPercent": "1.55%",
+    "confidencePercent": "51.56%"
+  },
+  {
+    "antecedent": [
+      "23204"
+    ],
+    "consequent": [
+      "20724"
+    ],
+    "support": 0.01073,
+    "confidence": 0.515493,
+    "lift": 13.977317,
+    "conviction": 1.9878,
+    "supportPercent": "1.07%",
+    "confidencePercent": "51.55%"
+  },
+  {
+    "antecedent": [
+      "22728"
+    ],
+    "consequent": [
+      "22726"
+    ],
+    "support": 0.017004,
+    "confidence": 0.565302,
+    "lift": 13.617554,
+    "conviction": 2.205,
+    "supportPercent": "1.70%",
+    "confidencePercent": "56.53%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "85099B"
+    ],
+    "consequent": [
+      "23203"
+    ],
+    "support": 0.01114,
+    "confidence": 0.794979,
+    "lift": 13.477503,
+    "conviction": 4.5898,
+    "supportPercent": "1.11%",
+    "confidencePercent": "79.50%"
+  },
+  {
+    "antecedent": [
+      "21791"
+    ],
+    "consequent": [
+      "21790"
+    ],
+    "support": 0.013662,
+    "confidence": 0.538106,
+    "lift": 13.300582,
+    "conviction": 2.0774,
+    "supportPercent": "1.37%",
+    "confidencePercent": "53.81%"
+  },
+  {
+    "antecedent": [
+      "23170"
+    ],
+    "consequent": [
+      "22699"
+    ],
+    "support": 0.010202,
+    "confidence": 0.570492,
+    "lift": 13.255773,
+    "conviction": 2.228,
+    "supportPercent": "1.02%",
+    "confidencePercent": "57.05%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20725",
+      "22383"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.010202,
+    "confidence": 0.677043,
+    "lift": 13.196531,
+    "conviction": 2.9375,
+    "supportPercent": "1.02%",
+    "confidencePercent": "67.70%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "22382"
+    ],
+    "consequent": [
+      "20726"
+    ],
+    "support": 0.010906,
+    "confidence": 0.537572,
+    "lift": 13.116302,
+    "conviction": 2.0739,
+    "supportPercent": "1.09%",
+    "confidencePercent": "53.76%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "22383"
+    ],
+    "consequent": [
+      "23206"
+    ],
+    "support": 0.010847,
+    "confidence": 0.596774,
+    "lift": 13.115959,
+    "conviction": 2.3672,
+    "supportPercent": "1.08%",
+    "confidencePercent": "59.68%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "22382"
+    ],
+    "consequent": [
+      "20726"
+    ],
+    "support": 0.013017,
+    "confidence": 0.53753,
+    "lift": 13.115277,
+    "conviction": 2.0737,
+    "supportPercent": "1.30%",
+    "confidencePercent": "53.75%"
+  },
+  {
+    "antecedent": [
+      "22662",
+      "20727"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.010026,
+    "confidence": 0.684,
+    "lift": 13.063404,
+    "conviction": 2.9989,
+    "supportPercent": "1.00%",
+    "confidencePercent": "68.40%"
+  },
+  {
+    "antecedent": [
+      "22383",
+      "20725",
+      "20727"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.010437,
+    "confidence": 0.669173,
+    "lift": 13.043136,
+    "conviction": 2.8676,
+    "supportPercent": "1.04%",
+    "confidencePercent": "66.92%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "22662"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.011258,
+    "confidence": 0.680851,
+    "lift": 13.003264,
+    "conviction": 2.9693,
+    "supportPercent": "1.13%",
+    "confidencePercent": "68.09%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "22382"
+    ],
+    "consequent": [
+      "20726"
+    ],
+    "support": 0.011316,
+    "confidence": 0.53168,
+    "lift": 12.972546,
+    "conviction": 2.0478,
+    "supportPercent": "1.13%",
+    "confidencePercent": "53.17%"
+  },
+  {
+    "antecedent": [
+      "22662",
+      "22383"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.010906,
+    "confidence": 0.673913,
+    "lift": 12.870758,
+    "conviction": 2.9061,
+    "supportPercent": "1.09%",
+    "confidencePercent": "67.39%"
+  },
+  {
+    "antecedent": [
+      "22114"
+    ],
+    "consequent": [
+      "22112"
+    ],
+    "support": 0.015069,
+    "confidence": 0.518145,
+    "lift": 12.844427,
+    "conviction": 1.9916,
+    "supportPercent": "1.51%",
+    "confidencePercent": "51.81%"
+  },
+  {
+    "antecedent": [
+      "23200"
+    ],
+    "consequent": [
+      "23202"
+    ],
+    "support": 0.013369,
+    "confidence": 0.531469,
+    "lift": 12.554288,
+    "conviction": 2.044,
+    "supportPercent": "1.34%",
+    "confidencePercent": "53.15%"
+  },
+  {
+    "antecedent": [
+      "23173"
+    ],
+    "consequent": [
+      "22699"
+    ],
+    "support": 0.010437,
+    "confidence": 0.537764,
+    "lift": 12.495328,
+    "conviction": 2.0703,
+    "supportPercent": "1.04%",
+    "confidencePercent": "53.78%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20725",
+      "22383"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.010202,
+    "confidence": 0.659091,
+    "lift": 12.407059,
+    "conviction": 2.7775,
+    "supportPercent": "1.02%",
+    "confidencePercent": "65.91%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20725",
+      "20727"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.010085,
+    "confidence": 0.699187,
+    "lift": 12.306124,
+    "conviction": 3.1354,
+    "supportPercent": "1.01%",
+    "confidencePercent": "69.92%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20725"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.015538,
+    "confidence": 0.625,
+    "lift": 12.182143,
+    "conviction": 2.5299,
+    "supportPercent": "1.55%",
+    "confidencePercent": "62.50%"
+  },
+  {
+    "antecedent": [
+      "22383",
+      "20725",
+      "20727"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.010085,
+    "confidence": 0.646617,
+    "lift": 12.172235,
+    "conviction": 2.6795,
+    "supportPercent": "1.01%",
+    "confidencePercent": "64.66%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20726"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.010906,
+    "confidence": 0.634812,
+    "lift": 12.123991,
+    "conviction": 2.5949,
+    "supportPercent": "1.09%",
+    "confidencePercent": "63.48%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20727"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.014483,
+    "confidence": 0.6175,
+    "lift": 12.035957,
+    "conviction": 2.4802,
+    "supportPercent": "1.45%",
+    "confidencePercent": "61.75%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "20727"
+    ],
+    "consequent": [
+      "23206"
+    ],
+    "support": 0.010261,
+    "confidence": 0.545171,
+    "lift": 11.981826,
+    "conviction": 2.0986,
+    "supportPercent": "1.03%",
+    "confidencePercent": "54.52%"
+  },
+  {
+    "antecedent": [
+      "21928",
+      "85099B"
+    ],
+    "consequent": [
+      "22386"
+    ],
+    "support": 0.010261,
+    "confidence": 0.571895,
+    "lift": 11.865786,
+    "conviction": 2.2233,
+    "supportPercent": "1.03%",
+    "confidencePercent": "57.19%"
+  },
+  {
+    "antecedent": [
+      "23203",
+      "85099B"
+    ],
+    "consequent": [
+      "23202"
+    ],
+    "support": 0.012958,
+    "confidence": 0.502273,
+    "lift": 11.864628,
+    "conviction": 1.9241,
+    "supportPercent": "1.30%",
+    "confidencePercent": "50.23%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20726"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.010789,
+    "confidence": 0.627986,
+    "lift": 11.821531,
+    "conviction": 2.5453,
+    "supportPercent": "1.08%",
+    "confidencePercent": "62.80%"
+  },
+  {
+    "antecedent": [
+      "85099B",
+      "85099F"
+    ],
+    "consequent": [
+      "22386"
+    ],
+    "support": 0.013427,
+    "confidence": 0.568238,
+    "lift": 11.789906,
+    "conviction": 2.2045,
+    "supportPercent": "1.34%",
+    "confidencePercent": "56.82%"
+  },
+  {
+    "antecedent": [
+      "22910"
+    ],
+    "consequent": [
+      "22086"
+    ],
+    "support": 0.024919,
+    "confidence": 0.638138,
+    "lift": 11.753181,
+    "conviction": 2.6134,
+    "supportPercent": "2.49%",
+    "confidencePercent": "63.81%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20725",
+      "20728"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.01073,
+    "confidence": 0.690566,
+    "lift": 11.742377,
+    "conviction": 3.0417,
+    "supportPercent": "1.07%",
+    "confidencePercent": "69.06%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "22662"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.011023,
+    "confidence": 0.666667,
+    "lift": 11.733746,
+    "conviction": 2.8296,
+    "supportPercent": "1.10%",
+    "confidencePercent": "66.67%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "20727"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.017356,
+    "confidence": 0.601626,
+    "lift": 11.726551,
+    "conviction": 2.3814,
+    "supportPercent": "1.74%",
+    "confidencePercent": "60.16%"
+  },
+  {
+    "antecedent": [
+      "82482"
+    ],
+    "consequent": [
+      "82494L"
+    ],
+    "support": 0.026268,
+    "confidence": 0.532067,
+    "lift": 11.678757,
+    "conviction": 2.0397,
+    "supportPercent": "2.63%",
+    "confidencePercent": "53.21%"
+  },
+  {
+    "antecedent": [
+      "82494L"
+    ],
+    "consequent": [
+      "82482"
+    ],
+    "support": 0.026268,
+    "confidence": 0.576577,
+    "lift": 11.678757,
+    "conviction": 2.2451,
+    "supportPercent": "2.63%",
+    "confidencePercent": "57.66%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "20725"
+    ],
+    "consequent": [
+      "23206"
+    ],
+    "support": 0.012196,
+    "confidence": 0.530612,
+    "lift": 11.661845,
+    "conviction": 2.0335,
+    "supportPercent": "1.22%",
+    "confidencePercent": "53.06%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20725",
+      "20727"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.01073,
+    "confidence": 0.618243,
+    "lift": 11.638122,
+    "conviction": 2.4803,
+    "supportPercent": "1.07%",
+    "confidencePercent": "61.82%"
+  },
+  {
+    "antecedent": [
+      "21929",
+      "85099B"
+    ],
+    "consequent": [
+      "22386"
+    ],
+    "support": 0.010202,
+    "confidence": 0.557692,
+    "lift": 11.571098,
+    "conviction": 2.1519,
+    "supportPercent": "1.02%",
+    "confidencePercent": "55.77%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20725",
+      "20728"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.010202,
+    "confidence": 0.656604,
+    "lift": 11.556633,
+    "conviction": 2.7466,
+    "supportPercent": "1.02%",
+    "confidencePercent": "65.66%"
+  },
+  {
+    "antecedent": [
+      "23202",
+      "85099B"
+    ],
+    "consequent": [
+      "23203"
+    ],
+    "support": 0.012958,
+    "confidence": 0.68,
+    "lift": 11.528231,
+    "conviction": 2.9407,
+    "supportPercent": "1.30%",
+    "confidencePercent": "68.00%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20728",
+      "22383"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.010202,
+    "confidence": 0.783784,
+    "lift": 11.503814,
+    "conviction": 4.3099,
+    "supportPercent": "1.02%",
+    "confidencePercent": "78.38%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20725",
+      "22383"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.010437,
+    "confidence": 0.674242,
+    "lift": 11.46481,
+    "conviction": 2.8892,
+    "supportPercent": "1.04%",
+    "confidencePercent": "67.42%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "22382"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.012313,
+    "confidence": 0.606936,
+    "lift": 11.425277,
+    "conviction": 2.409,
+    "supportPercent": "1.23%",
+    "confidencePercent": "60.69%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "20726"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.012782,
+    "confidence": 0.586022,
+    "lift": 11.422396,
+    "conviction": 2.2917,
+    "supportPercent": "1.28%",
+    "confidencePercent": "58.60%"
+  },
+  {
+    "antecedent": [
+      "23202",
+      "23199"
+    ],
+    "consequent": [
+      "23203"
+    ],
+    "support": 0.010613,
+    "confidence": 0.672862,
+    "lift": 11.407226,
+    "conviction": 2.8765,
+    "supportPercent": "1.06%",
+    "confidencePercent": "67.29%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "22383"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.011375,
+    "confidence": 0.596923,
+    "lift": 11.400362,
+    "conviction": 2.351,
+    "supportPercent": "1.14%",
+    "confidencePercent": "59.69%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "20727"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.011375,
+    "confidence": 0.596923,
+    "lift": 11.400362,
+    "conviction": 2.351,
+    "supportPercent": "1.14%",
+    "confidencePercent": "59.69%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "20726"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.013017,
+    "confidence": 0.596774,
+    "lift": 11.397518,
+    "conviction": 2.3501,
+    "supportPercent": "1.30%",
+    "confidencePercent": "59.68%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20725",
+      "22383"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.010085,
+    "confidence": 0.669261,
+    "lift": 11.380101,
+    "conviction": 2.8457,
+    "supportPercent": "1.01%",
+    "confidencePercent": "66.93%"
+  },
+  {
+    "antecedent": [
+      "22662"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.018997,
+    "confidence": 0.594495,
+    "lift": 11.353997,
+    "conviction": 2.3369,
+    "supportPercent": "1.90%",
+    "confidencePercent": "59.45%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "22382"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.012313,
+    "confidence": 0.578512,
+    "lift": 11.276033,
+    "conviction": 2.2508,
+    "supportPercent": "1.23%",
+    "confidencePercent": "57.85%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20726"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.011316,
+    "confidence": 0.590214,
+    "lift": 11.272229,
+    "conviction": 2.3125,
+    "supportPercent": "1.13%",
+    "confidencePercent": "59.02%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "22383"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.011375,
+    "confidence": 0.596923,
+    "lift": 11.23678,
+    "conviction": 2.3491,
+    "supportPercent": "1.14%",
+    "confidencePercent": "59.69%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "22383",
+      "20727"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.010437,
+    "confidence": 0.763948,
+    "lift": 11.212686,
+    "conviction": 3.9477,
+    "supportPercent": "1.04%",
+    "confidencePercent": "76.39%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "20727"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.010906,
+    "confidence": 0.572308,
+    "lift": 11.155095,
+    "conviction": 2.2182,
+    "supportPercent": "1.09%",
+    "confidencePercent": "57.23%"
+  },
+  {
+    "antecedent": [
+      "23206",
+      "20727"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.011199,
+    "confidence": 0.63245,
+    "lift": 11.131517,
+    "conviction": 2.5661,
+    "supportPercent": "1.12%",
+    "confidencePercent": "63.24%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "22383"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.013017,
+    "confidence": 0.587302,
+    "lift": 11.055661,
+    "conviction": 2.2944,
+    "supportPercent": "1.30%",
+    "confidencePercent": "58.73%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "22382"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.01372,
+    "confidence": 0.566586,
+    "lift": 11.04357,
+    "conviction": 2.1889,
+    "supportPercent": "1.37%",
+    "confidencePercent": "56.66%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "23206"
+    ],
+    "consequent": [
+      "23209"
+    ],
+    "support": 0.012196,
+    "confidence": 0.604651,
+    "lift": 11.041034,
+    "conviction": 2.3909,
+    "supportPercent": "1.22%",
+    "confidencePercent": "60.47%"
+  },
+  {
+    "antecedent": [
+      "23208"
+    ],
+    "consequent": [
+      "23206"
+    ],
+    "support": 0.016593,
+    "confidence": 0.501773,
+    "lift": 11.028015,
+    "conviction": 1.9158,
+    "supportPercent": "1.66%",
+    "confidencePercent": "50.18%"
+  },
+  {
+    "antecedent": [
+      "23200",
+      "23199"
+    ],
+    "consequent": [
+      "23203"
+    ],
+    "support": 0.010906,
+    "confidence": 0.648084,
+    "lift": 10.987143,
+    "conviction": 2.674,
+    "supportPercent": "1.09%",
+    "confidencePercent": "64.81%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20726"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.010789,
+    "confidence": 0.562691,
+    "lift": 10.967654,
+    "conviction": 2.1694,
+    "supportPercent": "1.08%",
+    "confidencePercent": "56.27%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20726"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.012782,
+    "confidence": 0.744027,
+    "lift": 10.920297,
+    "conviction": 3.6405,
+    "supportPercent": "1.28%",
+    "confidencePercent": "74.40%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20728",
+      "20727"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.01073,
+    "confidence": 0.740891,
+    "lift": 10.87426,
+    "conviction": 3.5964,
+    "supportPercent": "1.07%",
+    "confidencePercent": "74.09%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20726"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.010613,
+    "confidence": 0.617747,
+    "lift": 10.872737,
+    "conviction": 2.4674,
+    "supportPercent": "1.06%",
+    "confidencePercent": "61.77%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "22383"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.015479,
+    "confidence": 0.556962,
+    "lift": 10.855986,
+    "conviction": 2.1413,
+    "supportPercent": "1.55%",
+    "confidencePercent": "55.70%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "22383"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.010613,
+    "confidence": 0.556923,
+    "lift": 10.855226,
+    "conviction": 2.1412,
+    "supportPercent": "1.06%",
+    "confidencePercent": "55.69%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20726"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.010906,
+    "confidence": 0.634812,
+    "lift": 10.794341,
+    "conviction": 2.5773,
+    "supportPercent": "1.09%",
+    "confidencePercent": "63.48%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "20726"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.013369,
+    "confidence": 0.612903,
+    "lift": 10.787476,
+    "conviction": 2.4366,
+    "supportPercent": "1.34%",
+    "confidencePercent": "61.29%"
+  },
+  {
+    "antecedent": [
+      "21931",
+      "85099B"
+    ],
+    "consequent": [
+      "22386"
+    ],
+    "support": 0.01243,
+    "confidence": 0.519608,
+    "lift": 10.780915,
+    "conviction": 1.9813,
+    "supportPercent": "1.24%",
+    "confidencePercent": "51.96%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "22382"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.013017,
+    "confidence": 0.61157,
+    "lift": 10.764015,
+    "conviction": 2.4282,
+    "supportPercent": "1.30%",
+    "confidencePercent": "61.16%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "20727"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.010378,
+    "confidence": 0.551402,
+    "lift": 10.74761,
+    "conviction": 2.1148,
+    "supportPercent": "1.04%",
+    "confidencePercent": "55.14%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "20727"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.010847,
+    "confidence": 0.569231,
+    "lift": 10.715487,
+    "conviction": 2.1981,
+    "supportPercent": "1.08%",
+    "confidencePercent": "56.92%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20725"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.015069,
+    "confidence": 0.606132,
+    "lift": 10.6683,
+    "conviction": 2.3947,
+    "supportPercent": "1.51%",
+    "confidencePercent": "60.61%"
+  },
+  {
+    "antecedent": [
+      "22382",
+      "20727"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.013955,
+    "confidence": 0.605598,
+    "lift": 10.658899,
+    "conviction": 2.3914,
+    "supportPercent": "1.40%",
+    "confidencePercent": "60.56%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "20727"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.011492,
+    "confidence": 0.603077,
+    "lift": 10.614527,
+    "conviction": 2.3762,
+    "supportPercent": "1.15%",
+    "confidencePercent": "60.31%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20725",
+      "20727"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.010437,
+    "confidence": 0.601351,
+    "lift": 10.584156,
+    "conviction": 2.366,
+    "supportPercent": "1.04%",
+    "confidencePercent": "60.14%"
+  },
+  {
+    "antecedent": [
+      "23206",
+      "20727"
+    ],
+    "consequent": [
+      "23209"
+    ],
+    "support": 0.010261,
+    "confidence": 0.57947,
+    "lift": 10.581225,
+    "conviction": 2.2477,
+    "supportPercent": "1.03%",
+    "confidencePercent": "57.95%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "20726"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.012254,
+    "confidence": 0.561828,
+    "lift": 10.576132,
+    "conviction": 2.161,
+    "supportPercent": "1.23%",
+    "confidencePercent": "56.18%"
+  },
+  {
+    "antecedent": [
+      "22382",
+      "20727"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.012489,
+    "confidence": 0.541985,
+    "lift": 10.564057,
+    "conviction": 2.0713,
+    "supportPercent": "1.25%",
+    "confidencePercent": "54.20%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "22383",
+      "20727"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.010085,
+    "confidence": 0.719665,
+    "lift": 10.562729,
+    "conviction": 3.3241,
+    "supportPercent": "1.01%",
+    "confidencePercent": "71.97%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20727"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.014013,
+    "confidence": 0.5975,
+    "lift": 10.51637,
+    "conviction": 2.3433,
+    "supportPercent": "1.40%",
+    "confidencePercent": "59.75%"
+  },
+  {
+    "antecedent": [
+      "85099B",
+      "85099C"
+    ],
+    "consequent": [
+      "22386"
+    ],
+    "support": 0.010495,
+    "confidence": 0.50565,
+    "lift": 10.491309,
+    "conviction": 1.9254,
+    "supportPercent": "1.05%",
+    "confidencePercent": "50.57%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "22383"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.013662,
+    "confidence": 0.616402,
+    "lift": 10.481294,
+    "conviction": 2.4536,
+    "supportPercent": "1.37%",
+    "confidencePercent": "61.64%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "22382"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.012489,
+    "confidence": 0.615607,
+    "lift": 10.467773,
+    "conviction": 2.4485,
+    "supportPercent": "1.25%",
+    "confidencePercent": "61.56%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20727"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.014483,
+    "confidence": 0.555056,
+    "lift": 10.448657,
+    "conviction": 2.1281,
+    "supportPercent": "1.45%",
+    "confidencePercent": "55.51%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20726"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.011375,
+    "confidence": 0.593272,
+    "lift": 10.441958,
+    "conviction": 2.319,
+    "supportPercent": "1.14%",
+    "confidencePercent": "59.33%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "22382"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.014307,
+    "confidence": 0.590799,
+    "lift": 10.398429,
+    "conviction": 2.3049,
+    "supportPercent": "1.43%",
+    "confidencePercent": "59.08%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "22382"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.011316,
+    "confidence": 0.551429,
+    "lift": 10.380369,
+    "conviction": 2.1109,
+    "supportPercent": "1.13%",
+    "confidencePercent": "55.14%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "22382"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.010906,
+    "confidence": 0.531429,
+    "lift": 10.358302,
+    "conviction": 2.0247,
+    "supportPercent": "1.09%",
+    "confidencePercent": "53.14%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20728"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.014483,
+    "confidence": 0.608374,
+    "lift": 10.344791,
+    "conviction": 2.4033,
+    "supportPercent": "1.45%",
+    "confidencePercent": "60.84%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "23209"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.010378,
+    "confidence": 0.606164,
+    "lift": 10.307212,
+    "conviction": 2.3898,
+    "supportPercent": "1.04%",
+    "confidencePercent": "60.62%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "22383"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.013369,
+    "confidence": 0.701538,
+    "lift": 10.296677,
+    "conviction": 3.1222,
+    "supportPercent": "1.34%",
+    "confidencePercent": "70.15%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "22383"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.011492,
+    "confidence": 0.603077,
+    "lift": 10.254713,
+    "conviction": 2.3712,
+    "supportPercent": "1.15%",
+    "confidencePercent": "60.31%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "22383"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.015479,
+    "confidence": 0.698413,
+    "lift": 10.250799,
+    "conviction": 3.0899,
+    "supportPercent": "1.55%",
+    "confidencePercent": "69.84%"
+  },
+  {
+    "antecedent": [
+      "22383",
+      "20727"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.013955,
+    "confidence": 0.536036,
+    "lift": 10.237508,
+    "conviction": 2.0425,
+    "supportPercent": "1.40%",
+    "confidencePercent": "53.60%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20725"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.017356,
+    "confidence": 0.601626,
+    "lift": 10.230042,
+    "conviction": 2.3626,
+    "supportPercent": "1.74%",
+    "confidencePercent": "60.16%"
+  },
+  {
+    "antecedent": [
+      "22383",
+      "20727"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.013662,
+    "confidence": 0.524775,
+    "lift": 10.22861,
+    "conviction": 1.9963,
+    "supportPercent": "1.37%",
+    "confidencePercent": "52.48%"
+  },
+  {
+    "antecedent": [
+      "22382",
+      "22383"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.013017,
+    "confidence": 0.542787,
+    "lift": 10.217701,
+    "conviction": 2.071,
+    "supportPercent": "1.30%",
+    "confidencePercent": "54.28%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "22383"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.015069,
+    "confidence": 0.542194,
+    "lift": 10.206534,
+    "conviction": 2.0683,
+    "supportPercent": "1.51%",
+    "confidencePercent": "54.22%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "22383"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.013017,
+    "confidence": 0.522353,
+    "lift": 10.181405,
+    "conviction": 1.9862,
+    "supportPercent": "1.30%",
+    "confidencePercent": "52.24%"
+  },
+  {
+    "antecedent": [
+      "23206",
+      "22383"
+    ],
+    "consequent": [
+      "23209"
+    ],
+    "support": 0.010847,
+    "confidence": 0.557229,
+    "lift": 10.175095,
+    "conviction": 2.1348,
+    "supportPercent": "1.08%",
+    "confidencePercent": "55.72%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "23209"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.011844,
+    "confidence": 0.691781,
+    "lift": 10.153461,
+    "conviction": 3.0234,
+    "supportPercent": "1.18%",
+    "confidencePercent": "69.18%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "23206"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.010495,
+    "confidence": 0.520349,
+    "lift": 10.142342,
+    "conviction": 1.9779,
+    "supportPercent": "1.05%",
+    "confidencePercent": "52.03%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20725"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.015538,
+    "confidence": 0.538618,
+    "lift": 10.139214,
+    "conviction": 2.0523,
+    "supportPercent": "1.55%",
+    "confidencePercent": "53.86%"
+  },
+  {
+    "antecedent": [
+      "22383",
+      "20727"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.014013,
+    "confidence": 0.538288,
+    "lift": 10.13301,
+    "conviction": 2.0508,
+    "supportPercent": "1.40%",
+    "confidencePercent": "53.83%"
+  },
+  {
+    "antecedent": [
+      "23200"
+    ],
+    "consequent": [
+      "23203"
+    ],
+    "support": 0.01501,
+    "confidence": 0.596737,
+    "lift": 10.116643,
+    "conviction": 2.3335,
+    "supportPercent": "1.50%",
+    "confidencePercent": "59.67%"
+  },
+  {
+    "antecedent": [
+      "22662",
+      "22382"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.010906,
+    "confidence": 0.574074,
+    "lift": 10.104059,
+    "conviction": 2.2144,
+    "supportPercent": "1.09%",
+    "confidencePercent": "57.41%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "23206"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.011551,
+    "confidence": 0.572674,
+    "lift": 10.079424,
+    "conviction": 2.2072,
+    "supportPercent": "1.16%",
+    "confidencePercent": "57.27%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "20725"
+    ],
+    "consequent": [
+      "22384"
+    ],
+    "support": 0.011844,
+    "confidence": 0.515306,
+    "lift": 10.044052,
+    "conviction": 1.9573,
+    "supportPercent": "1.18%",
+    "confidencePercent": "51.53%"
+  },
+  {
+    "antecedent": [
+      "22382",
+      "20727"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.012254,
+    "confidence": 0.531807,
+    "lift": 10.010995,
+    "conviction": 2.0224,
+    "supportPercent": "1.23%",
+    "confidencePercent": "53.18%"
+  },
+  {
+    "antecedent": [
+      "22662",
+      "22383"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.011023,
+    "confidence": 0.681159,
+    "lift": 9.997568,
+    "conviction": 2.9227,
+    "supportPercent": "1.10%",
+    "confidencePercent": "68.12%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20727"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.012254,
+    "confidence": 0.5225,
+    "lift": 9.978989,
+    "conviction": 1.9846,
+    "supportPercent": "1.23%",
+    "confidencePercent": "52.25%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "22383"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.013017,
+    "confidence": 0.522353,
+    "lift": 9.976181,
+    "conviction": 1.984,
+    "supportPercent": "1.30%",
+    "confidencePercent": "52.24%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "85099B"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.01032,
+    "confidence": 0.676923,
+    "lift": 9.93539,
+    "conviction": 2.8844,
+    "supportPercent": "1.03%",
+    "confidencePercent": "67.69%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "22382"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.01372,
+    "confidence": 0.676301,
+    "lift": 9.926253,
+    "conviction": 2.8788,
+    "supportPercent": "1.37%",
+    "confidencePercent": "67.63%"
+  },
+  {
+    "antecedent": [
+      "22382",
+      "22383"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.013955,
+    "confidence": 0.581907,
+    "lift": 9.894741,
+    "conviction": 2.2512,
+    "supportPercent": "1.40%",
+    "confidencePercent": "58.19%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20728"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.012313,
+    "confidence": 0.517241,
+    "lift": 9.878557,
+    "conviction": 1.963,
+    "supportPercent": "1.23%",
+    "confidencePercent": "51.72%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20725"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.014424,
+    "confidence": 0.580189,
+    "lift": 9.865521,
+    "conviction": 2.2419,
+    "supportPercent": "1.44%",
+    "confidencePercent": "58.02%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "22383"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.014307,
+    "confidence": 0.514768,
+    "lift": 9.831318,
+    "conviction": 1.953,
+    "supportPercent": "1.43%",
+    "confidencePercent": "51.48%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "22382"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.013955,
+    "confidence": 0.576271,
+    "lift": 9.798908,
+    "conviction": 2.2212,
+    "supportPercent": "1.40%",
+    "confidencePercent": "57.63%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "22382"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.012254,
+    "confidence": 0.575758,
+    "lift": 9.790175,
+    "conviction": 2.2185,
+    "supportPercent": "1.23%",
+    "confidencePercent": "57.58%"
+  },
+  {
+    "antecedent": [
+      "23206",
+      "22383"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.011199,
+    "confidence": 0.575301,
+    "lift": 9.782415,
+    "conviction": 2.2161,
+    "supportPercent": "1.12%",
+    "confidencePercent": "57.53%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "20726"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.012548,
+    "confidence": 0.575269,
+    "lift": 9.781864,
+    "conviction": 2.216,
+    "supportPercent": "1.25%",
+    "confidencePercent": "57.53%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20727"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.017356,
+    "confidence": 0.665169,
+    "lift": 9.762865,
+    "conviction": 2.7831,
+    "supportPercent": "1.74%",
+    "confidencePercent": "66.52%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "22382"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.011375,
+    "confidence": 0.554286,
+    "lift": 9.755772,
+    "conviction": 2.1161,
+    "supportPercent": "1.14%",
+    "confidencePercent": "55.43%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "22382"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.012548,
+    "confidence": 0.51816,
+    "lift": 9.754101,
+    "conviction": 1.9651,
+    "supportPercent": "1.25%",
+    "confidencePercent": "51.82%"
+  },
+  {
+    "antecedent": [
+      "23208"
+    ],
+    "consequent": [
+      "23209"
+    ],
+    "support": 0.017649,
+    "confidence": 0.533688,
+    "lift": 9.745233,
+    "conviction": 2.027,
+    "supportPercent": "1.76%",
+    "confidencePercent": "53.37%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "22383"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.010378,
+    "confidence": 0.570968,
+    "lift": 9.708729,
+    "conviction": 2.1938,
+    "supportPercent": "1.04%",
+    "confidencePercent": "57.10%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "20727"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.010378,
+    "confidence": 0.551402,
+    "lift": 9.705014,
+    "conviction": 2.1025,
+    "supportPercent": "1.04%",
+    "confidencePercent": "55.14%"
+  },
+  {
+    "antecedent": [
+      "23202"
+    ],
+    "consequent": [
+      "23203"
+    ],
+    "support": 0.024216,
+    "confidence": 0.572022,
+    "lift": 9.697652,
+    "conviction": 2.1987,
+    "supportPercent": "2.42%",
+    "confidencePercent": "57.20%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "20727"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.012548,
+    "confidence": 0.658462,
+    "lift": 9.664425,
+    "conviction": 2.7284,
+    "supportPercent": "1.25%",
+    "confidencePercent": "65.85%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "23206"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.010495,
+    "confidence": 0.658088,
+    "lift": 9.658946,
+    "conviction": 2.7255,
+    "supportPercent": "1.05%",
+    "confidencePercent": "65.81%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20725"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.012548,
+    "confidence": 0.504717,
+    "lift": 9.63936,
+    "conviction": 1.9133,
+    "supportPercent": "1.25%",
+    "confidencePercent": "50.47%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20728"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.013017,
+    "confidence": 0.546798,
+    "lift": 9.623984,
+    "conviction": 2.0812,
+    "supportPercent": "1.30%",
+    "confidencePercent": "54.68%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20726"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.010847,
+    "confidence": 0.565749,
+    "lift": 9.619993,
+    "conviction": 2.1674,
+    "supportPercent": "1.08%",
+    "confidencePercent": "56.57%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "23206"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.010144,
+    "confidence": 0.502907,
+    "lift": 9.604791,
+    "conviction": 1.9064,
+    "supportPercent": "1.01%",
+    "confidencePercent": "50.29%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20728"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.015538,
+    "confidence": 0.652709,
+    "lift": 9.579998,
+    "conviction": 2.6832,
+    "supportPercent": "1.55%",
+    "confidencePercent": "65.27%"
+  },
+  {
+    "antecedent": [
+      "20726"
+    ],
+    "consequent": [
+      "22382"
+    ],
+    "support": 0.020522,
+    "confidence": 0.500715,
+    "lift": 9.562933,
+    "conviction": 1.898,
+    "supportPercent": "2.05%",
+    "confidencePercent": "50.07%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "22383"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.014013,
+    "confidence": 0.562353,
+    "lift": 9.562243,
+    "conviction": 2.1506,
+    "supportPercent": "1.40%",
+    "confidencePercent": "56.24%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "22383"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.015597,
+    "confidence": 0.561181,
+    "lift": 9.542322,
+    "conviction": 2.1448,
+    "supportPercent": "1.56%",
+    "confidencePercent": "56.12%"
+  },
+  {
+    "antecedent": [
+      "21136"
+    ],
+    "consequent": [
+      "84879"
+    ],
+    "support": 0.014483,
+    "confidence": 0.730769,
+    "lift": 9.535784,
+    "conviction": 3.4296,
+    "supportPercent": "1.45%",
+    "confidencePercent": "73.08%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "20727"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.015597,
+    "confidence": 0.54065,
+    "lift": 9.515782,
+    "conviction": 2.0533,
+    "supportPercent": "1.56%",
+    "confidencePercent": "54.06%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "22382"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.010965,
+    "confidence": 0.540462,
+    "lift": 9.512473,
+    "conviction": 2.0525,
+    "supportPercent": "1.10%",
+    "confidencePercent": "54.05%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "23206"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.011258,
+    "confidence": 0.55814,
+    "lift": 9.490598,
+    "conviction": 2.1301,
+    "supportPercent": "1.13%",
+    "confidencePercent": "55.81%"
+  },
+  {
+    "antecedent": [
+      "22417"
+    ],
+    "consequent": [
+      "21212"
+    ],
+    "support": 0.010261,
+    "confidence": 0.5,
+    "lift": 9.475,
+    "conviction": 1.8945,
+    "supportPercent": "1.03%",
+    "confidencePercent": "50.00%"
+  },
+  {
+    "antecedent": [
+      "85099B",
+      "20727"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.010026,
+    "confidence": 0.645283,
+    "lift": 9.471,
+    "conviction": 2.6271,
+    "supportPercent": "1.00%",
+    "confidencePercent": "64.53%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20725"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.015479,
+    "confidence": 0.536585,
+    "lift": 9.444235,
+    "conviction": 2.0353,
+    "supportPercent": "1.55%",
+    "confidencePercent": "53.66%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "22382"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.011375,
+    "confidence": 0.554286,
+    "lift": 9.425068,
+    "conviction": 2.1116,
+    "supportPercent": "1.14%",
+    "confidencePercent": "55.43%"
+  },
+  {
+    "antecedent": [
+      "20725",
+      "20727"
+    ],
+    "consequent": [
+      "20728"
+    ],
+    "support": 0.014424,
+    "confidence": 0.5,
+    "lift": 9.412252,
+    "conviction": 1.8938,
+    "supportPercent": "1.44%",
+    "confidencePercent": "50.00%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20726"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.012254,
+    "confidence": 0.639144,
+    "lift": 9.380892,
+    "conviction": 2.5824,
+    "supportPercent": "1.23%",
+    "confidencePercent": "63.91%"
+  },
+  {
+    "antecedent": [
+      "23206",
+      "20727"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.011258,
+    "confidence": 0.635762,
+    "lift": 9.331251,
+    "conviction": 2.5584,
+    "supportPercent": "1.13%",
+    "confidencePercent": "63.58%"
+  },
+  {
+    "antecedent": [
+      "20726",
+      "22382"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.013017,
+    "confidence": 0.634286,
+    "lift": 9.309589,
+    "conviction": 2.5481,
+    "supportPercent": "1.30%",
+    "confidencePercent": "63.43%"
+  },
+  {
+    "antecedent": [
+      "22470"
+    ],
+    "consequent": [
+      "22469"
+    ],
+    "support": 0.023278,
+    "confidence": 0.508974,
+    "lift": 9.30392,
+    "conviction": 1.9251,
+    "supportPercent": "2.33%",
+    "confidencePercent": "50.90%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "22383"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.011492,
+    "confidence": 0.632258,
+    "lift": 9.279829,
+    "conviction": 2.534,
+    "supportPercent": "1.15%",
+    "confidencePercent": "63.23%"
+  },
+  {
+    "antecedent": [
+      "23206",
+      "22382"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.010144,
+    "confidence": 0.631387,
+    "lift": 9.267042,
+    "conviction": 2.528,
+    "supportPercent": "1.01%",
+    "confidencePercent": "63.14%"
+  },
+  {
+    "antecedent": [
+      "85099B",
+      "23199"
+    ],
+    "consequent": [
+      "23203"
+    ],
+    "support": 0.010202,
+    "confidence": 0.545455,
+    "lift": 9.247244,
+    "conviction": 2.0702,
+    "supportPercent": "1.02%",
+    "confidencePercent": "54.55%"
+  },
+  {
+    "antecedent": [
+      "22384",
+      "20727"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.013662,
+    "confidence": 0.523596,
+    "lift": 9.215605,
+    "conviction": 1.9798,
+    "supportPercent": "1.37%",
+    "confidencePercent": "52.36%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "23206"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.010847,
+    "confidence": 0.522599,
+    "lift": 9.198064,
+    "conviction": 1.9757,
+    "supportPercent": "1.08%",
+    "confidencePercent": "52.26%"
+  },
+  {
+    "antecedent": [
+      "21928",
+      "22386"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.010261,
+    "confidence": 0.795455,
+    "lift": 9.129527,
+    "conviction": 4.4629,
+    "supportPercent": "1.03%",
+    "confidencePercent": "79.55%"
+  },
+  {
+    "antecedent": [
+      "22386",
+      "85099F"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.013427,
+    "confidence": 0.792388,
+    "lift": 9.094327,
+    "conviction": 4.397,
+    "supportPercent": "1.34%",
+    "confidencePercent": "79.24%"
+  },
+  {
+    "antecedent": [
+      "22386",
+      "21931"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.01243,
+    "confidence": 0.788104,
+    "lift": 9.045165,
+    "conviction": 4.3081,
+    "supportPercent": "1.24%",
+    "confidencePercent": "78.81%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "20727"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.014424,
+    "confidence": 0.615,
+    "lift": 9.026528,
+    "conviction": 2.4204,
+    "supportPercent": "1.44%",
+    "confidencePercent": "61.50%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "20727"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.011551,
+    "confidence": 0.613707,
+    "lift": 9.007552,
+    "conviction": 2.4123,
+    "supportPercent": "1.16%",
+    "confidencePercent": "61.37%"
+  },
+  {
+    "antecedent": [
+      "22662",
+      "22382"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.010026,
+    "confidence": 0.527778,
+    "lift": 8.974327,
+    "conviction": 1.9931,
+    "supportPercent": "1.00%",
+    "confidencePercent": "52.78%"
+  },
+  {
+    "antecedent": [
+      "22386",
+      "20725"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.010144,
+    "confidence": 0.779279,
+    "lift": 8.943882,
+    "conviction": 4.1359,
+    "supportPercent": "1.01%",
+    "confidencePercent": "77.93%"
+  },
+  {
+    "antecedent": [
+      "22662"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.016183,
+    "confidence": 0.506422,
+    "lift": 8.913341,
+    "conviction": 1.9109,
+    "supportPercent": "1.62%",
+    "confidencePercent": "50.64%"
+  },
+  {
+    "antecedent": [
+      "22382",
+      "20727"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.013955,
+    "confidence": 0.605598,
+    "lift": 8.888531,
+    "conviction": 2.3627,
+    "supportPercent": "1.40%",
+    "confidencePercent": "60.56%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "22383"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.015069,
+    "confidence": 0.604706,
+    "lift": 8.875438,
+    "conviction": 2.3574,
+    "supportPercent": "1.51%",
+    "confidencePercent": "60.47%"
+  },
+  {
+    "antecedent": [
+      "22386",
+      "22411"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.01073,
+    "confidence": 0.768908,
+    "lift": 8.824844,
+    "conviction": 3.9502,
+    "supportPercent": "1.07%",
+    "confidencePercent": "76.89%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "20725"
+    ],
+    "consequent": [
+      "22383"
+    ],
+    "support": 0.011492,
+    "confidence": 0.5,
+    "lift": 8.80031,
+    "conviction": 1.8864,
+    "supportPercent": "1.15%",
+    "confidencePercent": "50.00%"
+  },
+  {
+    "antecedent": [
+      "22383",
+      "20727"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.015597,
+    "confidence": 0.599099,
+    "lift": 8.793146,
+    "conviction": 2.3244,
+    "supportPercent": "1.56%",
+    "confidencePercent": "59.91%"
+  },
+  {
+    "antecedent": [
+      "22382",
+      "22383"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.014307,
+    "confidence": 0.596577,
+    "lift": 8.756128,
+    "conviction": 2.3099,
+    "supportPercent": "1.43%",
+    "confidencePercent": "59.66%"
+  },
+  {
+    "antecedent": [
+      "23206",
+      "22383"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.011551,
+    "confidence": 0.593373,
+    "lift": 8.709109,
+    "conviction": 2.2917,
+    "supportPercent": "1.16%",
+    "confidencePercent": "59.34%"
+  },
+  {
+    "antecedent": [
+      "22662",
+      "22382"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.011258,
+    "confidence": 0.592593,
+    "lift": 8.697648,
+    "conviction": 2.2873,
+    "supportPercent": "1.13%",
+    "confidencePercent": "59.26%"
+  },
+  {
+    "antecedent": [
+      "20728",
+      "22382"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.012548,
+    "confidence": 0.589532,
+    "lift": 8.652722,
+    "conviction": 2.2703,
+    "supportPercent": "1.25%",
+    "confidencePercent": "58.95%"
+  },
+  {
+    "antecedent": [
+      "22384"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.026092,
+    "confidence": 0.508571,
+    "lift": 8.647742,
+    "conviction": 1.9152,
+    "supportPercent": "2.61%",
+    "confidencePercent": "50.86%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "23206"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.012196,
+    "confidence": 0.587571,
+    "lift": 8.623939,
+    "conviction": 2.2595,
+    "supportPercent": "1.22%",
+    "confidencePercent": "58.76%"
+  },
+  {
+    "antecedent": [
+      "22411",
+      "21931"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.01073,
+    "confidence": 0.746939,
+    "lift": 8.572706,
+    "conviction": 3.6073,
+    "supportPercent": "1.07%",
+    "confidencePercent": "74.69%"
+  },
+  {
+    "antecedent": [
+      "23209",
+      "20725"
+    ],
+    "consequent": [
+      "20727"
+    ],
+    "support": 0.011551,
+    "confidence": 0.502551,
+    "lift": 8.545372,
+    "conviction": 1.892,
+    "supportPercent": "1.16%",
+    "confidencePercent": "50.26%"
+  },
+  {
+    "antecedent": [
+      "22386",
+      "85099C"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.010495,
+    "confidence": 0.733607,
+    "lift": 8.41969,
+    "conviction": 3.4268,
+    "supportPercent": "1.05%",
+    "confidencePercent": "73.36%"
+  },
+  {
+    "antecedent": [
+      "22386",
+      "23203"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.010554,
+    "confidence": 0.728745,
+    "lift": 8.363893,
+    "conviction": 3.3654,
+    "supportPercent": "1.06%",
+    "confidencePercent": "72.87%"
+  },
+  {
+    "antecedent": [
+      "22384"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.028848,
+    "confidence": 0.562286,
+    "lift": 8.252825,
+    "conviction": 2.1289,
+    "supportPercent": "2.88%",
+    "confidencePercent": "56.23%"
+  },
+  {
+    "antecedent": [
+      "21929",
+      "22386"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.010202,
+    "confidence": 0.719008,
+    "lift": 8.252144,
+    "conviction": 3.2487,
+    "supportPercent": "1.02%",
+    "confidencePercent": "71.90%"
+  },
+  {
+    "antecedent": [
+      "20726"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.021812,
+    "confidence": 0.532189,
+    "lift": 7.811085,
+    "conviction": 1.992,
+    "supportPercent": "2.18%",
+    "confidencePercent": "53.22%"
+  },
+  {
+    "antecedent": [
+      "22662"
+    ],
+    "consequent": [
+      "20725"
+    ],
+    "support": 0.016535,
+    "confidence": 0.517431,
+    "lift": 7.594483,
+    "conviction": 1.9311,
+    "supportPercent": "1.65%",
+    "confidencePercent": "51.74%"
+  },
+  {
+    "antecedent": [
+      "21928",
+      "21929"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.01032,
+    "confidence": 0.661654,
+    "lift": 7.593884,
+    "conviction": 2.698,
+    "supportPercent": "1.03%",
+    "confidencePercent": "66.17%"
+  },
+  {
+    "antecedent": [
+      "85099F"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.023629,
+    "confidence": 0.639683,
+    "lift": 7.341713,
+    "conviction": 2.5335,
+    "supportPercent": "2.36%",
+    "confidencePercent": "63.97%"
+  },
+  {
+    "antecedent": [
+      "22386"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.030255,
+    "confidence": 0.627737,
+    "lift": 7.204615,
+    "conviction": 2.4522,
+    "supportPercent": "3.03%",
+    "confidencePercent": "62.77%"
+  },
+  {
+    "antecedent": [
+      "22697",
+      "22698",
+      "22699"
+    ],
+    "consequent": [
+      "22423"
+    ],
+    "support": 0.013017,
+    "confidence": 0.601626,
+    "lift": 6.813235,
+    "conviction": 2.2885,
+    "supportPercent": "1.30%",
+    "confidencePercent": "60.16%"
+  },
+  {
+    "antecedent": [
+      "21928"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.017942,
+    "confidence": 0.591876,
+    "lift": 6.793034,
+    "conviction": 2.2367,
+    "supportPercent": "1.79%",
+    "confidencePercent": "59.19%"
+  },
+  {
+    "antecedent": [
+      "22698",
+      "22699"
+    ],
+    "consequent": [
+      "22423"
+    ],
+    "support": 0.014541,
+    "confidence": 0.59759,
+    "lift": 6.767532,
+    "conviction": 2.2656,
+    "supportPercent": "1.45%",
+    "confidencePercent": "59.76%"
+  },
+  {
+    "antecedent": [
+      "23203",
+      "23199"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.010202,
+    "confidence": 0.576159,
+    "lift": 6.612645,
+    "conviction": 2.1538,
+    "supportPercent": "1.02%",
+    "confidencePercent": "57.62%"
+  },
+  {
+    "antecedent": [
+      "22804"
+    ],
+    "consequent": [
+      "85123A"
+    ],
+    "support": 0.016593,
+    "confidence": 0.736979,
+    "lift": 6.611878,
+    "conviction": 3.3782,
+    "supportPercent": "1.66%",
+    "confidencePercent": "73.70%"
+  },
+  {
+    "antecedent": [
+      "22697",
+      "22698"
+    ],
+    "consequent": [
+      "22423"
+    ],
+    "support": 0.014717,
+    "confidence": 0.577011,
+    "lift": 6.534483,
+    "conviction": 2.1554,
+    "supportPercent": "1.47%",
+    "confidencePercent": "57.70%"
+  },
+  {
+    "antecedent": [
+      "21931"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.023923,
+    "confidence": 0.565097,
+    "lift": 6.485685,
+    "conviction": 2.099,
+    "supportPercent": "2.39%",
+    "confidencePercent": "56.51%"
+  },
+  {
+    "antecedent": [
+      "85099C"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.020756,
+    "confidence": 0.564593,
+    "lift": 6.479905,
+    "conviction": 2.0966,
+    "supportPercent": "2.08%",
+    "confidencePercent": "56.46%"
+  },
+  {
+    "antecedent": [
+      "22697",
+      "22699"
+    ],
+    "consequent": [
+      "22423"
+    ],
+    "support": 0.017004,
+    "confidence": 0.568627,
+    "lift": 6.439536,
+    "conviction": 2.1135,
+    "supportPercent": "1.70%",
+    "confidencePercent": "56.86%"
+  },
+  {
+    "antecedent": [
+      "22385"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.01372,
+    "confidence": 0.553191,
+    "lift": 6.349045,
+    "conviction": 2.0431,
+    "supportPercent": "1.37%",
+    "confidencePercent": "55.32%"
+  },
+  {
+    "antecedent": [
+      "21929"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.018294,
+    "confidence": 0.552212,
+    "lift": 6.337808,
+    "conviction": 2.0386,
+    "supportPercent": "1.83%",
+    "confidencePercent": "55.22%"
+  },
+  {
+    "antecedent": [
+      "22698"
+    ],
+    "consequent": [
+      "22423"
+    ],
+    "support": 0.016887,
+    "confidence": 0.545455,
+    "lift": 6.17711,
+    "conviction": 2.0057,
+    "supportPercent": "1.69%",
+    "confidencePercent": "54.55%"
+  },
+  {
+    "antecedent": [
+      "23202",
+      "23203"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.012958,
+    "confidence": 0.535109,
+    "lift": 6.14151,
+    "conviction": 1.9636,
+    "supportPercent": "1.30%",
+    "confidencePercent": "53.51%"
+  },
+  {
+    "antecedent": [
+      "21930"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.014072,
+    "confidence": 0.532151,
+    "lift": 6.107558,
+    "conviction": 1.9512,
+    "supportPercent": "1.41%",
+    "confidencePercent": "53.22%"
+  },
+  {
+    "antecedent": [
+      "20712"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.012137,
+    "confidence": 0.532134,
+    "lift": 6.107362,
+    "conviction": 1.9511,
+    "supportPercent": "1.21%",
+    "confidencePercent": "53.21%"
+  },
+  {
+    "antecedent": [
+      "23173"
+    ],
+    "consequent": [
+      "22423"
+    ],
+    "support": 0.010378,
+    "confidence": 0.534743,
+    "lift": 6.055807,
+    "conviction": 1.9596,
+    "supportPercent": "1.04%",
+    "confidencePercent": "53.47%"
+  },
+  {
+    "antecedent": [
+      "22697"
+    ],
+    "consequent": [
+      "22423"
+    ],
+    "support": 0.020287,
+    "confidence": 0.532308,
+    "lift": 6.028226,
+    "conviction": 1.9494,
+    "supportPercent": "2.03%",
+    "confidencePercent": "53.23%"
+  },
+  {
+    "antecedent": [
+      "21733"
+    ],
+    "consequent": [
+      "85123A"
+    ],
+    "support": 0.025447,
+    "confidence": 0.670788,
+    "lift": 6.01804,
+    "conviction": 2.699,
+    "supportPercent": "2.54%",
+    "confidencePercent": "67.08%"
+  },
+  {
+    "antecedent": [
+      "22699"
+    ],
+    "consequent": [
+      "22423"
+    ],
+    "support": 0.022633,
+    "confidence": 0.525886,
+    "lift": 5.955497,
+    "conviction": 1.9229,
+    "supportPercent": "2.26%",
+    "confidencePercent": "52.59%"
+  },
+  {
+    "antecedent": [
+      "20713"
+    ],
+    "consequent": [
+      "85099B"
+    ],
+    "support": 0.011023,
+    "confidence": 0.5,
+    "lift": 5.73856,
+    "conviction": 1.8257,
+    "supportPercent": "1.10%",
+    "confidencePercent": "50.00%"
+  }
+]
