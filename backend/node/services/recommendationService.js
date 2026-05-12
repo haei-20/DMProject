@@ -46,6 +46,8 @@ const FBT_RECOMPUTE_AFTER_MS = (() => {
 })();
 
 const FBT_CACHE_KEY_PREFIX = "frequently-bought-together-";
+/** Snapshot duy nhất admin FBT — chỉ làm mới khi force=true (nút «Chạy lại thuật toán»). */
+const FBT_ADMIN_SNAPSHOT_KEY = `${FBT_CACHE_KEY_PREFIX}admin-snapshot`;
 
 /** Ngưỡng gợi ý cho khách: support, confidence, lift, độ dài itemset tối thiểu (luật cặp + mẫu FP fallback). Ghi đè bằng biến môi trường nếu cần. */
 const CUSTOMER_REC_MIN_SUPPORT = (() => {
@@ -64,6 +66,343 @@ const CUSTOMER_REC_MIN_ITEMSET_SIZE = (() => {
   const n = parseInt(process.env.CUSTOMER_REC_MIN_ITEMSET_SIZE, 10);
   return Number.isFinite(n) && n >= 2 ? n : 2;
 })();
+
+/** true = dùng fp_*.json như cũ (seed / offline). Mặc định false = giao dịch + luật cặp/strong từ MongoDB. */
+const FBT_USE_FP_JSON =
+  process.env.FBT_USE_FP_JSON === "1" || process.env.FBT_USE_FP_JSON === "true";
+
+/** Trạng thái đơn dùng để mining (CSV). Mặc định: đơn đã giao / đang giao. */
+const FBT_ORDER_STATUSES = (() => {
+  const raw = process.env.FBT_ORDER_STATUSES;
+  if (raw == null || String(raw).trim() === "") {
+    return ["shipped", "delivered"];
+  }
+  return String(raw)
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+})();
+
+const FBT_TRANSACTIONS_CAP = Math.min(
+  Math.max(parseInt(process.env.FBT_TRANSACTIONS_CAP, 10) || 5000, 2),
+  50000
+);
+/** Trần cứng số đơn mỗi lần query (orderLimit từ admin tôn trọng tới mức này). Mặc định 50000. */
+const FBT_TRANSACTIONS_HARD_MAX = Math.min(
+  Math.max(parseInt(process.env.FBT_TRANSACTIONS_HARD_MAX, 10) || 50000, 100),
+  200000
+);
+const FBT_PAIR_RULES_ORDER_LIMIT = Math.min(
+  Math.max(parseInt(process.env.FBT_PAIR_RULES_ORDER_LIMIT, 10) || 5000, 2),
+  50000
+);
+const TTL_DB_TRANSACTIONS_SEC = (() => {
+  const n = Number(process.env.FBT_DB_TRANSACTIONS_CACHE_SEC);
+  return Number.isFinite(n) && n >= 0 ? n : 300;
+})();
+const TTL_DB_PAIR_RULES_SEC = (() => {
+  const n = Number(process.env.FBT_DB_PAIR_RULES_CACHE_SEC);
+  return Number.isFinite(n) && n >= 0 ? n : 3600;
+})();
+
+const CACHE_KEY_FP_TRANSACTIONS_DB_PREFIX = "fp:transactions:db:";
+const CACHE_KEY_FP_PAIR_RULES_DB = "fp:pair-rules:db";
+
+function buildTransactionsFromOrders(orders) {
+  const out = [];
+  if (!Array.isArray(orders)) return out;
+  for (const o of orders) {
+    const items = o.orderItems || [];
+    const keys = [];
+    const seen = new Set();
+    for (const li of items) {
+      const pid = li && li.product;
+      if (pid == null) continue;
+      const s = String(pid);
+      if (seen.has(s)) continue;
+      seen.add(s);
+      keys.push(s);
+    }
+    if (keys.length >= 1) out.push(keys);
+  }
+  return out;
+}
+
+/**
+ * Lấy đơn cho mining: ưu tiên FBT_ORDER_STATUSES; nếu quá ít đơn thì nới điều kiện.
+ * @param {number} limit
+ */
+async function fetchOrdersForMining(limit) {
+  const cap = Math.min(Math.max(parseInt(limit, 10) || 1000, 1), FBT_TRANSACTIONS_HARD_MAX);
+  const baseSelect = "orderItems status createdAt";
+
+  const tryQuery = async (filter) => {
+    try {
+      return await Order.find(filter)
+        .sort({ createdAt: -1 })
+        .limit(cap)
+        .select(baseSelect)
+        .lean();
+    } catch (e) {
+      console.error("fetchOrdersForMining:", e.message);
+      return [];
+    }
+  };
+
+  let orders = [];
+  if (FBT_ORDER_STATUSES.length > 0) {
+    orders = await tryQuery({
+      status: { $in: FBT_ORDER_STATUSES },
+      "orderItems.0": { $exists: true },
+    });
+  }
+
+  if (!orders || orders.length < 2) {
+    const wider = await tryQuery({
+      status: { $nin: ["cancelled", "pending"] },
+      "orderItems.0": { $exists: true },
+    });
+    if (wider && wider.length > (orders?.length || 0)) orders = wider;
+  }
+
+  if (!orders || orders.length < 2) {
+    orders = await tryQuery({
+      status: { $ne: "cancelled" },
+      "orderItems.0": { $exists: true },
+    });
+  }
+
+  return orders || [];
+}
+
+async function loadTransactionsFromDatabase(orderLimit, { force = false } = {}) {
+  const key = `${CACHE_KEY_FP_TRANSACTIONS_DB_PREFIX}${orderLimit}`;
+  if (!force && TTL_DB_TRANSACTIONS_SEC > 0) {
+    const hit = cache.get(key);
+    if (hit) return hit;
+  }
+  const orders = await fetchOrdersForMining(orderLimit);
+  const parsed = buildTransactionsFromOrders(orders);
+  if (TTL_DB_TRANSACTIONS_SEC > 0) {
+    cache.set(key, parsed, TTL_DB_TRANSACTIONS_SEC);
+  }
+  console.log(
+    `[NodeCache ${key}] đã nạp ${parsed.length} giao dịch (giỏ SP) từ MongoDB Order`
+  );
+  return parsed;
+}
+
+/**
+ * Mine luật cặp A→B / B→A từ danh sách giao dịch (mỗi giao dịch = mảng khóa SP).
+ * Cùng ý tưởng với fp_pair_rules.json; thêm conviction để lọc strongRules.
+ */
+function minePairAssociationRulesFromTransactions(transactions) {
+  const N = transactions.length;
+  if (N === 0) return [];
+
+  const itemCount = new Map();
+  const pairCount = new Map();
+
+  for (const trans of transactions) {
+    if (!Array.isArray(trans) || trans.length < 2) continue;
+    const arr = [...new Set(trans.map((x) => String(x)))].sort();
+    for (let i = 0; i < arr.length; i++) {
+      const a = arr[i];
+      itemCount.set(a, (itemCount.get(a) || 0) + 1);
+      for (let j = i + 1; j < arr.length; j++) {
+        const b = arr[j];
+        const key = `${a}||${b}`;
+        pairCount.set(key, (pairCount.get(key) || 0) + 1);
+      }
+    }
+  }
+
+  const rules = [];
+  for (const [key, cij] of pairCount.entries()) {
+    const [a, b] = key.split("||");
+    const ci = itemCount.get(a) || 1;
+    const cj = itemCount.get(b) || 1;
+    const support = cij / N;
+    const confAB = cij / ci;
+    const confBA = cij / cj;
+    const supB = cj / N;
+    const supA = ci / N;
+    const liftAB = supB > 0 ? confAB / supB : 0;
+    const liftBA = supA > 0 ? confBA / supA : 0;
+    const convAB =
+      confAB < 1 ? (1 - supB) / (1 - confAB) : Number.POSITIVE_INFINITY;
+    const convBA =
+      confBA < 1 ? (1 - supA) / (1 - confBA) : Number.POSITIVE_INFINITY;
+
+    rules.push({
+      items: [a, b],
+      antecedent: a,
+      consequent: b,
+      support,
+      confidence: confAB,
+      lift: liftAB,
+      conviction: convAB,
+    });
+    rules.push({
+      items: [b, a],
+      antecedent: b,
+      consequent: a,
+      support,
+      confidence: confBA,
+      lift: liftBA,
+      conviction: convBA,
+    });
+  }
+  return rules;
+}
+
+function canonicalItemsetKey(items) {
+  return [...new Set((items || []).map((x) => String(x)))].sort().join("\u0001");
+}
+
+/** Tần suất tuyệt đối các tập phổ biến từ kết quả FP (đã có actualFrequency). */
+function buildFrequentItemsetFrequencyMap(patternsRanked) {
+  const m = new Map();
+  if (!Array.isArray(patternsRanked)) return m;
+  for (const p of patternsRanked) {
+    if (!Array.isArray(p?.items) || p.items.length < 1) continue;
+    const key = canonicalItemsetKey(p.items);
+    const freq = Number(p.actualFrequency);
+    if (!Number.isFinite(freq) || freq <= 0) continue;
+    const prev = m.get(key);
+    if (prev == null || freq > prev) m.set(key, freq);
+  }
+  return m;
+}
+
+function countItemsetInTransactions(transactions, itemset) {
+  const need = new Set((itemset || []).map((x) => String(x)));
+  if (need.size === 0) return 0;
+  let c = 0;
+  for (const t of transactions) {
+    if (!Array.isArray(t)) continue;
+    const set = new Set(t.map((x) => String(x)));
+    let ok = true;
+    for (const x of need) {
+      if (!set.has(x)) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) c += 1;
+  }
+  return c;
+}
+
+function getSubsetFrequency(items, freqMap, transactions, memo) {
+  const key = canonicalItemsetKey(items);
+  if (freqMap.has(key)) return freqMap.get(key);
+  if (memo.has(key)) return memo.get(key);
+  const cnt = countItemsetInTransactions(transactions, items);
+  memo.set(key, cnt);
+  return cnt;
+}
+
+/** Mọi cách tách P thành A | B không rông, A ∪ B = P (chuỗi đã sort). */
+function subsetsNonEmptyProperSorted(sortedUnique) {
+  const arr = sortedUnique;
+  const n = arr.length;
+  const out = [];
+  for (let mask = 1; mask < (1 << n) - 1; mask++) {
+    const A = [];
+    const B = [];
+    for (let i = 0; i < n; i++) {
+      if (mask & (1 << i)) A.push(arr[i]);
+      else B.push(arr[i]);
+    }
+    if (A.length && B.length) out.push({ A, B });
+  }
+  return out;
+}
+
+/**
+ * Luật kết hợp mạnh từ tập phổ biến: với mỗi tập P (|P|≥2), mọi tách A→B (A∪B=P),
+ * support = fr(P)/N, confidence = fr(P)/fr(A), lift = confidence / (fr(B)/N), conviction chuẩn.
+ */
+function mineStrongAssociationRulesFromFrequentItemsets(transactions, patternsRanked) {
+  const N = transactions.length;
+  if (N < 2 || !Array.isArray(patternsRanked) || patternsRanked.length === 0) return [];
+
+  const maxItemsetSize = Math.min(
+    Math.max(parseInt(process.env.FBT_STRONG_RULES_MAX_ITEMSET_SIZE, 10) || 6, 2),
+    8
+  );
+  const maxAnt = Math.min(Math.max(parseInt(process.env.FBT_STRONG_RULES_MAX_ANT_SIZE, 10) || 4, 1), 6);
+  const maxCons = Math.min(Math.max(parseInt(process.env.FBT_STRONG_RULES_MAX_CONS_SIZE, 10) || 4, 1), 6);
+  const maxItemsetsToScan = Math.min(
+    Math.max(parseInt(process.env.FBT_STRONG_RULES_MAX_ITEMSETS, 10) || 1200, 50),
+    patternsRanked.length
+  );
+  const maxRulesOut = Math.min(
+    Math.max(parseInt(process.env.FBT_STRONG_RULES_MAX_RULES, 10) || 500, 50),
+    5000
+  );
+
+  const freqMap = buildFrequentItemsetFrequencyMap(patternsRanked);
+  const memo = new Map();
+  const candidates = [];
+  const seenRuleKeys = new Set();
+
+  const topPatterns = patternsRanked.slice(0, maxItemsetsToScan);
+  for (const pattern of topPatterns) {
+    const rawItems = pattern?.items;
+    if (!Array.isArray(rawItems) || rawItems.length < 2) continue;
+    const sorted = [...new Set(rawItems.map((x) => String(x)))].sort();
+    if (sorted.length < 2 || sorted.length > maxItemsetSize) continue;
+
+    const fP = Number(pattern.actualFrequency);
+    if (!Number.isFinite(fP) || fP <= 0) continue;
+
+    for (const { A, B } of subsetsNonEmptyProperSorted(sorted)) {
+      if (A.length > maxAnt || B.length > maxCons) continue;
+
+      const freqA = getSubsetFrequency(A, freqMap, transactions, memo);
+      const freqB = getSubsetFrequency(B, freqMap, transactions, memo);
+      if (freqA < fP || freqB <= 0) continue;
+
+      const support = fP / N;
+      const confidence = freqA > 0 ? fP / freqA : 0;
+      const supB = freqB / N;
+      const lift = supB > 0 ? confidence / supB : 0;
+      const conviction =
+        confidence < 1 ? (1 - supB) / (1 - confidence) : Number.POSITIVE_INFINITY;
+
+      const ruleKey = `${canonicalItemsetKey(A)}=>${canonicalItemsetKey(B)}`;
+      if (seenRuleKeys.has(ruleKey)) continue;
+      seenRuleKeys.add(ruleKey);
+
+      candidates.push({
+        antecedent: [...A],
+        consequent: [...B],
+        support,
+        confidence,
+        lift,
+        conviction,
+        supportPercent: `${(support * 100).toFixed(2)}%`,
+        confidencePercent: `${(confidence * 100).toFixed(2)}%`,
+        _score: confidence * Math.min(Math.max(lift, 0), 1e6),
+      });
+    }
+  }
+
+  candidates.sort((a, b) => b._score - a._score);
+  return candidates.slice(0, maxRulesOut).map(({ _score, ...r }) => r);
+}
+
+function clearDbMiningCacheKeys() {
+  cache.del(CACHE_KEY_FP_PAIR_RULES_DB);
+  const keys = typeof cache.keys === "function" ? cache.keys() : [];
+  for (const k of keys) {
+    if (typeof k === "string" && k.startsWith(CACHE_KEY_FP_TRANSACTIONS_DB_PREFIX)) {
+      cache.del(k);
+    }
+  }
+}
 
 async function readFpTransactionsFromDisk() {
   const raw = await fs.readFile(FP_TRANSACTIONS_PATH, "utf8");
@@ -118,10 +457,17 @@ async function loadFpStrongRulesArray({ force = false } = {}) {
 }
 
 /**
- * Đọc lại 3 file fp_*.json vào NodeCache; xóa key legacy pair-association.
- * Gọi khi khởi động server hoặc sau khi sửa file JSON.
+ * JSON: đọc lại 3 file fp_*.json vào NodeCache.
+ * MongoDB: không nạp file; mining lấy từ Order khi cần.
  */
 async function preloadFpSourceFiles({ replace = true } = {}) {
+  if (!FBT_USE_FP_JSON) {
+    if (replace) clearDbMiningCacheKeys();
+    console.log(
+      "preloadFpSourceFiles: chế độ MongoDB (FBT_USE_FP_JSON không bật) — bỏ qua fp_*.json."
+    );
+    return;
+  }
   if (replace) {
     cache.del(CACHE_KEY_FP_TRANSACTIONS);
     cache.del(CACHE_KEY_FP_PAIR_RULES);
@@ -159,25 +505,63 @@ function invalidateFbtComputedResultsCache() {
       n += 1;
     }
   }
+  if (!FBT_USE_FP_JSON) {
+    clearDbMiningCacheKeys();
+  }
   console.log(`invalidateFbtComputedResultsCache: đã xóa ${n} key kết quả FBT`);
   return n;
 }
 
 /**
- * Giao dịch cho FP-Growth / mining: luôn lấy từ scripts/fp_transactions.json.
- * @param {number} targetFbtValidCount — >0: chỉ lấy N dòng đầu (giống giới hạn mẫu FBT).
+ * Giao dịch cho FP-Growth / mining.
+ * - Mặc định: MongoDB Order (FBT_ORDER_STATUSES). Không truyền orderLimit → tối đa FBT_TRANSACTIONS_CAP đơn.
+ *   Có orderLimit (admin) → lấy tối đa min(orderLimit, FBT_TRANSACTIONS_HARD_MAX) đơn.
+ * - FBT_USE_FP_JSON=true: scripts/fp_transactions.json như cũ.
+ * @param {number} targetFbtValidCount — >0: tối đa N đơn/giỏ mới nhất (orderLimit FBT).
+ * @param {{ forceRefresh?: boolean }} opts — true: bỏ qua cache RAM giao dịch DB.
  */
-const getTransactions = async (targetFbtValidCount = 0) => {
+const getTransactions = async (targetFbtValidCount = 0, opts = {}) => {
+  const force = opts.forceRefresh === true;
   try {
-    console.log(`Lấy giao dịch từ fp_transactions.json (targetFbtValidCount=${targetFbtValidCount})`);
-    const all = await loadFpTransactionsArray();
+    if (FBT_USE_FP_JSON) {
+      console.log(
+        `Lấy giao dịch từ fp_transactions.json (targetFbtValidCount=${targetFbtValidCount})`
+      );
+      const all = await loadFpTransactionsArray({ force });
+      const fullLen = all.length;
+      if (targetFbtValidCount > 0) {
+        const slice = all.slice(0, targetFbtValidCount);
+        return {
+          transactions: slice,
+          meta: {
+            mode: "fp_transactions_file",
+            ordersScanned: fullLen,
+            requestedValidTransactions: targetFbtValidCount,
+            collectedValidTransactions: slice.length,
+          },
+        };
+      }
+      return {
+        transactions: all,
+        meta: { mode: "fp_transactions_file", ordersScanned: fullLen },
+      };
+    }
+
+    const dbLimit =
+      targetFbtValidCount > 0
+        ? Math.min(targetFbtValidCount, FBT_TRANSACTIONS_HARD_MAX)
+        : Math.min(FBT_TRANSACTIONS_CAP, FBT_TRANSACTIONS_HARD_MAX);
+    console.log(
+      `Lấy giao dịch từ MongoDB Order (limit=${dbLimit}, force=${force}, targetFbtValidCount=${targetFbtValidCount})`
+    );
+    const all = await loadTransactionsFromDatabase(dbLimit, { force });
     const fullLen = all.length;
-    if (targetFbtValidCount > 0) {
+    if (targetFbtValidCount > 0 && targetFbtValidCount < fullLen) {
       const slice = all.slice(0, targetFbtValidCount);
       return {
         transactions: slice,
         meta: {
-          mode: "fp_transactions_file",
+          mode: "mongodb_orders",
           ordersScanned: fullLen,
           requestedValidTransactions: targetFbtValidCount,
           collectedValidTransactions: slice.length,
@@ -186,10 +570,10 @@ const getTransactions = async (targetFbtValidCount = 0) => {
     }
     return {
       transactions: all,
-      meta: { mode: "fp_transactions_file", ordersScanned: fullLen },
+      meta: { mode: "mongodb_orders", ordersScanned: fullLen },
     };
   } catch (error) {
-    console.error("Lỗi đọc fp_transactions.json:", error);
+    console.error("Lỗi lấy giao dịch mining:", error);
     return { transactions: [], meta: null };
   }
 };
@@ -372,12 +756,33 @@ const enrichStrongRulesWithProducts = async (strongRules) => {
   });
 };
 
-/** Luật cặp: từ NodeCache key fp:pair-rules (nguồn fp_pair_rules.json). */
+/** Luật cặp: fp_pair_rules.json (legacy) hoặc mine từ đơn MongoDB. */
 const getPairAssociationRules = async () => {
+  if (FBT_USE_FP_JSON) {
+    try {
+      return await loadFpPairRulesArray();
+    } catch (error) {
+      console.error("Lỗi đọc fp_pair_rules.json / cache:", error);
+      return [];
+    }
+  }
   try {
-    return await loadFpPairRulesArray();
+    if (TTL_DB_PAIR_RULES_SEC > 0) {
+      const hit = cache.get(CACHE_KEY_FP_PAIR_RULES_DB);
+      if (hit) return hit;
+    }
+    const orders = await fetchOrdersForMining(FBT_PAIR_RULES_ORDER_LIMIT);
+    const txs = buildTransactionsFromOrders(orders);
+    const rules = minePairAssociationRulesFromTransactions(txs);
+    if (TTL_DB_PAIR_RULES_SEC > 0) {
+      cache.set(CACHE_KEY_FP_PAIR_RULES_DB, rules, TTL_DB_PAIR_RULES_SEC);
+    }
+    console.log(
+      `[${CACHE_KEY_FP_PAIR_RULES_DB}] đã mine ${rules.length} luật cặp từ ${txs.length} giao dịch DB`
+    );
+    return rules;
   } catch (error) {
-    console.error("Lỗi đọc fp_pair_rules.json / cache:", error);
+    console.error("Lỗi mine luật cặp từ MongoDB:", error);
     return [];
   }
 };
@@ -410,11 +815,22 @@ const getCartRecommendations = async (cartItems, limit = 4) => {
     }
 
     const cartKeySet = new Set(cartProductIds.map(String));
-    const cartOidList = cartProductIds
-      .filter((id) => mongoose.Types.ObjectId.isValid(id))
-      .map((id) => new mongoose.Types.ObjectId(id));
-    if (cartOidList.length > 0) {
-      const cartRows = await Product.find({ _id: { $in: cartOidList } }).select('_id sku').lean();
+    const rawKeys = cartProductIds.map(String);
+    const oidStrings = rawKeys.filter((id) => mongoose.Types.ObjectId.isValid(id));
+    const skuStrings = rawKeys.filter((id) => !mongoose.Types.ObjectId.isValid(id));
+    const cartOr = [];
+    if (oidStrings.length > 0) {
+      cartOr.push({
+        _id: { $in: oidStrings.map((s) => new mongoose.Types.ObjectId(s)) },
+      });
+    }
+    if (skuStrings.length > 0) {
+      cartOr.push({ sku: { $in: skuStrings } });
+    }
+    let cartOidList = [];
+    if (cartOr.length > 0) {
+      const cartRows = await Product.find({ $or: cartOr }).select('_id sku').lean();
+      cartOidList = cartRows.map((p) => p._id);
       for (const p of cartRows) {
         cartKeySet.add(String(p._id));
         if (p.sku != null && String(p.sku).length > 0) cartKeySet.add(String(p.sku));
@@ -527,7 +943,7 @@ const getFPGrowthRecommendations = async (opts = {}) => {
   const cachedData = cache.get(cacheKey);
   if (cachedData) return cachedData;
 
-  const { transactions } = await getTransactions();
+  const { transactions } = await getTransactions(0, {});
   if (!transactions || transactions.length < 2) {
     console.log("Không đủ dữ liệu giao dịch cho FP-Growth");
     return [];
@@ -695,44 +1111,40 @@ const getFrequentlyBoughtTogether = async (
   try {
     const forceRefresh = Boolean(options.forceRefresh);
     const algorithmLabel = "FP-Growth";
-    const cacheKey = `${FBT_CACHE_KEY_PREFIX}${minSupport}-${orderLimit}-${minConfidence}-${minLift}-${minConviction}`;
 
-    const cachedRaw = cache.get(cacheKey);
-    if (!forceRefresh && cachedRaw) {
-      const wrapped =
-        cachedRaw &&
-        typeof cachedRaw === "object" &&
-        cachedRaw.__fbtV2 === true &&
-        cachedRaw.payload
-          ? cachedRaw
-          : null;
-      if (wrapped) {
-        const cachedAt = Number(wrapped.cachedAt) || 0;
-        const ageMs = Date.now() - cachedAt;
-        if (cachedAt > 0 && ageMs >= 0 && ageMs < FBT_RECOMPUTE_AFTER_MS) {
-          console.log(
-            `Trả về kết quả FBT từ cache (tuổi ~${Math.round(ageMs / 3600000)} giờ; tối đa ${FBT_RECOMPUTE_AFTER_MS / 86400000} ngày trước khi tính lại)`
-          );
-          const payload = wrapped.payload;
-          return {
-            ...payload,
-            info: {
-              ...(payload.info && typeof payload.info === "object" ? payload.info : {}),
-              fbtFromCache: true,
-              fbtCachedAt: cachedAt,
-              fbtCacheMaxAgeMs: FBT_RECOMPUTE_AFTER_MS,
-              fbtCacheTtlSec: TTL_FBT_RESULT_SEC,
-            },
-          };
-        }
+    if (!forceRefresh) {
+      const snap = cache.get(FBT_ADMIN_SNAPSHOT_KEY);
+      if (
+        snap &&
+        typeof snap === "object" &&
+        snap.__fbtV2 === true &&
+        snap.payload
+      ) {
+        const cachedAt = Number(snap.cachedAt) || 0;
         console.log(
-          `Cache FBT đã ≥ ${FBT_RECOMPUTE_AFTER_MS / 86400000} ngày — chạy lại thuật toán`
+          "FBT admin: trả snapshot đã lưu (đổi tham số trên UI không kích hoạt mining — chỉ nút «Chạy lại thuật toán» / force=true)."
         );
-      } else {
-        console.log("Cache FBT định dạng cũ — chạy lại thuật toán");
+        const payload = snap.payload;
+        return {
+          ...payload,
+          info: {
+            ...(payload.info && typeof payload.info === "object" ? payload.info : {}),
+            fbtFromCache: true,
+            fbtSnapshot: true,
+            fbtCachedAt: cachedAt,
+            fbtCacheTtlSec: TTL_FBT_RESULT_SEC,
+            fbtIgnoredQueryParams: {
+              minSupport,
+              orderLimit,
+              minConfidence,
+              minLift,
+              minConviction,
+            },
+          },
+        };
       }
-    } else if (forceRefresh) {
-      console.log("force=true — bỏ qua cache FBT, chạy lại thuật toán");
+    } else {
+      console.log("force=true — bỏ qua snapshot FBT admin, chạy lại thuật toán");
     }
 
     console.log(
@@ -740,7 +1152,9 @@ const getFrequentlyBoughtTogether = async (
     );
     
     // Lấy đủ orderLimit giao dịch FBT hợp lệ (≥1 SP), quét đơn mới nhất trước
-    const { transactions, meta: transactionsSourceMeta } = await getTransactions(orderLimit);
+    const { transactions, meta: transactionsSourceMeta } = await getTransactions(orderLimit, {
+      forceRefresh,
+    });
     
     // Chi tiết debug
     console.log(`DEBUG: Số lượng giao dịch: ${transactions.length}`);
@@ -915,7 +1329,11 @@ const getFrequentlyBoughtTogether = async (
       }
       const totalOrders =
         transactionsSourceMeta?.ordersScanned ?? validTransactions.length;
-      console.log(`Số giao dịch trong tập nguồn (fp_transactions.json): ${totalOrders}`);
+      const txSourceLabel =
+        transactionsSourceMeta?.mode === "mongodb_orders"
+          ? "MongoDB Order"
+          : "fp_transactions.json";
+      console.log(`Số giao dịch trong tập nguồn (${txSourceLabel}): ${totalOrders}`);
       
       // Số lượng giao dịch hợp lệ sử dụng trong thuật toán
       const validTransactionCount = validTransactions.length;
@@ -981,31 +1399,46 @@ const getFrequentlyBoughtTogether = async (
         console.log(`DEBUG: Tỷ lệ xuất hiện: ${validPatterns[0].support}, Tần suất: ${validPatterns[0].frequency} đơn hàng`);
       }
       
-      let strongRulesFromFile = [];
-      try {
-        strongRulesFromFile = await loadFpStrongRulesArray();
-      } catch (e) {
-        console.error("Lỗi đọc fp_strong_rules.json:", e);
+      let strongRulesSource = [];
+      if (FBT_USE_FP_JSON) {
+        try {
+          strongRulesSource = await loadFpStrongRulesArray();
+        } catch (e) {
+          console.error("Lỗi đọc fp_strong_rules.json:", e);
+        }
+      } else {
+        strongRulesSource = mineStrongAssociationRulesFromFrequentItemsets(
+          validTransactions,
+          patternsRanked
+        );
+        console.log(
+          `[FBT] Đã sinh ${strongRulesSource.length} luật mạnh (đa mục) từ tập phổ biến FP-Growth`
+        );
       }
-      const associationRulesInSource = strongRulesFromFile.length;
+      const associationRulesInSource = strongRulesSource.length;
       const strongRulesFiltered = filterStrongRulesByThresholds(
-        strongRulesFromFile,
+        strongRulesSource,
         minConfidence,
         minLift,
         minConviction
       );
       const strongRulesWithProducts = await enrichStrongRulesWithProducts(strongRulesFiltered);
 
+      const rulesSourceDesc = FBT_USE_FP_JSON
+        ? "fp_strong_rules.json"
+        : "sinh từ tập phổ biến FP-Growth (A→B, đa SP)";
       const result = {
         frequentItemsets: validPatterns,
         strongRules: strongRulesWithProducts,
-        message: `Danh sách sản phẩm thường được mua cùng nhau (FP-Growth trên fp_transactions.json; luật mạnh từ fp_strong_rules.json sau lọc conf/lift/conv, ${validTransactions.length} giao dịch)`,
+        message: `Danh sách sản phẩm thường được mua cùng nhau (FP-Growth trên ${txSourceLabel}; luật mạnh ${rulesSourceDesc}, sau lọc conf/lift/conv; ${validTransactions.length} giao dịch)`,
         success: true,
         info: {
           totalTransactions: validTransactions.length,
           totalOrders: totalOrders,
           algorithm: algorithmLabel,
-          dataSource: "fp_transactions.json + fp_strong_rules.json",
+          dataSource: FBT_USE_FP_JSON
+            ? "fp_transactions.json + fp_strong_rules.json"
+            : "mongodb_orders + fp_mined_strong_rules",
           minSupport: usedMinSupport,
           minConfidence,
           minLift,
@@ -1029,13 +1462,20 @@ const getFrequentlyBoughtTogether = async (
       result.info = {
         ...(result.info && typeof result.info === "object" ? result.info : {}),
         fbtFromCache: false,
+        fbtSnapshot: false,
         fbtComputedAt: Date.now(),
-        fbtCacheMaxAgeMs: FBT_RECOMPUTE_AFTER_MS,
         fbtCacheTtlSec: TTL_FBT_RESULT_SEC,
+        fbtParamsUsed: {
+          minSupport: usedMinSupport,
+          orderLimit,
+          minConfidence,
+          minLift,
+          minConviction,
+        },
       };
 
       cache.set(
-        cacheKey,
+        FBT_ADMIN_SNAPSHOT_KEY,
         { __fbtV2: true, payload: result, cachedAt: Date.now() },
         TTL_FBT_RESULT_SEC
       );
@@ -1208,7 +1648,7 @@ const getRelatedProductRecommendations = async (productId, limit = 4) => {
 
 const updateFPGrowthRecommendations = async () => {
   try {
-    const { transactions } = await getTransactions();
+    const { transactions } = await getTransactions(0, {});
     const TTL_SEC = 3600 * 72;
     const txCount = transactions?.length ?? 0;
 

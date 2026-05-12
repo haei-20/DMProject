@@ -14,6 +14,8 @@ const FrequentlyBoughtTogetherTable = ({
   data,
   loading,
   isRecomputing = false,
+  /** true khi vừa bấm «Chạy lại thuật toán» (gửi force) — khác với chỉ refetch đọc cache */
+  fbtForceRefreshPending = false,
   error,
   minSupport = 0.01,
   orderLimit = 500,
@@ -423,7 +425,11 @@ const FrequentlyBoughtTogetherTable = ({
                 {isRecomputing && (
                   <div className="d-flex align-items-center gap-2 text-primary small">
                     <Spinner animation="border" size="sm" />
-                    <span>Đang chạy lại thuật toán...</span>
+                    <span>
+                      {fbtForceRefreshPending
+                        ? 'Đang chạy lại thuật toán...'
+                        : 'Đang lấy dữ liệu'}
+                    </span>
                   </div>
                 )}
               </div>

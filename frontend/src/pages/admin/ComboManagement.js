@@ -9,7 +9,7 @@ import {
   FaPlus, FaTrash, FaSave, FaSearch, 
   FaBoxOpen, FaShoppingCart, FaTags, 
   FaPercentage, FaEdit, FaEye, FaLink,
-  FaCheckCircle, FaExclamationCircle, FaInfoCircle, FaSyncAlt
+  FaCheckCircle, FaExclamationCircle, FaInfoCircle, FaSyncAlt, FaArrowRight
 } from 'react-icons/fa';
 import { 
   useGetProductsQuery, 
@@ -24,6 +24,28 @@ import { DEFAULT_PRODUCT_IMAGE_URL } from '../../constants/defaultProductImageUr
 import AdminLayout from '../../components/admin/AdminLayout';
 import FrequentlyBoughtTogetherTable from '../../components/admin/FrequentlyBoughtTogetherTable';
 import './ComboManagement.css';
+
+const FBT_STRONG_RULES_UI_MAX = 100;
+/** Tiêu đề tab Gợi ý Combo — dùng cho UI và log console khi mở tab. */
+const COMBO_SUGGESTIONS_SECTION_TITLE = 'Gợi ý Combo dựa trên dữ liệu mua hàng';
+
+function formatStrongRuleProductNames(part) {
+  if (!Array.isArray(part) || part.length === 0) return '—';
+  return part
+    .map((p) => {
+      if (p && typeof p === 'object' && p.name) return String(p.name);
+      if (p != null && String(p).trim() !== '') return String(p).trim();
+      return '';
+    })
+    .filter(Boolean)
+    .join(', ');
+}
+
+function formatStrongRuleConviction(v) {
+  if (v === Number.POSITIVE_INFINITY || v === 'Infinity') return '∞';
+  const n = Number(v);
+  return Number.isFinite(n) ? n.toFixed(2) : '—';
+}
 
 const ComboManagement = () => {
   // State for combo properties
@@ -83,6 +105,11 @@ const ComboManagement = () => {
     if (!pendingFbtForce || isFetchingFrequently) return;
     setPendingFbtForce(false);
   }, [pendingFbtForce, isFetchingFrequently]);
+
+  useEffect(() => {
+    if (activeTab !== 'suggestions') return;
+    console.log(COMBO_SUGGESTIONS_SECTION_TITLE);
+  }, [activeTab]);
   
   // Get existing combos
   const {
@@ -792,7 +819,9 @@ const ComboManagement = () => {
           <Tab eventKey="suggestions" title="Gợi ý Combo">
             <Card className="mb-4">
               <Card.Header className="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <h5 className="mb-0">Gợi ý Combo dựa trên dữ liệu mua hàng</h5>
+                <div className="d-flex flex-wrap align-items-center gap-2">
+                  <h5 className="mb-0">{COMBO_SUGGESTIONS_SECTION_TITLE}</h5>
+                </div>
                 <Button
                   variant="outline-primary"
                   size="sm"
@@ -809,6 +838,7 @@ const ComboManagement = () => {
                   data={frequentlyBoughtData}
                   loading={isLoadingFrequently}
                   isRecomputing={isFetchingFrequently && !isLoadingFrequently}
+                  fbtForceRefreshPending={pendingFbtForce}
                   minSupport={fbtFilters.minSupport}
                   orderLimit={fbtFilters.orderLimit}
                   minConfidence={fbtFilters.minConfidence}
@@ -823,6 +853,102 @@ const ComboManagement = () => {
                   existingCombos={combos}
                   error={frequentlyError}
                 />
+              </Card.Body>
+            </Card>
+
+            <Card className="mb-4 combo-strong-rules-card">
+              <Card.Header>
+                <h6 className="mb-0">Luật mạnh đang gợi ý</h6>
+                <small className="text-muted d-block mt-1">
+                  Hiển thị quan hệ <strong>Nếu mua (tiền đề)</strong> → <strong>thường kèm (hệ quả)</strong> sau khi lọc theo minConfidence / minLift / minConviction. Bấm «Chạy lại thuật toán» để cập nhật danh sách theo dữ liệu mới.
+                </small>
+              </Card.Header>
+              <Card.Body className="p-0">
+                {isLoadingFrequently ? (
+                  <div className="text-center py-4">
+                    <Spinner animation="border" variant="primary" size="sm" />
+                    <p className="mt-2 mb-0 small text-muted">Đang tải…</p>
+                  </div>
+                ) : frequentlyError ? (
+                  <Alert variant="warning" className="m-3 mb-0">
+                    Không tải được luật gợi ý.
+                  </Alert>
+                ) : !Array.isArray(frequentlyBoughtData?.strongRules) ||
+                  frequentlyBoughtData.strongRules.length === 0 ? (
+                  <Alert variant="info" className="m-3 mb-0">
+                    <FaInfoCircle className="me-2" />
+                    Chưa có luật mạnh nào sau lọc ngưỡng. Thử giảm minConfidence / minLift / minConviction hoặc chạy lại thuật toán.
+                  </Alert>
+                ) : (
+                  <>
+                    <div className="table-responsive combo-strong-rules-table-wrap">
+                      <Table striped bordered hover size="sm" className="mb-0 align-middle">
+                        <thead className="table-light">
+                          <tr>
+                            <th style={{ width: 48 }}>#</th>
+                            <th>Tiền đề (nếu mua)</th>
+                            <th style={{ width: 40 }} className="text-center" aria-hidden>
+                              <FaArrowRight className="text-muted" />
+                            </th>
+                            <th>Hệ quả (thường kèm)</th>
+                            <th>Support</th>
+                            <th>Confidence</th>
+                            <th>Lift</th>
+                            <th>Conviction</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {frequentlyBoughtData.strongRules
+                            .slice(0, FBT_STRONG_RULES_UI_MAX)
+                            .map((rule, idx) => (
+                              <tr key={`sr-${idx}`}>
+                                <td className="text-muted small">{idx + 1}</td>
+                                <td className="small">
+                                  {formatStrongRuleProductNames(
+                                    rule.antecedentProducts ?? rule.antecedent
+                                  )}
+                                </td>
+                                <td className="text-center text-muted">→</td>
+                                <td className="small">
+                                  {formatStrongRuleProductNames(
+                                    rule.consequentProducts ?? rule.consequent
+                                  )}
+                                </td>
+                                <td className="small text-nowrap">
+                                  {rule.supportPercent != null
+                                    ? rule.supportPercent
+                                    : rule.support != null
+                                      ? `${(Number(rule.support) * 100).toFixed(2)}%`
+                                      : '—'}
+                                </td>
+                                <td className="small text-nowrap">
+                                  {rule.confidencePercent != null
+                                    ? rule.confidencePercent
+                                    : rule.confidence != null
+                                      ? `${(Number(rule.confidence) * 100).toFixed(1)}%`
+                                      : '—'}
+                                </td>
+                                <td className="small text-nowrap">
+                                  {rule.lift != null && Number.isFinite(Number(rule.lift))
+                                    ? Number(rule.lift).toFixed(2)
+                                    : '—'}
+                                </td>
+                                <td className="small text-nowrap">
+                                  {formatStrongRuleConviction(rule.conviction)}
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </Table>
+                    </div>
+                    {frequentlyBoughtData.strongRules.length > FBT_STRONG_RULES_UI_MAX && (
+                      <div className="px-3 py-2 border-top small text-muted">
+                        Hiển thị {FBT_STRONG_RULES_UI_MAX} / {frequentlyBoughtData.strongRules.length}{' '}
+                        luật đầu tiên (theo thứ tự API).
+                      </div>
+                    )}
+                  </>
+                )}
               </Card.Body>
             </Card>
           </Tab>

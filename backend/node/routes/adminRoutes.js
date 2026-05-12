@@ -679,7 +679,7 @@ router.post("/reports/recommendations-cache/clear", protect, isAdmin, (req, res)
     res.status(200).json({
       success: true,
       message:
-        "Đã xóa cache recommendation. Lần gọi sau đọc lại fp_transactions / fp_pair_rules / fp_strong_rules và tính FP-Growth.",
+        "Đã xóa cache recommendation. Lần gọi sau: mặc định mining từ MongoDB Order; nếu FBT_USE_FP_JSON=true thì đọc lại fp_transactions / fp_pair_rules / fp_strong_rules và tính FP-Growth.",
     });
   } catch (error) {
     console.error("clearRecommendationCache:", error);

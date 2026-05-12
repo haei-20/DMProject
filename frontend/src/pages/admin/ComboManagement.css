@@ -1,8 +1,10 @@
 /* ComboManagement.css */
 
-.combo-list-card {
-  margin-bottom: 2rem;
+.combo-strong-rules-table-wrap {
+  max-height: 420px;
+  overflow: auto;
 }
+
 
 .combo-name-cell {
   max-width: 300px;

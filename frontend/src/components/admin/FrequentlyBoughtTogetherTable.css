@@ -191,17 +191,19 @@
   word-break: break-word;
 }
 
+
 .frequently-bought-together-card .fbt-order-like-table th:nth-child(2),
 .frequently-bought-together-card .fbt-order-like-table td:nth-child(2) {
-  width: 12%;
-  max-width: 118px;
+  width: 150px;
+  max-width: 150px;
   white-space: nowrap;
 }
 
+
 .frequently-bought-together-card .fbt-order-like-table th:nth-child(3),
 .frequently-bought-together-card .fbt-order-like-table td:nth-child(3) {
-  width: 13%;
-  max-width: 124px;
+  width: 150px;
+  max-width: 150px;
 }
 
 .frequently-bought-together-card .fbt-order-like-table th:nth-child(4),
